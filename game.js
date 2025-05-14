@@ -36,7 +36,7 @@ function preload() {
   this.load.image("sky", 'Assets/RedGalaxy2.png');
   this.load.image("platform", 'Assets/platform.png');
   this.load.image("player", 'Assets/Dude.png');
-  this.load.image("coin", 'Assets/coin.png');
+  this.load.image("coin", 'Assets/SourceCoin.png');
   this.load.image('bullet', 'Assets/bullet.png');
   this.load.audio('pickup', 'Assets/SuccessBeep.wav');
   this.load.audio('playerdamage', 'Assets/PlayerGotHit.wav');

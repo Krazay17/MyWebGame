@@ -1,7 +1,15 @@
 {
-    "compilerOptions": {
-        "target": "ES6",
-        "checkJs": true
-    },
-    "include": ["./**/*/js"]
+  "compilerOptions": {
+    "target": "ES6",           // Enables modern JS features
+    "checkJs": true,           // Allows error-checking in .js files
+    "allowJs": true,           // Lets you use JS with TypeScript features
+    "baseUrl": ".",            // Helps resolve relative paths
+    "paths": {
+      "phaser": ["types/phaser.d.ts"]  // Maps Phaser module to your type file
+    }
+  },
+  "include": [
+    "./**/*.js",               // Include all your JS files
+    "./types/phaser.d.ts"      // Make sure the types are included
+  ]
 }

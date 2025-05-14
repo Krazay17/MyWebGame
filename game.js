@@ -91,7 +91,7 @@ function create() {
   cursors = this.input.keyboard.createCursorKeys();
 
   // Score UI
-  scoreText = this.add.text(16, 16, 'Coins: 0', {
+  scoreText = this.add.text(16, 16, 'Source: 0', {
     fontSize: '32px',
     color: '#4fffff'
   });
@@ -124,7 +124,7 @@ function collectCoin(player, coin)
   coin.destroy();
 
   score ++;
-  scoreText.setText('Coins: ' + score);
+  scoreText.setText('Source: ' + score);
 
   this.sound.play('pickup');
   if (score == 4)

@@ -27,6 +27,8 @@ var config = {
 
 var game = new Phaser.Game(config);
 
+let restartKey;
+
 let player;
 let stunned = false;
 let stunHandle;
@@ -36,6 +38,7 @@ let coins;
 let totalCoins;
 let platforms;
 let bullets;
+let bulletTimer;
 let sunMan;
 let score = 0;
 let scoreText;
@@ -59,7 +62,7 @@ function preload() {
 /** @this {Phaser.Scene} */
 function create() {
   this.add.image(600, 300, "sky").setScale(.3);
-
+  restartKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
   // Add a static platform
   platforms = this.physics.add.group({allowGravity: false, immovable: true});
 
@@ -71,8 +74,11 @@ function create() {
   const platform6 = platforms.create(1100, 600, "platform").setScale(1);
   const platform7 = platforms.create(1300, 500, "platform").setScale(1);
   const platform8 = platforms.create(1100, 400, "platform").setScale(1);
-  const platform9 = platforms.create(900, 300, "platform").setScale(1);
-  const platform10 = platforms.create(700, 200, "platform").setScale(1);
+  const platform9 = platforms.create(900, 350, "platform").setScale(1);
+  const platform10 = platforms.create(700, 550, "platform").setScale(1);
+  const platform11 = platforms.create(400, 550, "platform").setScale(1);
+  const platform12 = platforms.create(100, 550, "platform").setScale(1);
+  const platform13 = platforms.create(900, 600, "platform").setScale(1);
 
   platforms.children.iterate(function (platform){
     platform.body.setVelocityX(-50);
@@ -91,7 +97,7 @@ function create() {
 
   bullets = this.physics.add.group();
   SpawnBullets(10);
-  const bulletTimer = setInterval(() =>{
+  bulletTimer = setInterval(() =>{
     SpawnBullets(4);
   }, 5000);
 
@@ -125,7 +131,9 @@ function create() {
 // Tick Function
 /** @this {Phaser.Scene} */
 function update() {
-
+  if (restartKey.isDown){
+    RestartGame.call(this);
+  }
   MovementInput();
 
   if (player.y > config.height){
@@ -226,7 +234,7 @@ function MovementInput()
     player.setVelocityX(WalkLerp(0));
   }
     if ((cursors.up.isDown || cursors.space.isDown ) && player.body.touching.down) {
-    player.setVelocityY(-400);
+    player.setVelocityY(-450);
   }
   if (cursors.down.isDown){
     player.setTexture('dudeCrouch');
@@ -258,4 +266,10 @@ function WinGame()
       fontSize: '132px',
       color: '#4fffff'
   });
+}
+
+function RestartGame()
+{
+  clearInterval(bulletTimer);
+  this.scene.restart();
 }

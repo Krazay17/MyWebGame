@@ -11,7 +11,7 @@ var config = {
       default: "arcade",
       arcade: {
         gravity: {y: 666, x: 0},
-        debug: true,
+        debug: false,
       },
     },
     // fps: {
@@ -30,6 +30,12 @@ var game = new Phaser.Game(config);
 let restartKey;
 
 let player;
+let dashKey;
+let canJump;
+let wallJump = false;
+let wallJumpX;
+let jumpPower = 200;
+let jumpTimer;
 let stunned = false;
 let stunHandle;
 let playerSpeed = 200;
@@ -40,6 +46,10 @@ let platforms;
 let bullets;
 let bulletTimer;
 let sunMan;
+let turretPlat;
+let turretPlat1;
+let fireBalls;
+let fireballTimer;
 let score = 0;
 let scoreText;
 let winText;
@@ -54,6 +64,8 @@ function preload() {
   this.load.image('coin', 'Assets/SourceCoin.png');
   this.load.image('bullet', 'Assets/bullet.png');
   this.load.image('sunMan', 'Assets/SunMan.png');
+  this.load.image('turretPlat', 'Assets/TurretPlatform.png');
+  this.load.image('fireBall', 'Assets/FireBall.png');
   this.load.audio('pickup', 'Assets/SuccessBeep.wav');
   this.load.audio('playerdamage', 'Assets/PlayerGotHit.wav');
 
@@ -63,6 +75,7 @@ function preload() {
 function create() {
   this.add.image(600, 300, "sky").setScale(.3);
   restartKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
+  dashKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT)
   // Add a static platform
   platforms = this.physics.add.group({allowGravity: false, immovable: true});
 
@@ -104,17 +117,28 @@ function create() {
   sunMan = this.physics.add.group({collideWorldBounds: true});
   sunMan.create(1111, 500, 'sunMan').setBounce(1).setVelocityX(-50);
 
+  turretPlat = this.physics.add.group({allowGravity: false, collideWorldBounds: true, immovable: true});
+  turretPlat1 = turretPlat.create(1200, 600, 'turretPlat').setVelocityY(-50).setBounce(1);
+
+  fireBalls = this.physics.add.group();
+  FireballSpawn(1);
+  fireballTimer = setInterval(() =>{
+    FireballSpawn(1);
+  }, 1000);
+
   // Add player
   player = this.physics.add.sprite(100, 250, "dude");
-  player.setScale(.35)
+  player.setScale(.3)
   player.setSize(105, 240);
   player.setOffset(55, 5);
 
   // Add physics collider with player
   this.physics.add.collider(player, platforms, CarryPlayer, null, this);
+  this.physics.add.collider(player, turretPlat, CarryPlayer, null, this);
   this.physics.add.overlap(player, coins, collectCoin, null, this);
   this.physics.add.overlap(player, bullets, bulletHit, null, this);
   this.physics.add.overlap(player, sunMan, bulletHit, null, this);
+  this.physics.add.overlap(player, fireBalls, bulletHit, null, this);
 
   // Add cursor input
   cursors = this.input.keyboard.createCursorKeys();
@@ -192,7 +216,7 @@ function SpawnBullets(amount)
   for (let i = 0; i < amount; i++) {
     const bullet = bullets.create(
     1400, 
-    Phaser.Math.Between(config.height/2, config.height-100),
+    Phaser.Math.Between(300, config.height-100),
     'bullet'
     );
 
@@ -215,7 +239,7 @@ function Lerp(start, end, amount)
 
 function WalkLerp(a) 
 {
-  const modify = player.body.touching.down ? .4 : .025;
+  const modify = player.body.touching.down ? .4 : .04;
   
   return Lerp(player.body.velocity.x, a, modify);
 }
@@ -224,18 +248,37 @@ function WalkLerp(a)
 function MovementInput()
 {
   if (stunned) return;
-  if (cursors.left.isDown) {
+  if (cursors.left.isDown && cursors.down.isUp) {
     player.setVelocityX(WalkLerp(-200));
     player.flipX = true;
-  } else if (cursors.right.isDown) {
+    if (dashKey.isDown) player.setVelocityX(-400);
+  } else if (cursors.right.isDown && cursors.down.isUp) {
     player.setVelocityX(WalkLerp(200));
     player.flipX = false;
+    if (dashKey.isDown) player.setVelocityX(400);
   } else if (player.body.velocity.x > 0) {
     player.setVelocityX(WalkLerp(0));
   }
-    if ((cursors.up.isDown || cursors.space.isDown ) && player.body.touching.down) {
-    player.setVelocityY(-450);
+  if (player.body.touching.down || player.body.touching.left || player.body.touching.right){
+    ResetJump();
+    if (player.body.touching.left) wallJump = true; wallJumpX = 300;
+    if (player.body.touching.right) wallJump = true; wallJumpX = -300;
   }
+  if ((cursors.up.isDown || cursors.space.isDown ) && canJump) {
+    player.setVelocityY(-jumpPower);
+    if (wallJump) player.setVelocityX(wallJumpX);
+    jumpPower = Math.max(0, jumpPower + game.loop.delta * 2);
+    if (jumpPower >= 400) canJump = false;
+    jumpTimer = setTimeout(() =>{
+      canJump = false;
+      jumpPower = 200;
+    }, 400);
+  } else {
+    canJump = false;
+    clearTimeout(jumpTimer);
+  }
+  
+
   if (cursors.down.isDown){
     player.setTexture('dudeCrouch');
     player.setSize(105, 140);
@@ -245,6 +288,14 @@ function MovementInput()
     player.setSize(105, 240);
     player.setOffset(55, 5);
   }
+}
+
+function ResetJump()
+{
+  canJump = true;
+  jumpPower = 200;
+  wallJump = false;
+  clearTimeout(jumpTimer);
 }
 
 /** @this {Phaser.Scene} */
@@ -271,5 +322,21 @@ function WinGame()
 function RestartGame()
 {
   clearInterval(bulletTimer);
+  clearInterval(fireballTimer);
   this.scene.restart();
+  score = 0;
+}
+
+function FireballSpawn(amount)
+{
+  for (let i = 0; i < amount; i++) {
+    const fireBall = fireBalls.create(
+    turretPlat1.x, 
+    turretPlat1.y-10,
+    'fireBall'
+    );
+
+    fireBall.body.setAllowGravity(false);
+    fireBall.setVelocityX(-444);
+  }
 }

@@ -87,10 +87,10 @@ function preload() {
 
 /** @this {Phaser.Scene} */
 function create() {
-  this.physics.world.setBounds(-2000, 0, 4000, 800);
-  this.cameras.main.setBounds(-2000, 0, 4000, 800);
+  this.physics.world.setBounds(-1400, 0, 2800, 900);
+  this.cameras.main.setBounds(-1600, 0, 3200, 900);
   this.add.image(600, 300, "sky").setScale(.3).setScrollFactor(0);
-  this.add.image(600, 300, "skylayer1").setScale(.7).setScrollFactor(.6);
+  this.add.image(600, 150, "skylayer1").setScale(.4).setScrollFactor(.6);
   this.add.image(600, 300, "skylayer2").setScale(.35).setScrollFactor(.2);
   restartKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
   dashKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT)

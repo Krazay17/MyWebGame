@@ -11,7 +11,7 @@ var config = {
       default: "arcade",
       arcade: {
         gravity: {y: 666, x: 0},
-        debug: false,
+        debug: true,
       },
     },
     // fps: {
@@ -36,6 +36,7 @@ let coins;
 let totalCoins;
 let platforms;
 let bullets;
+let sunMan;
 let score = 0;
 let scoreText;
 let winText;
@@ -45,9 +46,11 @@ let cursors;
 function preload() {
   this.load.image("sky", 'Assets/RedGalaxy2.png');
   this.load.image("platform", 'Assets/platform.png');
-  this.load.image("player", 'Assets/Dude.png');
+  this.load.image("dude", 'Assets/Dude.png');
+  this.load.image('dudeCrouch', 'Assets/DudeCrouch.png');
   this.load.image('coin', 'Assets/SourceCoin.png');
   this.load.image('bullet', 'Assets/bullet.png');
+  this.load.image('sunMan', 'Assets/SunMan.png');
   this.load.audio('pickup', 'Assets/SuccessBeep.wav');
   this.load.audio('playerdamage', 'Assets/PlayerGotHit.wav');
 
@@ -73,6 +76,7 @@ function create() {
 
   platforms.children.iterate(function (platform){
     platform.body.setVelocityX(-50);
+    return undefined;
   });
 
   // Add Coins
@@ -91,9 +95,11 @@ function create() {
     SpawnBullets(4);
   }, 5000);
 
+  sunMan = this.physics.add.group({collideWorldBounds: true});
+  sunMan.create(1111, 500, 'sunMan').setBounce(1).setVelocityX(-50);
 
   // Add player
-  player = this.physics.add.sprite(100, 250, "player");
+  player = this.physics.add.sprite(100, 250, "dude");
   player.setScale(.35)
   player.setSize(105, 240);
   player.setOffset(55, 5);
@@ -102,6 +108,7 @@ function create() {
   this.physics.add.collider(player, platforms, CarryPlayer, null, this);
   this.physics.add.overlap(player, coins, collectCoin, null, this);
   this.physics.add.overlap(player, bullets, bulletHit, null, this);
+  this.physics.add.overlap(player, sunMan, bulletHit, null, this);
 
   // Add cursor input
   cursors = this.input.keyboard.createCursorKeys();
@@ -205,18 +212,30 @@ function WalkLerp(a)
   return Lerp(player.body.velocity.x, a, modify);
 }
 
+/** @this {Phaser.GameObjects.Sprite} */
 function MovementInput()
 {
   if (stunned) return;
   if (cursors.left.isDown) {
     player.setVelocityX(WalkLerp(-200));
+    player.flipX = true;
   } else if (cursors.right.isDown) {
     player.setVelocityX(WalkLerp(200));
+    player.flipX = false;
   } else if (player.body.velocity.x > 0) {
     player.setVelocityX(WalkLerp(0));
   }
     if ((cursors.up.isDown || cursors.space.isDown ) && player.body.touching.down) {
     player.setVelocityY(-400);
+  }
+  if (cursors.down.isDown){
+    player.setTexture('dudeCrouch');
+    player.setSize(105, 140);
+    player.setOffset(55, 105);
+  } else if (cursors.down.isUp) {
+    player.setTexture('dude');
+    player.setSize(105, 240);
+    player.setOffset(55, 5);
   }
 }
 

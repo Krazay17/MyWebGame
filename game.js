@@ -65,7 +65,7 @@ function preload() {
   this.load.image('bullet', 'Assets/bullet.png');
   this.load.image('sunMan', 'Assets/SunMan.png');
   this.load.image('turretPlat', 'Assets/TurretPlatform.png');
-  this.load.image('fireBall', 'Assets/FireBall.png');
+  this.load.image('fireBall', 'Assets/Fireball.png');
   this.load.audio('pickup', 'Assets/SuccessBeep.wav');
   this.load.audio('playerdamage', 'Assets/PlayerGotHit.wav');
 

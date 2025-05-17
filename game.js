@@ -231,13 +231,13 @@ function update() {
     coin.rotation += 0.05;
   });
 
-  movingPlatforms.getChildren().forEach((platform) => {
-    platform.originY ? undefined : platform.originY = platform.y;
+  // movingPlatforms.getChildren().forEach((platform) => {
+  //   platform.originY ? undefined : platform.originY = platform.y;
 
-    const newY = 500 + Math.sin(time * 0.001) * 150;
-    platform.setY(newY);
-    platform.body.updateFromGameObject();
-  });
+  //   const newY = 500 + Math.sin(time * 0.001) * 150;
+  //   platform.setY(newY);
+  //   platform.body.updateFromGameObject();
+  // });
   
 
 //   platforms.children.iterate(function (platform) {

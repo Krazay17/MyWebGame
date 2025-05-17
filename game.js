@@ -11,6 +11,9 @@ var config = {
       default: "arcade",
       arcade: {
         gravity: {y: 666, x: 0},
+        timescale: 1,
+        fps: 60,
+        fixedStep: true,
         debug: false,
       },
     },
@@ -27,8 +30,12 @@ var config = {
 
 var game = new Phaser.Game(config);
 
+let cursors;
+let wasd;
+
 let restartKey;
 let gameMusic;
+let restartGameTimer;
 
 let player;
 let dashKey;
@@ -37,6 +44,7 @@ let canDash = true;
 let wallJump = false;
 let wallJumpX;
 let jumpPower = 150;
+let baseJumpPower = jumpPower;
 let jumpTimer;
 let stunned = false;
 let canBeHit = true;
@@ -61,10 +69,8 @@ let fireballTimer;
 let score = 0;
 let scoreText;
 let winText;
-let cursors;
 
 
-/** @this {Phaser.Scene} */
 function preload() {
   this.load.image("sky", 'Assets/RedGalaxy2.png');
   this.load.image("skylayer1", 'Assets/SkyLayer1.png');
@@ -85,13 +91,19 @@ function preload() {
 
 }
 
-/** @this {Phaser.Scene} */
 function create() {
   this.physics.world.setBounds(-1400, 0, 2800, 900);
   this.cameras.main.setBounds(-1600, 0, 3200, 900);
   this.add.image(600, 300, "sky").setScale(.3).setScrollFactor(0);
   this.add.image(600, 150, "skylayer1").setScale(.4).setScrollFactor(.6);
   this.add.image(600, 300, "skylayer2").setScale(.35).setScrollFactor(.2);
+  wasd = this.input.keyboard.addKeys({
+    up: Phaser.Input.Keyboard.KeyCodes.W,
+    down: Phaser.Input.Keyboard.KeyCodes.S,
+    left: Phaser.Input.Keyboard.KeyCodes.A,
+    right: Phaser.Input.Keyboard.KeyCodes.D,
+  });
+
   restartKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
   dashKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT)
   hitSound = this.sound.add('playerdamage');
@@ -102,7 +114,7 @@ function create() {
   }
 
 
-  const instructions = this.add.text(16, 48, 'Shift to dash', {
+  const instructions = this.add.text(16, 48, 'Shift - dash \nR - Reset', {
     fontSize: '32px',
     color: '#4fffff',
   });
@@ -174,6 +186,7 @@ function create() {
   player.setScale(.3)
   player.setSize(105, 240);
   player.setOffset(55, 5);
+  player.alive = true;
   this.cameras.main.startFollow(player, false, .01, .01);
 
   // Add physics collider with player
@@ -198,18 +211,19 @@ function create() {
 }
 
 // Tick Function
-/** @this {Phaser.Scene} */
 function update() {
 
   const time = this.time.now;
 
   if (restartKey.isDown){
+    clearTimeout(restartGameTimer);
     RestartGame.call(this);
   }
 
   MovementInput();
 
-  if (player.y > config.height){
+  if (player.y > config.height && player.alive){
+    player.alive = false;
     loseGame.call(this);
   }
 
@@ -331,30 +345,37 @@ function MovementInput()
   //}
   if (player.body.touching.down)
     ResetJump(true);
+
   if (player.body.touching.left){
     ResetJump();
-    wallJump = true; wallJumpX = 300;
+    wallJump = true;
+    wallJumpX = 300;
   }
   if (player.body.touching.right){
     ResetJump();
-    wallJump = true; wallJumpX = -300;
+    wallJump = true;
+    wallJumpX = -300;
   }
 
   if ((cursors.up.isDown || cursors.space.isDown ) && canJump) {
+    if (wallJump){
+      player.setVelocityX(wallJumpX);
+      wallJump=false;
+    }
     player.setVelocityY(-jumpPower);
-    if (wallJump) player.setVelocityX(wallJumpX);
-    jumpPower = Math.max(0, jumpPower + game.loop.delta * 2);
+
+    jumpPower += game.loop.delta * 2;
     if (jumpPower >= 400) canJump = false;
+
     jumpTimer = setTimeout(() =>{
       canJump = false;
-      jumpPower = 150;
     }, 400);
   } else {
     canJump = false;
     clearTimeout(jumpTimer);
+    wallJump = false;
   }
   
-
   if (cursors.down.isDown){
     player.setTexture('dudeCrouch');
     player.setSize(105, 140);
@@ -368,17 +389,15 @@ function MovementInput()
 
 function ResetJump(andDash)
 {
+  clearTimeout(jumpTimer);
+  jumpPower = baseJumpPower;
   canJump = true;
-  jumpPower = 200;
-  wallJump = false;
   if (andDash){
     canDash = true;
     player.setTint(0x66ff33);
   }
-  clearTimeout(jumpTimer);
 }
 
-/** @this {Phaser.Scene} */
 function loseGame() 
 {
   this.physics?.pause(); // Stop physics
@@ -390,6 +409,10 @@ function loseGame()
   });
   gameOverText.setOrigin(0.5);
   gameOverText.setScrollFactor(0);
+
+  restartGameTimer = setTimeout(() =>{
+    RestartGame.call(this);
+  }, 1000);
 }
 
 function WinGame()
@@ -407,8 +430,9 @@ function RestartGame()
   clearInterval(bulletTimer);
   clearInterval(fireballTimer);
   tallPlatforms = [];
-  this.scene.restart();
   score = 0;
+
+  this.scene.restart();
 }
 
 function FireballSpawn(amount)

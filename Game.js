@@ -83,7 +83,7 @@ export default class MainGame extends Phaser.Scene
     });
 
     this.physics.add.collider(this.player, this.turrets, (player, turret) => {
-      this.player.CarryPlayer(player, turret);
+      this.player.TouchPlatform()
     }, null, this);
 
     this.physics.add.overlap(this.player, this.bullets, (player, bullet) => {

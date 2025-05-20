@@ -4,24 +4,27 @@ export default class Enemies extends Phaser.Physics.Arcade.Group
 {
     constructor(scene, GravityOn = true)
     {
-        super(scene.physics.world, scene, {allowGravity: GravityOn});
+        super(scene.physics.world, scene, {allowGravity: GravityOn, immovable: true});
     }
 
     SpawnTurret(x, y)
     {
       const turret = new Enemy(this.scene, x, y, 'turret', 6, false);
       this.add(turret, true);
+      turret.setVelocityY(50);
+      turret.setBounce(1);
+      turret.setCollideWorldBounds(true);
 
-      this.scene.tweens.add({
-        targets: turret,
-        y: this.scene.physics.world.bounds.height - turret.height / 2,
-        duration: 8000,
-        yoyo: true,
-        repeat: -1,
-        onUpdate: () => {
-          turret.body?.updateFromGameObject(); // Keep physics body in sync
-        }
-      });
+      // this.scene.tweens.add({
+      //   targets: turret,
+      //   y: this.scene.physics.world.bounds.height - turret.height / 2,
+      //   duration: 8000,
+      //   yoyo: true,
+      //   repeat: -1,
+      //   onUpdate: () => {
+      //     turret.body?.updateFromGameObject(); // Keep physics body in sync
+      //   }
+      // });
 
       // bind to the turrets die function to respawn 5 seconds after death
       const originalDie = turret.die.bind(turret);

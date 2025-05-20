@@ -17,7 +17,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         this.setOffset(55, 5);
         this.alive = true;
         this.health = 5;
-        this.deathPenalty = -10;
+        this.deathPenalty = -7;
 
         this.isCrouch = false;
         this.baseJumpPower = 150;
@@ -98,7 +98,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
             fontSize: '64px',
             color: '#ff0000'
         });
-        
+
         gameOverText.setOrigin(0.5);
         gameOverText.setScrollFactor(0);
         
@@ -243,7 +243,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
 
         this.hitCD = true;
         this.scene.time.addEvent({
-            delay: 250,
+            delay: 320,
             callback: () =>{
                 this.hitCD = false;
             }

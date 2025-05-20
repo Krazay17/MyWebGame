@@ -6,8 +6,8 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite
 
         scene.add.existing(this);
         scene.physics.add.existing(this);
-        this.setImmovable(true);
 
+        this.setImmovable(true);
         this.maxHealth = health;
         this.health = health;
         this.canDamage = true;
@@ -42,17 +42,23 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite
         this.healthBarBg.y = this.y - this.height / 2 - 6;
     }
 
-    TakeDamage(player, amount)
+    TakeDamage(player, amount, velocity)
     {
-        if (!this.canDamage) return;
+        if (!this.canDamage) return false;
         if (!this.createdHealthBar) this.createHealthBar();
-
 
         this.health -= amount;
         this.updateHealthBar();
 
         if (this.health <= 0) {
-        this.die(player);
+            this.die(player);
+        } else {
+            const prevVelocity = this.body.velocity.clone();
+            this.setVelocity(velocity.x/3, velocity.y/3)
+            this.scene.time.addEvent({
+                delay: 200,
+                callback: () => {this.setVelocity(prevVelocity.x, prevVelocity.y); console.log('regain velocity!')}
+            });
         }
         return true;
     }
@@ -60,9 +66,9 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite
     die(player)
     {
         player.UpdateSource(this.maxHealth);
-        this.destroy();
         if (this.healthBar) this.healthBar.destroy();
         if (this.healthBarBg) this.healthBarBg.destroy();
+        this.destroy();
     }
 
     preUpdate(time, delta)

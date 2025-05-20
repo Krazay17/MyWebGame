@@ -53,7 +53,8 @@ export default class PlayerProjectiles extends Phaser.Physics.Arcade.Group
 
     EnemyHit(projectile, enemy)
     {
-        if (enemy.TakeDamage(this.player, projectile.damage))
+        const Velocity = projectile.body.velocity;
+        if (enemy.TakeDamage(this.player, projectile.damage, Velocity))
             projectile.destroy();
 
         if (this.scene.sound.get('shurikanhit'))

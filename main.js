@@ -12,7 +12,7 @@ const config = {
     physics: {
       default: 'arcade',
       arcade: {
-        gravity: {y: 750, x: 0},
+        gravity: {y: 720, x: 0},
         timescale: 1,
         fps: 60,
         fixedStep: true,

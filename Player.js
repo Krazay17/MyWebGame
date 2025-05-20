@@ -27,6 +27,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         this.iFrame = false;
         this.hitCD = false;
 
+        this.tryLeftAttack = false;
+        this.canLeftAttack = true;
+
         this.speed = 250;
 
         this.controls = scene.input.keyboard.addKeys({
@@ -40,11 +43,60 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
 
 
         this.scene.input.on('pointerdown', (pointer) => {
+            this.LeftAttack(pointer);
+        });
+    }
+
+    preUpdate()
+    {
+        if (this.tryLeftAttack)
+        {
+
+        }
+        if (this.y > this.scene.physics.world.bounds.height && this.alive){
+            this.Died();
+
+            this.scene.physics?.pause(); // Stop physics
+
+            setTimeout(() =>{
+                this.scene.scene.restart(this.scene);
+            }, 1000);
+        }
+    }
+
+
+    LeftAttack(pointer)
+    {
+        if (this.canLeftAttack){
+            this.canLeftAttack = false;
             const worldPos = pointer.positionToCamera(this.scene.cameras.main);
             const direction = new Phaser.Math.Vector2(worldPos.x - this.x, worldPos.y - this.y).normalize();
 
-            this.shurikans.SpawnProjectile(this.x, this.y, 'shurikan', direction);
-        });
+            this.shurikans.SpawnShurikan(this.x, this.y, direction);
+
+            this.scene.time.addEvent({
+                delay: 200,
+                callback: () => this.canLeftAttack = true
+            });
+        }
+    }
+
+    TouchPlatform(player, platform)
+    {
+        if (this.body.touching.down) {
+            this.resetJump(true);
+        }
+
+        if (this.body.touching.left) {
+            this.resetJump();
+            this.wallJump = true;
+            this.wallJumpX = 400;
+        }
+        if (this.body.touching.right) {
+            this.resetJump();
+            this.wallJump = true;
+            this.wallJumpX = -400;
+        }
     }
 
     SetProjectileGroup(group)
@@ -63,19 +115,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         });
         gameOverText.setOrigin(0.5);
         gameOverText.setScrollFactor(0);
-    }
-
-    preUpdate()
-    {
-        if (this.y > this.scene.physics.world.bounds.height && this.alive){
-            this.Died();
-
-            this.scene.physics?.pause(); // Stop physics
-
-            setTimeout(() =>{
-                this.scene.scene.restart(this.scene);
-            }, 1000);
-        }
     }
 
     handleInput(delta) {
@@ -112,20 +151,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
             this.setVelocityX(WalkLerp(0));
         }
 
-        if (this.body.touching.down) {
-            this.resetJump(true);
-        }
 
-        if (this.body.touching.left) {
-            this.resetJump();
-            this.wallJump = true;
-            this.wallJumpX = 400;
-        }
-        if (this.body.touching.right) {
-            this.resetJump();
-            this.wallJump = true;
-            this.wallJumpX = -400;
-        }
 
         if (isUp && this.canJump) {
             this.setVelocityY(-this.jumpPower);

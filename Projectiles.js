@@ -5,13 +5,12 @@ export default class Projectiles extends Phaser.Physics.Arcade.Group
         super(scene.physics.world, scene, {allowGravity: false});
     }
 
-    SpawnBullets(id = 'bullet', amount, x, y, speed)
+    SpawnBullets(x, y, id = 'bullet', amount, speed)
     {
         for (var i = 0; i < amount; i++)
         {
         const bullet = this.create(x, y + (i * 100), id);
-        bullet.setVelocityX(Phaser.Math.Between(-200, -300));
-        bullet.body.checkCollision.up = false;
+        bullet.setVelocityX(speed?? Phaser.Math.Between(-300, -200));
         }
     }
 

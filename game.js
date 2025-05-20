@@ -1,4 +1,5 @@
 import Player from './Player.js';
+import Enemies from './Enemies.js'
 import PlayerProjectiles from './PlayerProjectiles.js';
 import Projectiles from './Projectiles.js';
 
@@ -37,6 +38,7 @@ export default class MainGame extends Phaser.Scene
 
     if (!this.sound.get('music')){
     this.gameMusic = this.sound.add('music', {loop: true});
+    this.gameMusic.volume = .3;
     this.gameMusic.play();
     }
 
@@ -52,13 +54,15 @@ export default class MainGame extends Phaser.Scene
 
     // Groups
     this.platforms = this.physics.add.staticGroup();
-    this.turrets = this.physics.add.group({immovable: true, allowGravity: false});
+    this.turrets = new Enemies(this);
     this.bullets = new Projectiles(this);
     this.playerProjectiles = new PlayerProjectiles(this);
     this.player.SetProjectileGroup(this.playerProjectiles);
 
     // Collisions
-    this.physics.add.collider(this.player, this.platforms);
+    this.physics.add.collider(this.player, this.platforms, (player, platform) =>{
+      this.player.TouchPlatform()
+    });
 
     this.physics.add.collider(this.player, this.turrets, (player, turret) => {
       this.player.CarryPlayer(player, turret);
@@ -88,29 +92,22 @@ export default class MainGame extends Phaser.Scene
     platformPositions.forEach(pos => this.platforms.create(pos[0], pos[1], 'platform'));
     
     turretPositions.forEach(pos => {
-      const turret = this.turrets.create(pos[0], pos[1], 'turret');
-        this.tweens.add({
-          targets: turret,
-          y: this.physics.world.bounds.height - turret.height / 2,
-          duration: 8000,
-          yoyo: true,
-          repeat: -1,
-          onUpdate: () => {
-            turret.body?.updateFromGameObject(); // Keep physics body in sync
-          }
-        })
+      this.turrets.SpawnTurret(pos[0], pos[1], 'turret')
       });
 
+    this.bullets.SpawnBullets(1400, 100, 'bullet', 8);
     this.time.addEvent({
       delay: 3000,
-      callback: () => this.bullets.SpawnBullets('bullet', 8, 1400, 100),
+      callback: () => this.bullets.SpawnBullets(1400, 100, 'bullet', 8),
       loop: true
     });
 
+    this.turrets.getChildren().forEach(turret => {
+        this.bullets.SpawnBullets(turret.body.x, turret.body.y + 40, 'fireball', 1,  -500)});
     this.time.addEvent({
       delay: 1000,
       callback: () => this.turrets.getChildren().forEach(turret => {
-        this.bullets.SpawnBullets('fireball', 1, turret.body.x, turret.body.y + 40, -200)}),
+        this.bullets.SpawnBullets(turret.body.x, turret.body.y + 40, 'fireball', 1, -500)}),
       loop: true
     });
 

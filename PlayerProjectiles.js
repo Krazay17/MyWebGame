@@ -5,12 +5,12 @@ export default class PlayerProjectiles extends Phaser.Physics.Arcade.Group
         super(scene.physics.world, scene, {allowGravity: false});
     }
 
-    SpawnProjectile(x, y, id = 'shurikan', direction)
+    SpawnShurikan(x, y, direction)
     {
         const speed = 1000;
 
         const velocity = direction.scale(speed);
-        const projectile = this.create(x, y, id);
+        const projectile = this.create(x, y, 'shurikan');
         projectile.setScale(.15);
         projectile.setVelocity(velocity.x, velocity.y);
         this.scene.tweens.add({
@@ -22,18 +22,23 @@ export default class PlayerProjectiles extends Phaser.Physics.Arcade.Group
         this.scene.time.addEvent({
             delay: 550,
             callback: () => projectile.destroy()
-        })
+        });
+
+        this.scene.sound.play('shurikanthrow');
     }
 
     CollideBullet(pp, bullet)
     {
         pp.destroy();
         bullet.destroy()
+
+        this.scene.sound.play('shurikanhit');
     }
 
     CollideWorld(pp, plat)
     {
-        console.log('HITWORLD');
         pp.destroy();
+
+        this.scene.sound.play('shurikanhit');
     }
 }

@@ -14,5 +14,6 @@ export default class Pickups extends Phaser.Physics.Arcade.Group
     Pickup(player, coin)
     {
         coin.destroy();
+        console.log('pickedup coin');
     }
 }

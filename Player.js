@@ -1,5 +1,3 @@
-import Shurikan from './PlayerProjectiles.js';
-
 export default class Player extends Phaser.Physics.Arcade.Sprite
 {
     constructor (scene, x, y)

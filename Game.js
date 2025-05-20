@@ -27,6 +27,7 @@ export default class MainGame extends Phaser.Scene
 
   create()
   {
+    this.scene.launch('EscMenu');
     this.add.image(600, 300, 'sky').setScale(.3).setScrollFactor(0);
     this.add.image(600, 150, 'skylayer1').setScale(.4).setScrollFactor(.6);
     this.add.image(600, 300, 'skylayer2').setScale(.35).setScrollFactor(.2);
@@ -101,10 +102,10 @@ export default class MainGame extends Phaser.Scene
       this.turrets.SpawnTurret(pos[0], pos[1], 'turret')
       });
 
-    this.bullets.SpawnBullets(1400, 100, 'bullet', 8);
+    this.bullets.SpawnBullets(1400, 50, 'bullet', 8);
     this.time.addEvent({
       delay: 3000,
-      callback: () => this.bullets.SpawnBullets(1400, 100, 'bullet', 8),
+      callback: () => this.bullets.SpawnBullets(1400, 50, 'bullet', 8),
       loop: true
     });
 

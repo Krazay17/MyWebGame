@@ -3,6 +3,8 @@ export default class PlayerProjectiles extends Phaser.Physics.Arcade.Group
     constructor (scene)
     {
         super(scene.physics.world, scene, {allowGravity: false});
+        this.scene.sound.add('shurikanthrow');
+        this.scene.sound.add('shurikanhit');
     }
 
     SpawnShurikan(x, y, direction)
@@ -23,7 +25,8 @@ export default class PlayerProjectiles extends Phaser.Physics.Arcade.Group
             delay: 550,
             callback: () => projectile.destroy()
         });
-
+        
+        if (this.scene.sound.get('shurikanthrow'))
         this.scene.sound.play('shurikanthrow');
     }
 
@@ -32,6 +35,7 @@ export default class PlayerProjectiles extends Phaser.Physics.Arcade.Group
         pp.destroy();
         bullet.destroy()
 
+        if (this.scene.sound.get('shurikanhit'))
         this.scene.sound.play('shurikanhit');
     }
 
@@ -39,6 +43,7 @@ export default class PlayerProjectiles extends Phaser.Physics.Arcade.Group
     {
         pp.destroy();
 
+        if (this.scene.sound.get('shurikanhit'))
         this.scene.sound.play('shurikanhit');
     }
 }

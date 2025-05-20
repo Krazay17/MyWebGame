@@ -1,8 +1,12 @@
+import GameManager from "./GameManager.js";
+
 export default class Player extends Phaser.Physics.Arcade.Sprite
 {
     constructor (scene, x, y)
     {
         super(scene, x, y, 'dude');
+        GameManager.load();
+
         scene.add.existing(this);
         scene.physics.add.existing(this);
 
@@ -12,8 +16,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         this.setSize(105, 240);
         this.setOffset(55, 5);
         this.alive = true;
-        this.isCrouch = false;
+        this.health = 5;
+        this.deathPenalty = -10;
 
+        this.isCrouch = false;
         this.baseJumpPower = 150;
         this.jumpPower = this.baseJumpPower;
         this.jumpMax = 400;
@@ -27,6 +33,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
 
         this.tryLeftAttack = false;
         this.canLeftAttack = true;
+        this.leftSpam = 0;
+        this.rightSpam = 0;
 
         this.speed = 250;
 
@@ -38,45 +46,96 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
             dash: Phaser.Input.Keyboard.KeyCodes.SHIFT
         });
         this.cursors = scene.input.keyboard.createCursorKeys();
+        this.myPointer = new Phaser.Input.Pointer(this.scene.input.manager, 1)
 
+        this.scoreText = this.scene.add.text(10, 150, 'Source: ' + GameManager.source, {
+            fontSize: '32px', 
+            color: '#4fffff'
+        });
+        this.scoreText.setScrollFactor(0);
 
         this.scene.input.on('pointerdown', (pointer) => {
-            this.LeftAttack(pointer);
+            if(pointer.middleButtonDown())
+            this.Teleport(pointer);
         });
     }
 
-    preUpdate()
-    {
-        if (this.tryLeftAttack)
+    preUpdate(time, delta)
+    {   
+        if (this.alive)
         {
+            if  (this.canLeftAttack){
+            this.leftSpam -= delta * .5;
+            this.leftSpam = Math.max(0, this.leftSpam);
+            }
+            const pointer = this.scene.input.activePointer
+            if (pointer.leftButtonDown())
+            {
+                this.LeftAttack(pointer);
+            }
 
-        }
-        if (this.y > this.scene.physics.world.bounds.height && this.alive){
-            this.Died();
-
-            this.scene.physics?.pause(); // Stop physics
-
-            setTimeout(() =>{
-                this.scene.scene.restart(this.scene);
-            }, 1000);
+            if (this.y > this.scene.physics.world.bounds.height && this.alive){
+                this.Died();
+            }
         }
     }
-
     
+    Died()
+    {
+        if(this.alive == false) return;
+        this.alive = false;
+        this.UpdateSource(this.deathPenalty)
+        this.leftSpam = 0;
+        this.rightSpam = 0;
+
+        this.setTint(0xff0000); // Flash red
+        this.anims?.stop?.(); // Stop any animations
+
+        const gameOverText = this.scene.add.text(
+            this.scene.cameras.main.width / 2,
+             this.scene.cameras.main.height / 2,
+              'YOU DIED!\n'+ this.deathPenalty + ' Source', {
+            fontSize: '64px',
+            color: '#ff0000'
+        });
+        
+        gameOverText.setOrigin(0.5);
+        gameOverText.setScrollFactor(0);
+        
+        this.scene.physics?.pause(); // Stop physics
+        this.scene.time.addEvent({
+            delay: 2000,
+            callback: () => this.scene.scene.restart()
+        });
+    }
+
+    Teleport(pointer)
+    {
+        const worldPos = pointer.positionToCamera(this.scene.cameras.main);
+        this.setPosition(worldPos.x, worldPos.y);
+        this.setVelocity(0);
+    }
 
     LeftAttack(pointer)
     {
         if (this.canLeftAttack){
             this.canLeftAttack = false;
+
             const worldPos = pointer.positionToCamera(this.scene.cameras.main);
             const direction = new Phaser.Math.Vector2(worldPos.x - this.x, worldPos.y - this.y).normalize();
 
             this.shurikans.SpawnShurikan(this.x, this.y, direction);
 
+            
             this.scene.time.addEvent({
-                delay: 200,
-                callback: () => this.canLeftAttack = true
+                delay: 200 + this.leftSpam,
+                callback: () => {
+                    this.canLeftAttack = true;
+                }
             });
+
+            this.leftSpam += 50;
+            console.log(this.leftSpam);
         }
     }
 
@@ -101,19 +160,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
     SetProjectileGroup(group)
     {
         this.shurikans = group;
-    }
-
-    Died()
-    {
-        this.alive = false;
-        this.setTint(0xff0000); // Flash red
-        this.anims?.stop?.(); // Stop any animations
-        const gameOverText = this.scene.add.text(this.scene.cameras.main.width / 2, this.scene.cameras.main.height / 2, 'YOU DIED!', {
-            fontSize: '64px',
-            color: '#ff0000'
-        });
-        gameOverText.setOrigin(0.5);
-        gameOverText.setScrollFactor(0);
     }
 
     handleInput(delta) {
@@ -169,7 +215,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
 
         if (isDown && !this.isCrouch) {
             this.isCrouch = true;
-            this.setTexture('dudeCrouch');
+            this.setTexture('dudecrouch');
             this.setSize(105, 140);
             this.setOffset(55, 105);
         } else if (!isDown && this.isCrouch) {
@@ -190,7 +236,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         }
     }
 
-    TakeDamage(x, y, d)
+    TakeDamage(x, y, damage)
     {
         if (this.iFrame) return false;
         if (this.hitCD) return false;
@@ -224,6 +270,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         this.setVelocityX(x);
         this.setVelocityY(y);
 
+        this.health -= damage;
+        this.UpdateSource(-1);
+
         return true;
     }
     
@@ -247,5 +296,19 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
     CarryPlayer(player, floor)
     {
         player.setVelocityX(floor.body.velocity.x);
+    }
+
+    PickupItem(source = 0)
+    {
+        if (source > 0){
+            this.UpdateSource(source);
+        }
+    }
+    UpdateSource(source)
+    {
+        GameManager.source += source;
+        GameManager.source = Math.max(0, GameManager.source);
+        this.scoreText.text = 'Source: ' + GameManager.source;
+        GameManager.save();
     }
 }

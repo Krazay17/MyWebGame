@@ -1,3 +1,4 @@
+import GameManager from './GameManager.js';
 import Player from './Player.js';
 import Enemies from './Enemies.js';
 import PlayerProjectiles from './PlayerProjectiles.js';
@@ -18,10 +19,10 @@ export default class MainGame extends Phaser.Scene
     this.load.image('platformtall', 'Assets/platformtall.png');
     this.load.image('coin', 'Assets/SourceCoin.png');
     this.load.image('bullet', 'Assets/bullet.png');
-    this.load.image('sunMan', 'Assets/SunMan.png');
+    this.load.image('sunman', 'Assets/SunMan.png');
+    this.load.image('duckman', 'Assets/duckman.png');
     this.load.image('turret', 'Assets/TurretPlatform.png');
     this.load.image('fireball', 'Assets/Fireball.png');
-    this.load.audio('pickup', 'Assets/SuccessBeep.wav');
     this.load.audio('music', 'Assets/Music.wav');
   }
 
@@ -31,10 +32,13 @@ export default class MainGame extends Phaser.Scene
     this.add.image(600, 300, 'sky').setScale(.3).setScrollFactor(0);
     this.add.image(600, 150, 'skylayer1').setScale(.4).setScrollFactor(.6);
     this.add.image(600, 300, 'skylayer2').setScale(.35).setScrollFactor(.2);
-    this.physics.world.setBounds(-1400, 0, 2800, 900);
+    
+    this.physics.world.setBounds(-1600, 0, 3200, 900);
+    this.bounds = this.physics.world.bounds;
     this.cameras.main.setBounds(-1600, 0, 3200, 900);
 
     this.restartKey = this.input.keyboard.on('keydown-R', () => {
+      this.player.Died();
       this.scene.restart();
     })
 
@@ -50,21 +54,32 @@ export default class MainGame extends Phaser.Scene
     });
     instructions.setScrollFactor(0);
 
-    this.player = new Player(this, -1100, 600);
+    this.player = new Player(this, -1100, 300);
 
     this.cameras.main.startFollow(this.player, false, .01, .01);
 
     // Groups
-    this.platforms = this.physics.add.staticGroup();
-    this.turrets = new Enemies(this);
+    this.platforms = this.physics.add.group({immovable: true, allowGravity: false, velocityY: 20});
+    this.turrets = new Enemies(this, false);
     this.bullets = new Projectiles(this);
-    this.playerProjectiles = new PlayerProjectiles(this);
+    this.playerProjectiles = new PlayerProjectiles(this, this.player);
     this.player.SetProjectileGroup(this.playerProjectiles);
     this.pickups = new Pickups(this);
+    this.sunMans = new Enemies(this);
 
     // Collisions
+    this.playerProjectiles.SetupCollisionWithEnemies(this.sunMans);
+    this.playerProjectiles.SetupCollisionWithEnemies(this.turrets);
+
     this.physics.add.collider(this.player, this.platforms, (player, platform) =>{
       this.player.TouchPlatform()
+    });
+
+    this.physics.add.collider(this.sunMans, this.sunMans);
+    this.physics.add.collider(this.pickups, this.platforms);
+
+    this.physics.add.overlap(this.player, this.sunMans, (player, enemy) =>{
+      this.sunMans.PlayerCollide(player, enemy, true);
     });
 
     this.physics.add.collider(this.player, this.turrets, (player, turret) => {
@@ -79,45 +94,72 @@ export default class MainGame extends Phaser.Scene
       this.pickups.Pickup(player, pickup);
     }, null, this);
 
-    this.physics.add.collider(this.playerProjectiles, this.bullets, (pp, bullet) => {
-      this.playerProjectiles.CollideBullet(pp, bullet);
+    this.physics.add.collider(this.playerProjectiles, this.bullets, (projectile, bullet) => {
+      this.playerProjectiles.CollideBullet(projectile, bullet);
     }, null, this);
 
-    this.physics.add.collider(this.playerProjectiles, this.platforms, (pp, plat) => {
-      this.playerProjectiles.CollideWorld(pp, plat);
+    this.physics.add.collider(this.playerProjectiles, this.platforms, (projectile, plat) => {
+      this.playerProjectiles.CollideWorld(projectile, plat);
     }, null, this);
 
     // Spawns
     const platformPositions = [
-                    [-900, 300],                                        [-150, 100], [100, 200], [300, 100],             [700, 450], [900, 700], [1100, 700],
-                    [-900, 500],                           [-300, 350], [-100, 225],             [300, 600],             [600, 550],             [1100, 700],
-      [-1100, 700], [-900, 700],                           [-300, 700], [-100, 700], [100, 800], [300, 850], [500, 700], [700, 700], [900, 700], [1100, 700],
+      [-1100,    ], [-900, 150],             [-400, 100],  [-200, ],    [-150,  50], [100,    ], [300,    ],             [700,    ], [900,    ], [1100,    ],
+                    [-900, 300], [-600, 200],                           [-150, 300], [100, 200], [300, 100],             [700, 450], [900, 200], [1100, 100],
+                    [-900, 500],                           [-300, 350], [-100, 225],             [300, 600],             [600, 550], [1000, 500],[1100, 300],
+      [-1100, 400], [-900, 700],             [-500, 800],  [-300, 700], [-100, 700], [100, 800], [300, 850], [500, 700], [700, 700], [900, 700], [1100, 700],
     ];
-
-    const turretPositions = [[1400, 100]];
+    const coinPos = [[100, 300], [300, 300], [500, 300], [700, 300]];
 
     platformPositions.forEach(pos => this.platforms.create(pos[0], pos[1], 'platform'));
-    
-    turretPositions.forEach(pos => {
-      this.turrets.SpawnTurret(pos[0], pos[1], 'turret')
-      });
 
-    this.bullets.SpawnBullets(1400, 50, 'bullet', 8);
+    coinPos.forEach(pos => this.pickups.SpawnCoin(pos[0], pos[1]));
+    this.time.addEvent({
+      delay: Phaser.Math.Between(2000, 5000),
+      callback: () => {
+        if (this.pickups.countActive() < 9)
+        this.pickups.SpawnCoin(Phaser.Math.Between(-1100, -200));
+      },
+      loop: true
+    });
+
+    this.sunMans.SpawnSunMan(1900, 0);
+    this.sunMans.SpawnSunMan(2000, 400);
+    this.time.addEvent({
+      delay: Phaser.Math.Between(2000, 10000),
+      callback: () => {
+        if (this.sunMans.countActive() < 4)
+        this.sunMans.SpawnSunMan(1900, 0)
+      },
+      loop: true
+    });
+
+
+
+    this.turrets.SpawnTurret(1400, 100);
+
+    this.bullets.SpawnBullets(1900, 50, 8);
     this.time.addEvent({
       delay: 3000,
-      callback: () => this.bullets.SpawnBullets(1400, 50, 'bullet', 8),
+      callback: () => this.bullets.SpawnBullets(1900, 50, 8),
       loop: true
     });
 
     this.turrets.getChildren().forEach(turret => {
-        this.bullets.SpawnBullets(turret.body.x, turret.body.y + 40, 'fireball', 1,  -500)});
+        this.bullets.SpawnFireballs(turret.body.x, turret.body.y + 40)});
     this.time.addEvent({
       delay: 1000,
       callback: () => this.turrets.getChildren().forEach(turret => {
-        this.bullets.SpawnBullets(turret.body.x, turret.body.y + 40, 'fireball', 1, -500)}),
+        this.bullets.SpawnFireballs(turret.body.x, turret.body.y + 40)}),
       loop: true
     });
 
+  }
+  
+  restart()
+  {
+    this.player.UpdateSource(-5);
+    this.restart();
   }
   
   update()
@@ -125,11 +167,26 @@ export default class MainGame extends Phaser.Scene
     const time = this.time.now;
 
     this.player.handleInput(this.game.loop.delta);
+
+    this.platforms.getChildren().forEach(platform => {
+      if (platform.body.y > this.physics.world.bounds.height)
+        platform.body.y = 0 - platform.body.height;
+    });
+
+    this.bullets.getChildren().forEach(child => {
+      const { x, y } = child.body;
+
+      if (
+          x < this.bounds.x - 600 || x > this.bounds.right + 600 ||
+          y < this.bounds.y - 600 || y > this.bounds.bottom + 600
+      ) {
+          console.log(child);
+          child.destroy();
+        }
+    });
     
     // this.turrets.getChildren().forEach(t => {
     //   t.y = t.originalY + Math.sin(this.time.now * 0.00025) * 300;
     // });
-
   }
-
 }

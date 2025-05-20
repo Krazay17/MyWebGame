@@ -1,12 +1,16 @@
+import GameManager from "./GameManager.js";
+
 export default class EscMenu extends Phaser.Scene
 {
     constructor()
     {
         super('EscMenu');
+
     }
 
     create()
     {
+        window.addEventListener('beforeunload', () => GameManager.save());
         // Add slider track
         const track = this.add.rectangle(400, 400, 200, 10, 0xffffff).setOrigin(0.5).setVisible(false);
 

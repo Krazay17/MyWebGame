@@ -1,6 +1,5 @@
 import Boot from './Boot.js';
 import Preloader from './Preloader.js';
-import MainMenu from './MainMenu.js';
 import MainGame from './Game.js';
 
 
@@ -19,7 +18,7 @@ const config = {
         debug: false,
       }
     },
-    scene: [Boot, Preloader, MainGame, MainMenu],
+    scene: [Boot, Preloader, MainGame],
 };
 
 let game = new Phaser.Game(config);

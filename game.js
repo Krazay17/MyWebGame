@@ -1,7 +1,8 @@
 import Player from './Player.js';
-import Enemies from './Enemies.js'
+import Enemies from './Enemies.js';
 import PlayerProjectiles from './PlayerProjectiles.js';
 import Projectiles from './Projectiles.js';
+import Pickups from './Pickups.js';
 
 export default class MainGame extends Phaser.Scene
 {
@@ -38,7 +39,7 @@ export default class MainGame extends Phaser.Scene
 
     if (!this.sound.get('music')){
     this.gameMusic = this.sound.add('music', {loop: true});
-    this.gameMusic.volume = .3;
+    this.gameMusic.volume = .35;
     this.gameMusic.play();
     }
 
@@ -58,6 +59,7 @@ export default class MainGame extends Phaser.Scene
     this.bullets = new Projectiles(this);
     this.playerProjectiles = new PlayerProjectiles(this);
     this.player.SetProjectileGroup(this.playerProjectiles);
+    this.pickups = new Pickups(this);
 
     // Collisions
     this.physics.add.collider(this.player, this.platforms, (player, platform) =>{
@@ -70,6 +72,10 @@ export default class MainGame extends Phaser.Scene
 
     this.physics.add.overlap(this.player, this.bullets, (player, bullet) => {
       this.bullets.PlayerHit(player, bullet);
+    }, null, this);
+
+    this.physics.add.overlap(this.player, this.pickups, (player, pickup) => {
+      this.pickups.Pickup(player, pickup);
     }, null, this);
 
     this.physics.add.collider(this.playerProjectiles, this.bullets, (pp, bullet) => {

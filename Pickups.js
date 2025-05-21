@@ -13,6 +13,7 @@ export default class Pickups extends Phaser.Physics.Arcade.Group
     {
         const coin = new Pickup(this.scene, x, y, 'coin');
         this.add(coin);
+        coin.setGravity(0, 0);
         coin.setBounce(.9);
         coin.setScale(.2);
         this.scene.tweens.add({

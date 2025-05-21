@@ -12,6 +12,8 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite
         this.health = health;
         this.canDamage = true;
         this.createdHealthBar = false;
+        this.alive = true;
+        this.hitRecover = undefined;
 
         if (showHealthBar){
             this.createHealthBar();
@@ -51,13 +53,20 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite
         this.updateHealthBar();
 
         if (this.health <= 0) {
+            this.alive = false;
+            this.scene.time.removeEvent(this.hitRecover);
             this.die(player);
         } else {
             const prevVelocity = this.body.velocity.clone();
             this.setVelocity(velocity.x/3, velocity.y/3)
-            this.scene.time.addEvent({
+            this.hitRecover = this.scene.time.addEvent({
                 delay: 200,
-                callback: () => {this.setVelocity(prevVelocity.x, prevVelocity.y); console.log('regain velocity!')}
+                callback: () => {
+                    if (this.alive){
+                        this.setVelocity(prevVelocity.x, prevVelocity.y);
+                        console.log('regain velocity!');
+                    }
+                }
             });
         }
         return true;

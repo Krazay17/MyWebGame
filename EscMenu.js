@@ -55,6 +55,8 @@ export default class EscMenu extends Phaser.Scene
         // Set global volume
         const percent = (dragX - minX) / (maxX - minX);
         this.sound.volume = percent;
+        GameManager.volume = this.sound.volume;
+        GameManager.save();
         });
 
         // Set initial volume based on handle position
@@ -62,9 +64,11 @@ export default class EscMenu extends Phaser.Scene
             const minX = track.x - track.width / 2;
             const maxX = track.x + track.width / 2;
             handle.x = Phaser.Math.Linear(minX, maxX, volume);
+
+            this.sound.volume = volume;
         };
 
-        setInitialVolume(this.sound.volume);
+        setInitialVolume(GameManager.volume);
     }
     
 }

@@ -1,4 +1,5 @@
 import GameManager from "./GameManager.js";
+import RankSystem from "./RankSystem.js";
 
 export default class Player extends Phaser.Physics.Arcade.Sprite
 {
@@ -17,7 +18,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         this.setOffset(55, 5);
         this.alive = true;
         this.health = 5;
-        this.deathPenalty = -7;
+        this.deathPenalty;
 
         this.isCrouch = false;
         this.baseJumpPower = 150;
@@ -35,8 +36,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         this.canLeftAttack = true;
         this.leftSpam = 0;
         this.rightSpam = 0;
-
         this.speed = 250;
+
+        this.scene.scene.launch('EscMenu');
+        this.scene.scene.launch('Inventory', {player: this});
+
+        this.rankSystem = new RankSystem();
 
         this.controls = scene.input.keyboard.addKeys({
             up: Phaser.Input.Keyboard.KeyCodes.W,
@@ -48,7 +53,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         this.cursors = scene.input.keyboard.createCursorKeys();
         this.myPointer = new Phaser.Input.Pointer(this.scene.input.manager, 1)
 
-        this.scoreText = this.scene.add.text(10, 150, 'Source: ' + GameManager.source, {
+        this.scoreText = this.scene.add.text(10, 150, 'Source: ' + GameManager.source + '\n' + this.rankSystem.getRank(GameManager.source), {
             fontSize: '32px', 
             color: '#4fffff'
         });
@@ -65,7 +70,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         if (this.alive)
         {
             if  (this.canLeftAttack){
-            this.leftSpam -= delta * .5;
+            this.leftSpam -= delta * .65;
             this.leftSpam = Math.max(0, this.leftSpam);
             }
             const pointer = this.scene.input.activePointer
@@ -84,7 +89,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
     {
         if(this.alive == false) return;
         this.alive = false;
-        this.UpdateSource(this.deathPenalty)
+
+        this.deathPenalty = Math.floor(-GameManager.source/3);
+        this.UpdateSource(this.deathPenalty);
+
         this.leftSpam = 0;
         this.rightSpam = 0;
 
@@ -93,8 +101,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
 
         const gameOverText = this.scene.add.text(
             this.scene.cameras.main.width / 2,
-             this.scene.cameras.main.height / 2,
-              'YOU DIED!\n'+ this.deathPenalty + ' Source', {
+            this.scene.cameras.main.height / 2,
+            'YOU DIED!\n'+ this.deathPenalty + ' Source', {
             fontSize: '64px',
             color: '#ff0000'
         });
@@ -134,7 +142,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
                 }
             });
 
-            this.leftSpam += 50;
+            this.leftSpam += 45;
             console.log(this.leftSpam);
         }
     }
@@ -243,7 +251,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
 
         this.hitCD = true;
         this.scene.time.addEvent({
-            delay: 320,
+            delay: 400,
             callback: () =>{
                 this.hitCD = false;
             }
@@ -259,9 +267,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         }
 
         this.stunned = true;
-
-        this.scene.time.addEvent({
-            delay: 500,
+        this.scene.time.removeEvent(this.stunTimer);
+        this.stunTimer = this.scene.time.addEvent({
+            delay: 400,
             callback: () =>{
                 this.stunned = false;
             }
@@ -286,7 +294,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         this.clearTint();
 
         this.scene.time.addEvent({
-            delay: 250,
+            delay: 350,
             callback: () => {
                 this.iFrame = false;
             }
@@ -306,9 +314,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
     }
     UpdateSource(source)
     {
-        GameManager.source += source;
+        const intSource = Math.floor(source)
+        GameManager.source += intSource;
         GameManager.source = Math.max(0, GameManager.source);
-        this.scoreText.text = 'Source: ' + GameManager.source;
         GameManager.save();
+        this.scoreText.text = 'Source: ' + GameManager.source + '\n' + this.rankSystem.getRank(GameManager.source);
     }
 }

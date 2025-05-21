@@ -2,13 +2,19 @@ import Boot from './Boot.js';
 import Preloader from './Preloader.js';
 import MainGame from './Game.js';
 import EscMenu from './EscMenu.js';
+import Home from './Home.js';
+import Inventory from './Inventory.js';
 
 
 const config = {
     type: Phaser.AUTO,
-    width: 1600,
-    height: 900,
+    width: window.innerWidth,
+    height: window.innerHeight,
     backgroundColor: '#000000',
+    scale: {
+      mode: Phaser.Scale.RESIZE,
+      autoCenter: Phaser.Scale.CENTER_BOTH
+    },
     physics: {
       default: 'arcade',
       arcade: {
@@ -19,7 +25,7 @@ const config = {
         debug: false,
       }
     },
-    scene: [Boot, Preloader, MainGame, EscMenu],
+    scene: [Boot, Preloader, MainGame, EscMenu, Home, Inventory],
 };
 
 let game = new Phaser.Game(config);

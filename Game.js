@@ -1,4 +1,3 @@
-import GameManager from './GameManager.js';
 import Player from './Player.js';
 import Enemies from './Enemies.js';
 import PlayerProjectiles from './PlayerProjectiles.js';
@@ -28,10 +27,7 @@ export default class MainGame extends Phaser.Scene
 
   create()
   {
-    this.scene.launch('EscMenu');
-    this.add.image(600, 300, 'sky').setScale(.3).setScrollFactor(0);
-    this.add.image(600, 150, 'skylayer1').setScale(.4).setScrollFactor(.6);
-    this.add.image(600, 300, 'skylayer2').setScale(.35).setScrollFactor(.2);
+    this.MakeSky();
     
     this.physics.world.setBounds(-1600, 0, 3200, 900);
     this.bounds = this.physics.world.bounds;
@@ -40,7 +36,11 @@ export default class MainGame extends Phaser.Scene
     this.restartKey = this.input.keyboard.on('keydown-R', () => {
       this.player.Died();
       this.scene.restart();
-    })
+    });
+
+    this.homeKey = this.input.keyboard.on('keydown-T', () => {
+      this.scene.start('Home');
+    });
 
     if (!this.sound.get('music')){
     this.gameMusic = this.sound.add('music', {loop: true});
@@ -118,7 +118,7 @@ export default class MainGame extends Phaser.Scene
       delay: Phaser.Math.Between(2000, 5000),
       callback: () => {
         if (this.pickups.countActive() < 9)
-        this.pickups.SpawnCoin(Phaser.Math.Between(-1100, -200));
+        this.pickups.SpawnCoin(Phaser.Math.Between(-1100, 1100), 0);
       },
       loop: true
     });
@@ -180,7 +180,6 @@ export default class MainGame extends Phaser.Scene
           x < this.bounds.x - 600 || x > this.bounds.right + 600 ||
           y < this.bounds.y - 600 || y > this.bounds.bottom + 600
       ) {
-          console.log(child);
           child.destroy();
         }
     });
@@ -188,5 +187,19 @@ export default class MainGame extends Phaser.Scene
     // this.turrets.getChildren().forEach(t => {
     //   t.y = t.originalY + Math.sin(this.time.now * 0.00025) * 300;
     // });
+  }
+
+  MakeSky()
+  {
+    this.sky1 = this.add.image(0, 0, 'sky').setOrigin(0)
+    .setDisplaySize(this.scale.width, this.scale.height).setScrollFactor(0)
+    .on('resize', (gameSize) =>{
+      const width = gameSize.width;
+      const height = gameSize.height;
+
+      this.sky1.setDisplaySize(width, height);
+    });
+    this.sky2 = this.add.image(600, 0, 'skylayer1').setScale(.5).setScrollFactor(.6)
+    this.sky3 = this.add.image(600, 0, 'skylayer2').setScale(.5).setScrollFactor(.2)
   }
 }

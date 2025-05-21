@@ -10,9 +10,27 @@ export default class Pickup extends Phaser.Physics.Arcade.Sprite
 
     preUpdate()
     {
-        if (this.y > this.scene.physics.world.bounds.height){
-        this.y = 0 - this.height;
-        this.setVelocityY(0);
+        const bounds = this.scene.physics.world.bounds;
+
+        // Wrap horizontally
+        if (this.x > bounds.x + bounds.width) {
+            this.x = bounds.x - this.width;
+            this.setVelocity(-20, 20);
         }
+        if (this.x + this.width < bounds.x) {
+            this.x = bounds.x + bounds.width;
+            this.setVelocity(-20, 20);
+        }
+
+        // Wrap vertically
+        if (this.y > bounds.y + bounds.height) {
+            this.y = bounds.y - this.height;
+            this.setVelocity(-20, 20);
+        }
+        if (this.y + this.height < bounds.y) {
+            this.y = bounds.y + bounds.height;
+            this.setVelocity(-20, 20);
+        }
+
     }
 }

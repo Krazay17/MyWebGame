@@ -12,8 +12,8 @@ export default class NetworkManager {
 
     this.scene = scene;
 
-    const serverURL = location.hostname === 'localhost'
-    ? 'ws://localhost:3000'
+    const serverURL = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
+    ? 'http://localhost:3000'
     : 'wss://webconduit.onrender.com'
     this.socket = io(serverURL);
 
@@ -60,7 +60,7 @@ export default class NetworkManager {
   }
 
   addOtherPlayer(id, x = -1100, y= 400) {
-    const ghostPlayer = new GhostPlayer(this.scene, id);
+    const ghostPlayer = new GhostPlayer(this.scene, id, x, y);
     this.otherPlayers[id] = ghostPlayer;
   }
 }

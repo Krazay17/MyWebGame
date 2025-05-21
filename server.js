@@ -7,7 +7,13 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "https://krazay17.github.io", // or "*" for all origins
+    origin: 
+    ["https://krazay17.github.io",
+      "http://localhost:3000",
+      "http://127.0.0.1:3000",
+      "http://localhost:5500",
+      "http://127.0.0.1:5500",
+    ],
     methods: ["GET", "POST"]
   }
 });

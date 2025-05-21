@@ -29,7 +29,7 @@ export default class Home extends Phaser.Scene
         this.projectiles = new PlayerProjectiles(this, this.player, 1);
         this.player.SetProjectileGroup(this.projectiles);
 
-        const platformPos = [[0, 900]]
+        const platformPos = [[-400, 800], [0, 900], [400, 800]];
 
         platformPos.forEach(pos => this.platforms.create(pos[0], pos[1], 'platformwide'));
 

@@ -53,7 +53,7 @@ export default class NetworkManager {
     this.socket.on('playerMoved', ({ id, x, y}) => {
       const player = this.otherPlayers[id];
       if (player){
-        player.setPosition(x, y);
+        player.updatePosition(x, y);
       }
     });
 

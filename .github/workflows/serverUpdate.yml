@@ -1,0 +1,36 @@
+name: Update Server Branch
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  update-server:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Setup Git
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+    - name: Switch to server branch
+      run: git checkout server
+
+    - name: Sync files from main branch
+      run: |
+        git checkout main -- .
+        rm -rf public
+        git add .
+        if git diff --cached --quiet; then
+          echo "No changes to commit"
+        else
+          git commit -m "Update server branch from main [skip ci]"
+          git push origin server
+        fi

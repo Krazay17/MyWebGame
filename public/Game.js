@@ -3,7 +3,6 @@ import Enemies from './Enemies.js';
 import PlayerProjectiles from './PlayerProjectiles.js';
 import Projectiles from './Projectiles.js';
 import Pickups from './Pickups.js';
-import NetworkManager from './NetworkManager.js';
 
 export default class MainGame extends Phaser.Scene
 {
@@ -155,7 +154,7 @@ export default class MainGame extends Phaser.Scene
       loop: true
     });
 
-    this.network = new NetworkManager(this);
+    this.network = globalThis.networkManager;
 
   }
   

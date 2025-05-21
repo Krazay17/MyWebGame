@@ -1,7 +1,15 @@
 import io from 'https://cdn.socket.io/4.7.2/socket.io.esm.min.js';
+import GhostPlayer from './GhostPlayer.js';
 
 export default class NetworkManager {
+  static instance;
+
   constructor(scene) {
+    if (NetworkManager.instance){
+      return NetworkManager.instance;
+    }
+    NetworkManager.instance = this;
+
     this.scene = scene;
 
     const serverURL = location.hostname === 'localhost'
@@ -52,7 +60,7 @@ export default class NetworkManager {
   }
 
   addOtherPlayer(id, x = -1100, y= 400) {
-    const placeholder = this.scene.add.circle(400, 300, 20, 0xff0000); // temp red circle
-    this.otherPlayers[id] = placeholder;
+    const ghostPlayer = new GhostPlayer(this.scene, id);
+    this.otherPlayers[id] = ghostPlayer;
   }
 }

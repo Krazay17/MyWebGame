@@ -3,7 +3,11 @@ import io from 'https://cdn.socket.io/4.7.2/socket.io.esm.min.js';
 export default class NetworkManager {
   constructor(scene) {
     this.scene = scene;
-    this.socket = io();
+    
+    const serverURL = location.hostname === 'localhost'
+    ? 'ws://localhost:3000'
+    : 'wss://webconduit.onrender.com'
+    this.socket = io(serverURL);
 
     this.otherPlayers = {};
 

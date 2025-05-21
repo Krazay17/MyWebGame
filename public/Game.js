@@ -3,6 +3,7 @@ import Enemies from './Enemies.js';
 import PlayerProjectiles from './PlayerProjectiles.js';
 import Projectiles from './Projectiles.js';
 import Pickups from './Pickups.js';
+import NetworkManager from './NetworkManager.js';
 
 export default class MainGame extends Phaser.Scene
 {
@@ -153,6 +154,8 @@ export default class MainGame extends Phaser.Scene
         this.bullets.SpawnFireballs(turret.body.x, turret.body.y + 40)}),
       loop: true
     });
+
+    this.network = new NetworkManager(this);
 
   }
   

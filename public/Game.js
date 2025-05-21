@@ -165,11 +165,10 @@ export default class MainGame extends Phaser.Scene
     this.restart();
   }
   
-  update()
+  update(time, delta)
   {
-    const time = this.time.now;
 
-    this.player.handleInput(this.game.loop.delta);
+    this.player.handleInput(delta);
 
     this.platforms.getChildren().forEach(platform => {
       if (platform.body.y > this.physics.world.bounds.height)
@@ -187,9 +186,10 @@ export default class MainGame extends Phaser.Scene
         }
     });
     
-    // this.turrets.getChildren().forEach(t => {
-    //   t.y = t.originalY + Math.sin(this.time.now * 0.00025) * 300;
-    // });
+    this.network.socket.emit('playerMove', {
+      x: this.player.x,
+      y: this.player.y
+    });
   }
 
   MakeSky()

@@ -7,7 +7,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "https://krazay17.github.io/WebConduit/", // or "*" for all origins
+    origin: "https://krazay17.github.io", // or "*" for all origins
     methods: ["GET", "POST"]
   }
 });

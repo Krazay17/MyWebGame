@@ -79,7 +79,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
                 this.LeftAttack(pointer);
             }
 
-            if (this.y > this.scene.physics.world.bounds.height && this.alive){
+            if (this.y > this.scene.physics.world.bounds.height + this.body.height/2 && this.alive){
                 this.Died();
             }
         }

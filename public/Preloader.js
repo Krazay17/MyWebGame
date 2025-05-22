@@ -1,4 +1,5 @@
 import GameManager from "./GameManager.js";
+import NetworkManager from "./NetworkManager.js";
 
 export default class Preloader extends Phaser.Scene
 {
@@ -24,6 +25,7 @@ export default class Preloader extends Phaser.Scene
     create()
     {
         GameManager.load();
+
         this.scene.start('MainGame');
     }
 }

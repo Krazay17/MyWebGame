@@ -1,4 +1,5 @@
 import GameManager from "./GameManager.js";
+import NetworkManager from "./NetworkManager.js";
 import RankSystem from "./RankSystem.js";
 
 export default class Player extends Phaser.Physics.Arcade.Sprite
@@ -7,6 +8,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
     {
         super(scene, x, y, 'dude');
         GameManager.load();
+        this.network = NetworkManager.instance;
 
         scene.add.existing(this);
         scene.physics.add.existing(this);
@@ -63,6 +65,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
             if(pointer.middleButtonDown())
             this.Teleport(pointer);
         });
+
+        this.scene.input.keyboard.on('keydown-F', () => {
+            this.UpdateSource(3);
+        });
+        
     }
 
     preUpdate(time, delta)
@@ -143,7 +150,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
             });
 
             this.leftSpam += 45;
-            console.log(this.leftSpam);
         }
     }
 
@@ -314,10 +320,15 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
     }
     UpdateSource(source)
     {
-        const intSource = Math.floor(source)
+        const intSource = Math.floor(source);
+        const prevSource = GameManager.source;
         GameManager.source += intSource;
         GameManager.source = Math.max(0, GameManager.source);
         GameManager.save();
         this.scoreText.text = 'Source: ' + GameManager.source + '\n' + this.rankSystem.getRank(GameManager.source);
+        if (this.rankSystem.hasRankChanged(prevSource, GameManager.source)){
+            const rank = this.rankSystem.getRank(GameManager.source);
+            this.network.socket.emit('playerLevel', rank);
+        }
     }
 }

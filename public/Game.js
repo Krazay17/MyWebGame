@@ -3,6 +3,7 @@ import Enemies from './Enemies.js';
 import PlayerProjectiles from './PlayerProjectiles.js';
 import Projectiles from './Projectiles.js';
 import Pickups from './Pickups.js';
+import NetworkManager from './NetworkManager.js';
 
 export default class MainGame extends Phaser.Scene
 {
@@ -32,6 +33,11 @@ export default class MainGame extends Phaser.Scene
     this.physics.world.setBounds(-1600, 0, 3200, 900);
     this.bounds = this.physics.world.bounds;
     this.cameras.main.setBounds(-1600, 0, 3200, 900);
+    
+    this.network = new NetworkManager(this);
+    Object.values(this.network.otherPlayers).forEach(ghost => {
+      ghost.updateScene(this);
+    });
 
     this.restartKey = this.input.keyboard.on('keydown-R', () => {
       this.player.Died();
@@ -153,8 +159,6 @@ export default class MainGame extends Phaser.Scene
         this.bullets.SpawnFireballs(turret.body.x, turret.body.y + 40)}),
       loop: true
     });
-
-    this.network = globalThis.networkManager;
 
   }
   

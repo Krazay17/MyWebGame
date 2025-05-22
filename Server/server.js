@@ -29,16 +29,15 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('playerLeft', { id: socket.id});
   });
 
-  players[socket.id] = {x: -1100, y: 200};
+  players[socket.id] = {x: -1100, y: 200, source: 0};
 
   socket.emit('existingPlayers',
-     Object.entries(players).map(([id, pos]) => ({id, ...pos}))
+     Object.entries(players).map(([id, player]) => ({id, ...player}))
     );
 
   socket.broadcast.emit('playerJoined', {id: socket.id, ...players[socket.id]});
 
   socket.on('playerMove', ({x, y}) => {
-    console.log('moving');
     if (players[socket.id]){
       players[socket.id].x = x;
       players[socket.id].y = y;
@@ -47,13 +46,11 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('playerLevel', (rank) => {
-    console.log('Recieved level update from: ', socket.id, rank)
-
+  socket.on('playerLevel', (source) => {
     if (players[socket.id]){
-    players[socket.id].rank = rank;
+    players[socket.id].source = source;
 
-    socket.broadcast.emit('playerLeveled', { id: socket.id, rank });
+    socket.broadcast.emit('playerLeveled', { id: socket.id, source });
     }
   });
 

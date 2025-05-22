@@ -1,10 +1,13 @@
+import RankSystem from "./RankSystem.js";
+
 export default class GhostPlayer {
-  constructor(scene, id, x = 400, y = 300) {
+  constructor(scene, id, x = 400, y = 300, source) {
     this.scene = scene;
     this.id = id;
     this.x = x;
     this.y = y;
-    this.rank = "Noob";
+    this.source = source;
+    this.ranks = new RankSystem();
 
     this.createVisuals();
   }
@@ -15,7 +18,7 @@ export default class GhostPlayer {
     this.sprite.setAlpha(0.6);
     this.sprite.setTint(0x00ffff);
 
-    this.nameText = this.scene.add.text(this.x, this.y - 40, this.rank, {
+    this.nameText = this.scene.add.text(this.x, this.y - 40, this.source + '\n' + this.ranks.getRank(this.source), {
       fontSize: '12px',
       fill: '#ffffff'
     }).setOrigin(0.5);
@@ -42,10 +45,9 @@ export default class GhostPlayer {
     this.updatePosition(this.x, this.y);
   }
 
-  updateName(rank) {
-    this.rank = rank;
-    this.nameText.setText(this.rank);
-    console.log(rank);
+  updateName(source) {
+    this.source = source;
+    this.nameText.setText(this.source + '\n' + this.ranks.getRank(this.source));
   }
 
   destroy() {

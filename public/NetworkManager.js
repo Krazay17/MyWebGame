@@ -29,15 +29,15 @@ export default class NetworkManager {
       console.log('existing players recieved', players);
       players.forEach(player => {
         if (player.id !== this.socket.id) {
-          this.addOtherPlayer(player.id, player.x, player.y);
+          this.addOtherPlayer(player.id, player.x, player.y, player.source);
         }
       });
     });
 
     // Handle new player
-    this.socket.on('playerJoined', ({ id, x, y }) => {
+    this.socket.on('playerJoined', ({ id, x, y, source }) => {
       if (id !== this.socket.id) {
-        this.addOtherPlayer(id, x, y);
+        this.addOtherPlayer(id, x, y, source);
       }
     });
 
@@ -49,30 +49,24 @@ export default class NetworkManager {
       }
     });
 
-    this.socket.on('playerMoved', ({ id, x, y}) => {
+    this.socket.on('playerMoved', ({ id, x, y }) => {
       const player = this.otherPlayers[id];
       if (player){
         player.updatePosition(x, y);
       }
     });
 
-    this.socket.on('playerLeveled', ({id, rank}) => {
+    this.socket.on('playerLeveled', ({id, source}) => {
       const player = this.otherPlayers[id];
       if (player) {
-        player.updateName(rank);
-        console.log(rank);
+        player.updateName(source);
       }
     });
 
   }
 
-  addOtherPlayer(id, x = -1100, y= 400) {
-    const ghostPlayer = new GhostPlayer(this.scene, id, x, y);
+  addOtherPlayer(id, x = -1100, y= 400, source) {
+    const ghostPlayer = new GhostPlayer(this.scene, id, x, y, source);
     this.otherPlayers[id] = ghostPlayer;
-  }
-
-  testNetworkMan()
-  {
-    console.log('VALID');
   }
 }

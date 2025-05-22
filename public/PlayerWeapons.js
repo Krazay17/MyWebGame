@@ -2,15 +2,11 @@ import Weapon from './Weapon.js';
 
 export default class PlayerWeapons extends Phaser.Physics.Arcade.Group
 {
-    constructor (scene, player, damage)
+    constructor (scene, player)
     {
         super(scene.physics.world, scene, {allowGravity: false});
         this.player = player;
 
-        this.scene.sound.add('shurikanthrow');
-        this.scene.sound.add('shurikanhit');
-
-        this.baseDamage = damage;
     }
 
     SpawnShurikan(x, y, direction)
@@ -18,45 +14,38 @@ export default class PlayerWeapons extends Phaser.Physics.Arcade.Group
         const speed = 1000;
         const velocity = direction.scale(speed);
 
-        const projectile = new Weapon(this.scene, x, y, 'shurikan');
+        const projectile = new Weapon(this.scene, x, y, 'shurikan', this.player, 1, true);
         this.add(projectile);
         projectile.setScale(.15);
         projectile.setVelocity(velocity.x, velocity.y);
-
-        projectile.damage = 1;
 
         this.scene.tweens.add({
             targets: projectile,
             angle: 360,
             duration: 500,
-            repeat: -1
+            repeat: -1,
+            ease: 'Linear',
         });
+
         this.scene.time.addEvent({
             delay: 550,
             callback: () => projectile.destroy()
         });
         
-        if (this.scene.sound.get('shurikanthrow'))
-        this.scene.sound.play('shurikanthrow');
+        if (!this.scene.sound.get('shurikanthrow')){
+            this.scene.sound.add('shurikanthrow');
+            this.scene.sound.play('shurikanthrow');
+        } else {
+            this.scene.sound.play('shurikanthrow');
+        }
+        if (!this.scene.sound.get('shurikanhit'))
+            this.scene.sound.add('shurikanhit');
     }
 
     SpawnSword(x, y, direction)
     {
-        const sword = new Weapon(this.scene, x, y, )
-    }
+        const sword = new Weapon(this.scene, x, y, 'sword')
+        this.add(sword);
 
-    EnemyHit(weapon, enemy)
-    {
-        const Velocity = weapon.body.velocity;
-        if (enemy.TakeDamage(this.player, weapon.damage, Velocity))
-            weapon.destroy();
-
-        if (this.scene.sound.get('shurikanhit'))
-        this.scene.sound.play('shurikanhit');
-    }
-
-    SetupCollisionWithEnemies(enemyGroup)
-    {
-        this.scene.physics.add.overlap(this, enemyGroup, this.EnemyHit, null, this);
     }
 }

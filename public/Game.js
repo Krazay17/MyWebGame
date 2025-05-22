@@ -26,45 +26,33 @@ export default class MainGame extends BaseGame
 
   create()
   {
+    this.setupWorld();
     this.MakeSky();
-    super.create();
+    this.setupKeybinds();
+    this.setupMusic();
+    this.setupFPS();
+    this.setupPlayer(-1100, 300);
 
-    // Groups
-    this.movingPlats = this.physics.add.group({immovable: true, allowGravity: false, velocityY: 20});
-    this.turrets = new Enemies(this, false);
-    this.bullets = new Projectiles(this);
-    this.sunMans = new Enemies(this);
+    this.setupGroups();
+    this.platformGroups.push(this.movingPlats = this.physics.add.group({immovable: true, allowGravity: false, velocityY: 20}));
+    this.enemyGroups.push(this.turrets = new Enemies(this, false));
+    this.enemyGroups.push(this.sunMans = new Enemies(this));
+    this.bulletGroups.push(this.bullets = new Projectiles(this));
 
-    // Collisions
-    this.playerWeapons.SetupCollisionWithEnemies(this.sunMans);
-    this.playerWeapons.SetupCollisionWithEnemies(this.turrets);
-
+    this.setupCollisions();
     this.physics.add.collider(this.player, this.movingPlats, (player, platform) =>{
       this.player.TouchPlatform()
     });
-
     this.physics.add.collider(this.sunMans, this.sunMans);
     this.physics.add.collider(this.pickups, this.movingPlats);
-
     this.physics.add.overlap(this.player, this.sunMans, (player, enemy) =>{
       this.sunMans.PlayerCollide(player, enemy, true);
     });
-
     this.physics.add.collider(this.player, this.turrets, (player, turret) => {
       this.player.TouchPlatform()
     }, null, this);
-
     this.physics.add.overlap(this.player, this.bullets, (player, bullet) => {
       this.bullets.PlayerHit(player, bullet);
-    }, null, this);
-
-
-    this.physics.add.collider(this.playerWeapons, this.bullets, (weapon, bullet) => {
-      weapon.CollideBullet(bullet);
-    }, null, this);
-
-    this.physics.add.collider(this.playerWeapons, this.movingPlats, (weapon, plat) => {
-      weapon.CollideWorld(plat);
     }, null, this);
 
     // Spawns

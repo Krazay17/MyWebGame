@@ -16,23 +16,23 @@ export default class Preloader extends Phaser.Scene
         this.load.image('dude', 'Assets/Dude.png');
         this.load.image('dudecrouch', 'Assets/DudeCrouch.png');
         this.load.image('shurikan', 'Assets/shurikan.png');
-        this.load.image('sword', 'Assets/shurikan.png');
+        this.load.image('sword', 'Assets/PixelSword.png');
     }
 
     create()
     {
         GameManager.load();
 
-        window.toggleTeleport = () => {
+        window.secretTeleport = () => {
             GameManager.debug.canTeleport = !GameManager.debug.canTeleport;
             console.log(GameManager.debug.canTeleport);
         };
 
-        window.toggleDevMode = () => {
+        window.secretDevMode = () => {
             GameManager.devMode = !GameManager.devMode;
             console.log(GameManager.devMode);
         };
 
-        this.scene.start('MainGame');
+        this.scene.start('Home');
     }
 }

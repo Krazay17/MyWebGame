@@ -1,46 +1,44 @@
 export default class Weapon extends Phaser.Physics.Arcade.Sprite
 {
-    constructor (scene, x, y, id = 'shurikan', player, damage)
+    constructor (scene, x, y, id = 'shurikan', player, damage, projectile = false)
     {
         super(scene, x, y, id );
+        this.scene = scene;
+
         this.player = player;
+        this.baseDamage = damage;
+        this.isProjectile = projectile;
 
         scene.add.existing(this);
         scene.physics.add.existing(this);
-
-        this.scene.sound.add('shurikanthrow');
-        this.scene.sound.add('shurikanhit');
-
-        this.baseDamage = damage;
     }
 
-    CollideBullet(bullet)
+    BulletHit(bullet)
     {
         bullet.destroy();
 
         if (this.scene.sound.get('shurikanhit'))
-        this.scene.sound.play('shurikanhit');
+            this.scene.sound.play('shurikanhit');
 
         this.destroy();
     }
 
-    CollideWorld(plat)
+    PlatformHit(plat)
     {
-        this.destroy();
+        if(this.isProjectile){
+            this.destroy();
+        };
     }
 
     EnemyHit(enemy)
     {
-        const Velocity = projectile.body.velocity;
-        if (enemy.TakeDamage(this.player, projectile.damage, Velocity))
-            projectile.destroy();
+        if (this.scene && this.scene.sound.get('shurikanhit'))
+            this.scene.sound.play('shurikanhit');
 
-        if (this.scene.sound.get('shurikanhit'))
-        this.scene.sound.play('shurikanhit');
-    }
-
-    SetupCollisionWithEnemies(enemyGroup)
-    {
-        this.scene.physics.add.overlap(this, enemyGroup, this.EnemyHit, null, this);
+        if(this.isProjectile){
+            const Velocity = this.body.velocity;
+            if (enemy.TakeDamage(this.player, this.baseDamage, Velocity))
+                this.destroy();
+        };
     }
 }

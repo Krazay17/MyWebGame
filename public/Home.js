@@ -14,23 +14,29 @@ export default class Home extends BaseGame
         this.load.image('sky2layer1', 'Assets/Sky2Layer1.png')
         this.load.image('sky2layer2', 'Assets/Sky2Layer2.png')
         this.load.image('platformwide', 'Assets/platformwide.png')
+        this.load.image('portal1', 'Assets/portal1.png')
     }
 
     create()
     {
-        this.playerSpawn = [0, 0];
+        this.setupWorld();
+        this.setupKeybinds();
         this.MakeSky();
+        this.setupFPS();
+        this.setupPlayer();
 
-        super.create();
+        this.setupGroups();
+        this.platformGroups.push(this.widePlatforms = this.physics.add.staticGroup());
+        this.portals = this.physics.add.staticGroup();
 
-        this.widePlatforms = this.physics.add.staticGroup();
-        const widePlatformPos = [[-1000, 500], [-800, 600], [-400, 700], [0, 800], [400, 700], [800, 600], [1000, 500]];
+        this.setupCollisions();
+        this.physics.add.overlap(this.player, this.portals, () => this.scene.start('MainGame'), null, this);
+        
+        const widePlatformPos = [
+            [-1000, 500], [-800, 600], [-400, 700], [0, 800], [400, 700], [800, 600], [1000, 500]
+        ];
         widePlatformPos.forEach(pos => this.platforms.create(pos[0], pos[1], 'platformwide'));
-
-
-        this.physics.add.collider(this.player, this.widePlatforms, (player, platform) => {
-            this.player.TouchPlatform(player, platform)
-        }, null, this);
+        this.portals.create(800, 300, 'portal1');
     }
 
     update(time, delta)

@@ -125,6 +125,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
             delay: 2000,
             callback: () => this.scene.scene.restart()
         });
+        this.emit('playerdied');
 
         GameManager.save();
     }

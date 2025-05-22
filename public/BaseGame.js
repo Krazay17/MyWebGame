@@ -5,18 +5,15 @@ import Projectiles from './Projectiles.js';
 import Pickups from './Pickups.js';
 import NetworkManager from './NetworkManager.js';
 
-export default class MainGame extends Phaser.Scene
+export default class BaseGame extends Phaser.Scene
 {
   constructor ()
   {
-    super('MainGame');
+    super('BaseGame');
   }
 
   preload()
   {
-    this.load.image('sky', 'Assets/RedGalaxy2.png');
-    this.load.image('skylayer1', 'Assets/SkyLayer1.png');
-    this.load.image('skylayer2', 'Assets/SkyLayer2.png');
     this.load.image('platform', 'Assets/platform.png');
     this.load.image('platformwide', 'Assets/platformwide.png');
     this.load.image('platformtall', 'Assets/platformtall.png');
@@ -30,9 +27,7 @@ export default class MainGame extends Phaser.Scene
   }
 
   create()
-  {
-    this.MakeSky();
-    
+  {    
     this.physics.world.setBounds(-1600, 0, 3200, 900);
     this.bounds = this.physics.world.bounds;
     this.cameras.main.setBounds(-1600, 0, 3200, 900);
@@ -64,7 +59,6 @@ export default class MainGame extends Phaser.Scene
     instructions.setScrollFactor(0);
 
     this.player = new Player(this, -1100, 300);
-
     this.cameras.main.startFollow(this.player, false, .01, .01);
 
     // Groups
@@ -112,13 +106,7 @@ export default class MainGame extends Phaser.Scene
     }, null, this);
 
     // Spawns
-    const platformPositions = [
-      [-1100,    ], [-900, 150],             [-400, 100],  [-200, ],    [-150,  50], [100,    ], [300,    ],             [700,    ], [900,    ], [1100,    ],
-                    [-900, 300], [-600, 200],                           [-150, 300], [100, 200], [300, 100],             [700, 450], [900, 200], [1100, 100],
-                    [-900, 500],                           [-300, 350], [-100, 225],             [300, 600],             [600, 550], [1000, 500],[1100, 300],
-      [-1100, 400], [-900, 700],             [-500, 800],  [-300, 700], [-100, 700], [100, 800], [300, 850], [500, 700], [700, 700], [900, 700], [1100, 700],
-    ];
-    const coinPos = [[100, 300], [300, 300], [500, 300], [700, 300]];
+    const platformPositions = [];
 
     platformPositions.forEach(pos => this.platforms.create(pos[0], pos[1], 'platform'));
 
@@ -198,9 +186,9 @@ export default class MainGame extends Phaser.Scene
     });
   }
 
-  MakeSky()
+  MakeSky(a = 'sky', b = 'skylayer1', c = 'skylayer2')
   {
-    this.sky1 = this.add.image(0, 0, 'sky').setOrigin(0)
+    this.sky1 = this.add.image(0, 0, a).setOrigin(0)
     .setDisplaySize(this.scale.width, this.scale.height).setScrollFactor(0)
     .on('resize', (gameSize) =>{
       const width = gameSize.width;
@@ -208,7 +196,7 @@ export default class MainGame extends Phaser.Scene
 
       this.sky1.setDisplaySize(width, height);
     });
-    this.sky2 = this.add.image(600, 0, 'skylayer1').setScale(.5).setScrollFactor(.6)
-    this.sky3 = this.add.image(600, 0, 'skylayer2').setScale(.5).setScrollFactor(.2)
+    this.sky2 = this.add.image(600, 0, b).setScale(.5).setScrollFactor(.2)
+    this.sky3 = this.add.image(600, 0, c).setScale(.5).setScrollFactor(.6)
   }
 }

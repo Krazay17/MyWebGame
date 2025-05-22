@@ -1,7 +1,6 @@
-import PlayerProjectiles from "./PlayerProjectiles.js";
-import Player from "./Player.js";
+import BaseGame from './BaseGame.js'
 
-export default class Home extends Phaser.Scene
+export default class Home extends BaseGame
 {
     constructor()
     {
@@ -10,6 +9,7 @@ export default class Home extends Phaser.Scene
 
     preload()
     {
+        super.preload();
         this.load.image('sky2', 'Assets/Sky2.png')
         this.load.image('sky2layer1', 'Assets/Sky2Layer1.png')
         this.load.image('sky2layer2', 'Assets/Sky2Layer2.png')
@@ -18,31 +18,26 @@ export default class Home extends Phaser.Scene
 
     create()
     {
-        this.physics.world.setBounds(-800, 0, 1600, 900);
-        this.cameras.main.setBounds(-1000, 0, 2000, 1100);
-
         this.MakeSky();
+        super.create();
 
-
-        this.player = new Player(this, 0, 0);
-        this.platforms = this.physics.add.staticGroup();
+        this.widePlatforms = this.physics.add.staticGroup();
         this.projectiles = new PlayerProjectiles(this, this.player, 1);
         this.player.SetProjectileGroup(this.projectiles);
 
-        const platformPos = [[800, 600], [-400, 800], [0, 900], [400, 800], [800, 600], [1000, 500]];
+        const widePlatformPos = [[800, 600], [-400, 800], [0, 900], [400, 800], [800, 600], [1000, 500]];
 
-        platformPos.forEach(pos => this.platforms.create(pos[0], pos[1], 'platformwide'));
+        widePlatformPos.forEach(pos => this.platforms.create(pos[0], pos[1], 'platformwide'));
 
-        this.cameras.main.startFollow(this.player);
 
-        this.physics.add.collider(this.player, this.platforms, (player, platform) => {
+        this.physics.add.collider(this.player, this.widePlatformPos, (player, platform) => {
             this.player.TouchPlatform(player, platform)
         }, null, this);
     }
 
     update(time, delta)
     {
-        this.player.handleInput(delta);
+        super.update();
     }
 
     MakeSky()

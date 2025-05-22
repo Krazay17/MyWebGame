@@ -7,9 +7,9 @@ import NetworkManager from './NetworkManager.js';
 
 export default class BaseGame extends Phaser.Scene
 {
-  constructor ()
+  constructor (key)
   {
-    super('BaseGame');
+    super(key);
   }
 
   preload()
@@ -58,11 +58,12 @@ export default class BaseGame extends Phaser.Scene
     });
     instructions.setScrollFactor(0);
 
-    this.player = new Player(this, -1100, 300);
+    this.playerSpawn = [0, 0];
+    this.player = new Player(this, this.playerSpawn[0], this.playerSpawn[1]);
     this.cameras.main.startFollow(this.player, false, .01, .01);
 
     // Groups
-    this.platforms = this.physics.add.group({immovable: true, allowGravity: false, velocityY: 20});
+    this.platforms = this.physics.add.staticGroup();
     this.turrets = new Enemies(this, false);
     this.bullets = new Projectiles(this);
     this.playerProjectiles = new PlayerProjectiles(this, this.player);
@@ -109,16 +110,6 @@ export default class BaseGame extends Phaser.Scene
     const platformPositions = [];
 
     platformPositions.forEach(pos => this.platforms.create(pos[0], pos[1], 'platform'));
-
-    coinPos.forEach(pos => this.pickups.SpawnCoin(pos[0], pos[1]));
-    this.time.addEvent({
-      delay: Phaser.Math.Between(2000, 5000),
-      callback: () => {
-        if (this.pickups.countActive() < 9)
-        this.pickups.SpawnCoin(Phaser.Math.Between(-1100, 1100), 0);
-      },
-      loop: true
-    });
 
     this.sunMans.SpawnSunMan(1900, 0);
     this.sunMans.SpawnSunMan(2000, 400);

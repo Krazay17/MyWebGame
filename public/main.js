@@ -25,7 +25,7 @@ const config = {
         debug: false,
       }
     },
-    scene: [Boot, Preloader, MainGame, EscMenu, Home, Inventory],
+    scene: [Boot, Preloader, MainGame, Home, Inventory, EscMenu],
 };
 
 let game = new Phaser.Game(config);

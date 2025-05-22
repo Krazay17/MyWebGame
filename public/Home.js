@@ -4,7 +4,7 @@ export default class Home extends BaseGame
 {
     constructor()
     {
-        super('Home')
+        super('Home');
     }
 
     preload()
@@ -18,26 +18,26 @@ export default class Home extends BaseGame
 
     create()
     {
+        this.playerSpawn = [0, 0];
         this.MakeSky();
+
         super.create();
 
         this.widePlatforms = this.physics.add.staticGroup();
-        this.projectiles = new PlayerProjectiles(this, this.player, 1);
-        this.player.SetProjectileGroup(this.projectiles);
 
-        const widePlatformPos = [[800, 600], [-400, 800], [0, 900], [400, 800], [800, 600], [1000, 500]];
+        const widePlatformPos = [[-1000, 500], [-800, 600], [-400, 700], [0, 800], [400, 700], [800, 600], [1000, 500]];
 
         widePlatformPos.forEach(pos => this.platforms.create(pos[0], pos[1], 'platformwide'));
 
 
-        this.physics.add.collider(this.player, this.widePlatformPos, (player, platform) => {
+        this.physics.add.collider(this.player, this.widePlatforms, (player, platform) => {
             this.player.TouchPlatform(player, platform)
         }, null, this);
     }
 
     update(time, delta)
     {
-        super.update();
+        super.update(time, delta);
     }
 
     MakeSky()

@@ -5,7 +5,11 @@ export default class EscMenu extends Phaser.Scene
     constructor()
     {
         super('EscMenu');
-
+    }
+    
+    init(data)
+    {
+        this.gameScene = data.gameScene;
     }
 
     create()
@@ -37,9 +41,9 @@ export default class EscMenu extends Phaser.Scene
             this.slider.handle.setVisible(this.visible);
 
             if (this.visible) {
-                this.scene.pause('MainGame');
+                this.scene.pause(this.gameScene);
             } else {
-                this.scene.resume('MainGame');
+                this.scene.resume(this.gameScene);
         }
         });
 

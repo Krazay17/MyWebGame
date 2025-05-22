@@ -40,7 +40,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         this.rightSpam = 0;
         this.speed = 250;
 
-        this.scene.scene.launch('EscMenu');
+        this.scene.scene.launch('EscMenu', {gameScene: this.scene});
         this.scene.scene.launch('Inventory', {player: this});
 
         this.rankSystem = new RankSystem();

@@ -1,5 +1,4 @@
 import GameManager from "./GameManager.js";
-import NetworkManager from "./NetworkManager.js";
 
 export default class Preloader extends Phaser.Scene
 {
@@ -17,11 +16,22 @@ export default class Preloader extends Phaser.Scene
         this.load.image('dude', 'Assets/Dude.png');
         this.load.image('dudecrouch', 'Assets/DudeCrouch.png');
         this.load.image('shurikan', 'Assets/shurikan.png');
+        this.load.image('sword', 'Assets/shurikan.png');
     }
 
     create()
     {
         GameManager.load();
+
+        window.toggleTeleport = () => {
+            GameManager.debug.canTeleport = !GameManager.debug.canTeleport;
+            console.log(GameManager.debug.canTeleport);
+        };
+
+        window.toggleDevMode = () => {
+            GameManager.devMode = !GameManager.devMode;
+            console.log(GameManager.devMode);
+        };
 
         this.scene.start('MainGame');
     }

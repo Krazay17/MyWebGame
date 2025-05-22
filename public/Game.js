@@ -1,11 +1,8 @@
-import Player from './Player.js';
 import Enemies from './Enemies.js';
-import PlayerProjectiles from './PlayerProjectiles.js';
 import Projectiles from './Projectiles.js';
-import Pickups from './Pickups.js';
-import NetworkManager from './NetworkManager.js';
+import BaseGame from './BaseGame.js';
 
-export default class MainGame extends Phaser.Scene
+export default class MainGame extends BaseGame
 {
   constructor ()
   {
@@ -14,12 +11,10 @@ export default class MainGame extends Phaser.Scene
 
   preload()
   {
+    super.preload();
     this.load.image('sky', 'Assets/RedGalaxy2.png');
     this.load.image('skylayer1', 'Assets/SkyLayer1.png');
     this.load.image('skylayer2', 'Assets/SkyLayer2.png');
-    this.load.image('platform', 'Assets/platform.png');
-    this.load.image('platformwide', 'Assets/platformwide.png');
-    this.load.image('platformtall', 'Assets/platformtall.png');
     this.load.image('coin', 'Assets/SourceCoin.png');
     this.load.image('bullet', 'Assets/bullet.png');
     this.load.image('sunman', 'Assets/SunMan.png');
@@ -32,60 +27,24 @@ export default class MainGame extends Phaser.Scene
   create()
   {
     this.MakeSky();
-    
-    this.physics.world.setBounds(-1600, 0, 3200, 900);
-    this.bounds = this.physics.world.bounds;
-    this.cameras.main.setBounds(-1600, 0, 3200, 900);
-    
-    this.network = new NetworkManager(this);
-    Object.values(this.network.otherPlayers).forEach(ghost => {
-      ghost.updateScene(this);
-    });
-
-    this.restartKey = this.input.keyboard.on('keydown-R', () => {
-      this.player.Died();
-      this.scene.restart();
-    });
-
-    this.homeKey = this.input.keyboard.on('keydown-T', () => {
-      this.scene.start('Home');
-    });
-
-    if (!this.sound.get('music')){
-    this.gameMusic = this.sound.add('music', {loop: true});
-    this.gameMusic.volume = .35;
-    this.gameMusic.play();
-    }
-
-    const instructions = this.add.text(16, 48, 'Shift - dash \nR - Reset', {
-    fontSize: '32px',
-    color: '#4fffff',
-    });
-    instructions.setScrollFactor(0);
-
-    this.player = new Player(this, -1100, 300);
-
-    this.cameras.main.startFollow(this.player, false, .01, .01);
+    super.create();
 
     // Groups
-    this.platforms = this.physics.add.group({immovable: true, allowGravity: false, velocityY: 20});
+    this.movingPlats = this.physics.add.group({immovable: true, allowGravity: false, velocityY: 20});
     this.turrets = new Enemies(this, false);
     this.bullets = new Projectiles(this);
-    this.playerProjectiles = new PlayerProjectiles(this, this.player);
-    this.player.SetProjectileGroup(this.playerProjectiles);
-    this.pickups = new Pickups(this);
     this.sunMans = new Enemies(this);
 
     // Collisions
-    this.playerProjectiles.SetupCollisionWithEnemies(this.sunMans);
-    this.playerProjectiles.SetupCollisionWithEnemies(this.turrets);
+    this.playerWeapons.SetupCollisionWithEnemies(this.sunMans);
+    this.playerWeapons.SetupCollisionWithEnemies(this.turrets);
 
-    this.physics.add.collider(this.player, this.platforms, (player, platform) =>{
+    this.physics.add.collider(this.player, this.movingPlats, (player, platform) =>{
       this.player.TouchPlatform()
     });
 
     this.physics.add.collider(this.sunMans, this.sunMans);
-    this.physics.add.collider(this.pickups, this.platforms);
+    this.physics.add.collider(this.pickups, this.movingPlats);
 
     this.physics.add.overlap(this.player, this.sunMans, (player, enemy) =>{
       this.sunMans.PlayerCollide(player, enemy, true);
@@ -99,20 +58,17 @@ export default class MainGame extends Phaser.Scene
       this.bullets.PlayerHit(player, bullet);
     }, null, this);
 
-    this.physics.add.overlap(this.player, this.pickups, (player, pickup) => {
-      this.pickups.Pickup(player, pickup);
+
+    this.physics.add.collider(this.playerWeapons, this.bullets, (weapon, bullet) => {
+      weapon.CollideBullet(bullet);
     }, null, this);
 
-    this.physics.add.collider(this.playerProjectiles, this.bullets, (projectile, bullet) => {
-      this.playerProjectiles.CollideBullet(projectile, bullet);
-    }, null, this);
-
-    this.physics.add.collider(this.playerProjectiles, this.platforms, (projectile, plat) => {
-      this.playerProjectiles.CollideWorld(projectile, plat);
+    this.physics.add.collider(this.playerWeapons, this.movingPlats, (weapon, plat) => {
+      weapon.CollideWorld(plat);
     }, null, this);
 
     // Spawns
-    const platformPositions = [
+    const moveingPlatformPos = [
       [-1100,    ], [-900, 150],             [-400, 100],  [-200, ],    [-150,  50], [100,    ], [300,    ],             [700,    ], [900,    ], [1100,    ],
                     [-900, 300], [-600, 200],                           [-150, 300], [100, 200], [300, 100],             [700, 450], [900, 200], [1100, 100],
                     [-900, 500],                           [-300, 350], [-100, 225],             [300, 600],             [600, 550], [1000, 500],[1100, 300],
@@ -120,7 +76,7 @@ export default class MainGame extends Phaser.Scene
     ];
     const coinPos = [[100, 300], [300, 300], [500, 300], [700, 300]];
 
-    platformPositions.forEach(pos => this.platforms.create(pos[0], pos[1], 'platform'));
+    moveingPlatformPos.forEach(pos => this.movingPlats.create(pos[0], pos[1], 'platform'));
 
     coinPos.forEach(pos => this.pickups.SpawnCoin(pos[0], pos[1]));
     this.time.addEvent({
@@ -165,18 +121,10 @@ export default class MainGame extends Phaser.Scene
 
   }
   
-  restart()
-  {
-    this.player.UpdateSource(-5);
-    this.restart();
-  }
-  
   update(time, delta)
   {
-
-    this.player.handleInput(delta);
-
-    this.platforms.getChildren().forEach(platform => {
+    super.update(time, delta);
+    this.movingPlats.getChildren().forEach(platform => {
       if (platform.body.y > this.physics.world.bounds.height)
         platform.body.y = 0 - platform.body.height;
     });
@@ -191,11 +139,7 @@ export default class MainGame extends Phaser.Scene
           child.destroy();
         }
     });
-    
-    this.network.socket.emit('playerMove', {
-      x: this.player.x,
-      y: this.player.y
-    });
+  
   }
 
   MakeSky()

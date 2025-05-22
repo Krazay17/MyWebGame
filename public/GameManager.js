@@ -8,6 +8,10 @@ export default{
     flags: {
         seenIntro: false,
     },
+    devMode: false,
+    debug: {
+        canTeleport: false,
+    },
 
     save()
     {

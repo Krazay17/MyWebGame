@@ -24,9 +24,7 @@ export default class Home extends BaseGame
         super.create();
 
         this.widePlatforms = this.physics.add.staticGroup();
-
         const widePlatformPos = [[-1000, 500], [-800, 600], [-400, 700], [0, 800], [400, 700], [800, 600], [1000, 500]];
-
         widePlatformPos.forEach(pos => this.platforms.create(pos[0], pos[1], 'platformwide'));
 
 

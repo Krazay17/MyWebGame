@@ -1,4 +1,6 @@
-export default class PlayerProjectiles extends Phaser.Physics.Arcade.Group
+import Weapon from './Weapon.js';
+
+export default class PlayerWeapons extends Phaser.Physics.Arcade.Group
 {
     constructor (scene, player, damage)
     {
@@ -16,7 +18,8 @@ export default class PlayerProjectiles extends Phaser.Physics.Arcade.Group
         const speed = 1000;
         const velocity = direction.scale(speed);
 
-        const projectile = this.create(x, y, 'shurikan');
+        const projectile = new Weapon(this.scene, x, y, 'shurikan');
+        this.add(projectile);
         projectile.setScale(.15);
         projectile.setVelocity(velocity.x, velocity.y);
 
@@ -37,25 +40,16 @@ export default class PlayerProjectiles extends Phaser.Physics.Arcade.Group
         this.scene.sound.play('shurikanthrow');
     }
 
-    CollideBullet(projectile, bullet)
+    SpawnSword(x, y, direction)
     {
-        projectile.destroy();
-        bullet.destroy()
-
-        if (this.scene.sound.get('shurikanhit'))
-        this.scene.sound.play('shurikanhit');
+        const sword = new Weapon(this.scene, x, y, )
     }
 
-    CollideWorld(projectile, plat)
+    EnemyHit(weapon, enemy)
     {
-        projectile.destroy();
-    }
-
-    EnemyHit(projectile, enemy)
-    {
-        const Velocity = projectile.body.velocity;
-        if (enemy.TakeDamage(this.player, projectile.damage, Velocity))
-            projectile.destroy();
+        const Velocity = weapon.body.velocity;
+        if (enemy.TakeDamage(this.player, weapon.damage, Velocity))
+            weapon.destroy();
 
         if (this.scene.sound.get('shurikanhit'))
         this.scene.sound.play('shurikanhit');

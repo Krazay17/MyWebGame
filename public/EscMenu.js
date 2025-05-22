@@ -49,21 +49,22 @@ export default class EscMenu extends Phaser.Scene
 
         // Drag logic
         this.input.on('drag', (pointer, gameObject, dragX) => {
-        const minX = track.x - track.width / 2;
-        const maxX = track.x + track.width / 2;
+            const minX = track.x - track.width / 2;
+            const maxX = track.x + track.width / 2;
 
-        // Clamp drag
-        dragX = Phaser.Math.Clamp(dragX, minX, maxX);
-        gameObject.x = dragX;
+            // Clamp drag
+            dragX = Phaser.Math.Clamp(dragX, minX, maxX);
+            gameObject.x = dragX;
 
-        // Set global volume
-        const percent = (dragX - minX) / (maxX - minX);
-        this.sound.volume = percent;
-        GameManager.volume = this.sound.volume;
-        GameManager.save();
+            // Set global volume
+            const percent = (dragX - minX) / (maxX - minX);
+            this.sound.volume = percent;
+            
+            // Save Volume
+            GameManager.volume = this.sound.volume;
+            GameManager.save();
         });
 
-        // Set initial volume based on handle position
         const setInitialVolume = (volume) => {
             const minX = track.x - track.width / 2;
             const maxX = track.x + track.width / 2;

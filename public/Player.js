@@ -67,7 +67,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         });
 
         this.scene.input.keyboard.on('keydown-F', () => {
-            this.UpdateSource(3);
+            if (GameManager.devMode){
+                console.log('devmodeon')
+                this.UpdateSource(5);
+            }
         });
         
     }
@@ -122,13 +125,17 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
             delay: 2000,
             callback: () => this.scene.scene.restart()
         });
+
+        GameManager.save();
     }
 
     Teleport(pointer)
     {
+        if(GameManager.devMode || GameManager.debug.canTeleport){
         const worldPos = pointer.positionToCamera(this.scene.cameras.main);
         this.setPosition(worldPos.x, worldPos.y);
         this.setVelocity(0);
+        }
     }
 
     LeftAttack(pointer)
@@ -171,7 +178,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         }
     }
 
-    SetProjectileGroup(group)
+    SetWeaponGroup(group)
     {
         this.shurikans = group;
     }
@@ -318,6 +325,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
             this.UpdateSource(source);
         }
     }
+
     UpdateSource(source)
     {
         const intSource = Math.floor(source);

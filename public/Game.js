@@ -26,8 +26,8 @@ export default class MainGame extends BaseGame
 
   create()
   {
-    this.setupWorld();
     this.MakeSky();
+    this.setupWorld();
     this.setupKeybinds();
     this.setupMusic('music');
     this.setupFPS();

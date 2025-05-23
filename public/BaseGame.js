@@ -33,6 +33,7 @@ export default class BaseGame extends Phaser.Scene {
     this.cameras.main.setBounds(-1600, 0, 3200, 900);
 
     this.network = new NetworkManager(this);
+    
     Object.values(this.network.otherPlayers).forEach(ghost => {
       ghost.updateScene(this);
     });

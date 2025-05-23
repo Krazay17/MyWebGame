@@ -20,9 +20,9 @@ export default class Home extends BaseGame
 
     create()
     {
-        this.setupWorld();
         this.setupKeybinds();
         this.MakeSky();
+        this.setupWorld();
         this.setupMusic('homemusic');
         this.setupFPS();
         this.setupPlayer();

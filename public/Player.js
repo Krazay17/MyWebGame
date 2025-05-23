@@ -13,6 +13,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         scene.add.existing(this);
         scene.physics.add.existing(this);
 
+        this.setupAnimation();
+
         this.damageSound = this.scene.sound.add('playerHit');
 
         this.setScale(0.3);
@@ -203,12 +205,14 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         if (isLeft && !isDown) {
             this.setVelocityX(WalkLerp(-this.speed));
             this.flipX = true;
+            this.play('dudewalk');
             if (dash.isDown && this.canDash) {
                 this.Dash(-600);
             }
         } else if (isRight && !isDown) {
             this.setVelocityX(WalkLerp(this.speed));
             this.flipX = false;
+            this.play('dudewalk');
             if (dash.isDown && this.canDash) {
                 this.Dash(600);
             }
@@ -216,6 +220,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
             this.setVelocityX(WalkLerp(0, 0.01));
         } else {
             this.setVelocityX(WalkLerp(0));
+            this.setFrame(0);
         }
 
 
@@ -336,5 +341,15 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         GameManager.save();
         this.scoreText.text = 'Source: ' + GameManager.source + '\n' + this.rankSystem.getRank(GameManager.source);
         this.network.socket.emit('playerLevel', GameManager.source);
+    }
+
+    setupAnimation()
+    {
+        this.scene.anims.create({
+            key: 'dudewalk',
+            frames: this.anims.generateFrameNumbers('dudesheet', {start: 1, end: 5}),
+            framerate: 10,
+            repeat: -1,
+        });
     }
 }

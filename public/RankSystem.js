@@ -21,8 +21,8 @@ export default class RankSystem {
       { min: 81, max: 85, title: "Ascendant" },
       { min: 86, max: 90, title: "Mythical Shinobi" },
       { min: 91, max: 95, title: "Legend Incarnate" },
-      { min: 96, max: 100, title: "Gangstar" },
-      { min: 101, max: Infinity, title: "Super Insane Master of All" }
+      { min: 96, max: 99, title: "Gangstar" },
+      { min: 100, max: Infinity, title: "Super Insane Master of All" }
     ];
   }
 

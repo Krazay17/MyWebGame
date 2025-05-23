@@ -14,6 +14,10 @@ export default class BaseGame extends Phaser.Scene {
     this.load.image('platform', 'Assets/platform.png');
     this.load.image('platformwide', 'Assets/platformwide.png');
     this.load.image('platformtall', 'Assets/platformtall.png');
+    this.load.spritesheet('dudesheet', 'Assets/DudeSheet.png', {
+        frameWidth: 256,
+        frameHeight: 256,
+    });
   }
 
   update(time, delta) {
@@ -33,13 +37,13 @@ export default class BaseGame extends Phaser.Scene {
     this.cameras.main.setBounds(-1600, 0, 3200, 900);
 
     this.network = new NetworkManager(this);
-    
+
     Object.values(this.network.otherPlayers).forEach(ghost => {
       ghost.updateScene(this);
     });
   }
 
-  setupSky(a = 'sky', b = 'skylayer1', c = 'skylayer2') {
+  setupSky(a = 'sky2', b = 'sky2layer1', c = 'sky2layer2') {
     this.sky1 = this.add.image(0, 0, a).setOrigin(0)
       .setDisplaySize(this.scale.width, this.scale.height).setScrollFactor(0)
       .on('resize', (gameSize) => {
@@ -48,8 +52,8 @@ export default class BaseGame extends Phaser.Scene {
 
         this.sky1.setDisplaySize(width, height);
       });
-    this.sky2 = this.add.image(600, 0, b).setScale(.5).setScrollFactor(.2)
-    this.sky3 = this.add.image(600, 0, c).setScale(.5).setScrollFactor(.6)
+    this.sky2 = this.add.image(800, 600, b).setScale(.5).setScrollFactor(.2)
+    this.sky3 = this.add.image(600, 400, c).setScale(.5).setScrollFactor(.6)
   }
 
   setupPlayer(x = 0, y = 0) {
@@ -144,18 +148,28 @@ export default class BaseGame extends Phaser.Scene {
     }, null, this);
   }
 
-  setupPlatforms(platformPos = [[0, 0]]) {
+  setupPlatforms(platformPos = [[0, 800]]) {
     platformPos.forEach(pos => this.platforms.create(pos[0], pos[1], 'platform'));
   }
 
   setupQuick() {
-    this.setupWorld();
     this.setupSky();
+    this.setupWorld();
     this.setupMusic();
     this.setupFPS();
     this.setupKeybinds();
     this.setupPlayer();
     this.setupGroups();
     this.setupCollisions();
+  }
+
+  smallenCenterCollision(object, x, y)
+  {
+    object.body.setSize(x, y); // Smaller than sprite size
+    object.body.setOffset(
+    (object.width - x) / 2,
+    (object.height - y) / 2
+  );
+
   }
 }

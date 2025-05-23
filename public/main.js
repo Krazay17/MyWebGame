@@ -4,6 +4,7 @@ import MainGame from './Game.js';
 import EscMenu from './EscMenu.js';
 import Home from './Home.js';
 import Inventory from './Inventory.js';
+import Level1 from './Level1.js';
 
 
 const config = {
@@ -25,7 +26,7 @@ const config = {
         debug: false,
       }
     },
-    scene: [Boot, Preloader, Home, MainGame, Inventory, EscMenu],
+    scene: [Boot, Preloader, Home, MainGame, Level1, Inventory, EscMenu],
 };
 
 let game = new Phaser.Game(config);

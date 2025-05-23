@@ -12,12 +12,13 @@ export default class Home extends BaseGame
         super.preload();
         this.load.audio('homemusic', 'Assets/HomeMusic.wav')
         this.load.image('platformwide', 'Assets/platformwide.png')
-        this.load.image('portal0', 'Assets/portal1.png')
-        this.load.image('portal1', 'Assets/portal2.png')
+        this.load.image('portal0', 'Assets/Portal1.png')
+        this.load.image('portal1', 'Assets/Portal2.png')
     }
 
     create()
     {
+        this.saveLevel();
         this.setupKeybinds();
         this.setupSky();
         this.setupWorld();
@@ -53,8 +54,8 @@ export default class Home extends BaseGame
         const portal0 = this.portals.create(800, 300, 'portal0');
         const portal1 = this.portals.create(-800, 300, 'portal1');
 
-        this.smallenCenterCollision(portal0, 100, 100);
-        this.smallenCenterCollision(portal1, 100, 100);
+        this.shrinkCollision(portal0, 100, 100);
+        this.shrinkCollision(portal1, 100, 100);
 
         this.tweens.add({
             targets: portal0,

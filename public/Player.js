@@ -97,11 +97,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
                 this.Died();
             }
         }
-        if (this.anims.currentFrame) {
-    console.log('Current frame index:', this.anims.currentFrame.index);
-    console.log('Current frame name/key:', this.anims.currentFrame.textureFrame);
-}
-
     }
     
     Died()
@@ -215,7 +210,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
             if (this.body.touching.down) {
                 this.anims.play('dudewalk', true);
             } else {
-                this.setFrame(4);
+                this.setFrame(5);
             }
             if (dash.isDown && this.canDash) {
                 this.Dash(-600);
@@ -226,7 +221,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
             if (this.body.touching.down) {
                 this.anims.play('dudewalk', true);
             } else {
-                this.setFrame(4);
+                this.setFrame(5);
             }
             if (dash.isDown && this.canDash) {
                 this.Dash(600);
@@ -236,7 +231,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         } else {
             this.setVelocityX(WalkLerp(0));
             this.stop();
-            this.setFrame(0);
+            if(this.body.touching.down) this.setFrame(0);
+            else this.setFrame(2);
         }
 
 

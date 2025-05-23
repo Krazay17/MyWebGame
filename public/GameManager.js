@@ -1,6 +1,7 @@
 export default{
 
     level: 1,
+    area: 'Home',
     source: 0,
     playerHealth: 5,
     volume: 1,
@@ -17,6 +18,7 @@ export default{
     {
         const data = {
             level: this.level,
+            area: this.area,
             source: this.source,
             playerHealth: this.playerHealth,
             volume: this.volume,
@@ -33,6 +35,7 @@ export default{
         {
             const parsed = JSON.parse(data);
             this.level = Math.floor(parsed.level) ?? 1;
+            this.area = parsed.area ?? 'Home';
             this.source = Math.floor(parsed.source) ?? 0;
             this.playerHealth = parsed.playerHealth ?? 5;
             this.volume = parsed.volume ?? 1;
@@ -44,6 +47,7 @@ export default{
     reset()
     {
         this.level = 1;
+        this.area = 'Home';
         this.source = 0;
         this.playerHealth = 5;
         this.volume = 1;

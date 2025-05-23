@@ -18,14 +18,16 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite
         if (showHealthBar){
             this.createHealthBar();
         }
+        if (this.anims.get('sun'))
+            this.play('sun');
     }
 
     createHealthBar()
     {
         this.createdHealthBar = true;
         const barWidth = this.maxHealth * 10;
-        this.healthBarBg = this.scene.add.rectangle(this.x, this.y - this.height / 2 - 6, barWidth, 6, 0x000000, 0.6);
-        this.healthBar = this.scene.add.rectangle(this.x, this.y - this.height / 2 - 6, barWidth, 6, 0xff0000, 1);
+        this.healthBarBg = this.scene.add.rectangle(this.x, this.y - this.displayHeight / 2 - 6, barWidth, 6, 0x000000, 0.6);
+        this.healthBar = this.scene.add.rectangle(this.x, this.y - this.displayHeight / 2 - 6, barWidth, 6, 0xff0000, 1);
         this.healthBar.setOrigin(0.5);
         this.healthBarBg.setOrigin(0.5);
     }
@@ -91,5 +93,13 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite
     {
         player.TakeDamage(-400, -150); // or something based on velocity
     }
+
+    shrinkCollision(x, y) {
+    this.body.setSize(x, y); // Smaller than sprite size
+    this.body.setOffset(
+      (this.width - x) / 2,
+      (this.height - y) / 2
+    );
+  }
 
 }

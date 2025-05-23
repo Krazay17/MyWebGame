@@ -15,8 +15,16 @@ export default class Projectiles extends Phaser.Physics.Arcade.Group
     }
     SpawnFireballs(x, y)
     {
-        const bullet = this.create(x, y, 'fireball');
+        const bullet = this.create(x, y, 'fireballsheet');
         bullet.setVelocityX(-450);
+        if (!this.scene.anims.get('fireball'))
+            this.scene.anims.create({
+                key: 'fireball',
+                frames: this.scene.anims.generateFrameNumbers('fireballsheet', { start: 0, end: 2 }),
+                frameRate: 8,
+                repeat: -1,
+        });
+        bullet.play('fireball');
     }
 
     PlayerHit(player, projectile)

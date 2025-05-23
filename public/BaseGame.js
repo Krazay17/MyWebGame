@@ -3,10 +3,12 @@ import PlayerWeapons from './PlayerWeapons.js';
 import Pickups from './Pickups.js';
 import NetworkManager from './NetworkManager.js';
 import Enemies from './Enemies.js';
+import GameManager from './GameManager.js';
 
 export default class BaseGame extends Phaser.Scene {
   constructor(key) {
     super(key);
+    this.key = key;
 
   }
 
@@ -153,6 +155,7 @@ export default class BaseGame extends Phaser.Scene {
   }
 
   setupQuick() {
+    this.saveLevel();
     this.setupSky();
     this.setupWorld();
     this.setupMusic();
@@ -163,13 +166,19 @@ export default class BaseGame extends Phaser.Scene {
     this.setupCollisions();
   }
 
-  smallenCenterCollision(object, x, y)
+  shrinkCollision(object, x, y)
   {
     object.body.setSize(x, y); // Smaller than sprite size
     object.body.setOffset(
-    (object.width - x) / 2,
-    (object.height - y) / 2
-  );
+      (object.width - x) / 2,
+      (object.height - y) / 2
+    );
+  }
 
+  saveLevel()
+  {
+    GameManager.area = this.key;
+    console.log(this.key);
+    GameManager.save();
   }
 }

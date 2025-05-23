@@ -17,15 +17,16 @@ export default class MainGame extends BaseGame
     this.load.image('skylayer2', 'Assets/SkyLayer2.png');
     this.load.image('coin', 'Assets/SourceCoin.png');
     this.load.image('bullet', 'Assets/bullet.png');
-    this.load.image('sunman', 'Assets/SunMan.png');
+    this.load.spritesheet('sunsheet', 'Assets/SunSheet.png', {frameWidth: 256, frameHeight: 256});
     this.load.image('duckman', 'Assets/duckman.png');
     this.load.image('turret', 'Assets/TurretPlatform.png');
-    this.load.image('fireball', 'Assets/Fireball.png');
+    this.load.spritesheet('fireballsheet', 'Assets/FireballSheet.png', {frameWidth: 66, frameHeight: 26});
     this.load.audio('music', 'Assets/Music.wav');
   }
 
   create()
   {
+    this.saveLevel();
     this.MakeSky();
     this.setupWorld();
     this.setupKeybinds();
@@ -44,6 +45,7 @@ export default class MainGame extends BaseGame
       this.player.TouchPlatform()
     });
     this.physics.add.collider(this.sunMans, this.sunMans);
+    this.sunMans.sh
     this.physics.add.collider(this.pickups, this.movingPlats);
     this.physics.add.overlap(this.player, this.sunMans, (player, enemy) =>{
       this.sunMans.PlayerCollide(player, enemy, true);

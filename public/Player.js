@@ -6,7 +6,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
 {
     constructor (scene, x, y)
     {
-        super(scene, x, y, 'dude');
+        super(scene, x, y, 'dudesheet');
         GameManager.load();
         this.network = NetworkManager.instance;
 
@@ -79,6 +79,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
 
     preUpdate(time, delta)
     {   
+        super.preUpdate(time, delta);
+
         if (this.alive)
         {
             if  (this.canLeftAttack){
@@ -95,6 +97,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
                 this.Died();
             }
         }
+        if (this.anims.currentFrame) {
+    console.log('Current frame index:', this.anims.currentFrame.index);
+    console.log('Current frame name/key:', this.anims.currentFrame.textureFrame);
+}
+
     }
     
     Died()
@@ -205,14 +212,22 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         if (isLeft && !isDown) {
             this.setVelocityX(WalkLerp(-this.speed));
             this.flipX = true;
-            this.play('dudewalk');
+            if (this.body.touching.down) {
+                this.anims.play('dudewalk', true);
+            } else {
+                this.setFrame(4);
+            }
             if (dash.isDown && this.canDash) {
                 this.Dash(-600);
             }
         } else if (isRight && !isDown) {
             this.setVelocityX(WalkLerp(this.speed));
             this.flipX = false;
-            this.play('dudewalk');
+            if (this.body.touching.down) {
+                this.anims.play('dudewalk', true);
+            } else {
+                this.setFrame(4);
+            }
             if (dash.isDown && this.canDash) {
                 this.Dash(600);
             }
@@ -220,6 +235,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
             this.setVelocityX(WalkLerp(0, 0.01));
         } else {
             this.setVelocityX(WalkLerp(0));
+            this.stop();
             this.setFrame(0);
         }
 
@@ -228,6 +244,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         if (isUp && this.canJump) {
             this.setVelocityY(-this.jumpPower);
             this.jumpPower += delta * 1.8;
+            this.stop();
+            this.setFrame(1);
             if (this.jumpPower >= this.jumpMax) this.canJump = false;
         } else {
             this.canJump = false;
@@ -242,12 +260,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
 
         if (isDown && !this.isCrouch) {
             this.isCrouch = true;
+            this.stop();
             this.setTexture('dudecrouch');
             this.setSize(105, 140);
             this.setOffset(55, 105);
         } else if (!isDown && this.isCrouch) {
             this.isCrouch = false;
-            this.setTexture('dude');
+            this.setTexture('dudesheet');
             this.setSize(105, 240);
             this.setOffset(55, 5);
         }
@@ -347,8 +366,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
     {
         this.scene.anims.create({
             key: 'dudewalk',
-            frames: this.anims.generateFrameNumbers('dudesheet', {start: 1, end: 5}),
-            framerate: 10,
+            frames: this.anims.generateFrameNumbers('dudesheet', {start: 2, end: 4}),
+            frameRate: 10,
             repeat: -1,
         });
     }

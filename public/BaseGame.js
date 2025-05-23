@@ -2,8 +2,8 @@ import Player from './Player.js';
 import PlayerWeapons from './PlayerWeapons.js';
 import Pickups from './Pickups.js';
 import NetworkManager from './NetworkManager.js';
-import Enemies from './Enemies.js';
 import GameManager from './GameManager.js';
+import Breakables from './Breakables.js';
 
 export default class BaseGame extends Phaser.Scene {
   constructor(key) {
@@ -13,12 +13,18 @@ export default class BaseGame extends Phaser.Scene {
   }
 
   preload() {
+    this.load.audio('energysound', 'Assets/EnergySound.wav');
     this.load.image('platform', 'Assets/platform.png');
     this.load.image('platformwide', 'Assets/platformwide.png');
     this.load.image('platformtall', 'Assets/platformtall.png');
     this.load.spritesheet('dudesheet', 'Assets/DudeSheet.png', {
-        frameWidth: 256,
-        frameHeight: 256,
+      frameWidth: 256,
+      frameHeight: 256,
+    });
+    
+    this.load.spritesheet('boxsheet', 'Assets/BoxSheet.png', {
+      frameWidth: 64,
+      frameHeight: 64,
     });
   }
 
@@ -85,39 +91,14 @@ export default class BaseGame extends Phaser.Scene {
     this.platformGroups = [];
     this.enemyGroups = [];
     this.bulletGroups = [];
+    this.breakableGroups = [];
     // Groups
     this.platformGroups.push(this.platforms = this.physics.add.staticGroup());
     this.pickups = new Pickups(this);
     this.playerWeapons = new PlayerWeapons(this, this.player);
+    this.breakableGroups.push(this.breakables = new Breakables(this));
 
     this.player.SetWeaponGroup(this.playerWeapons);
-  }
-
-  setupKeybinds() {
-    this.restartKey = this.input.keyboard.on('keydown-R', () => {
-      this.player.Died();
-      this.scene.restart();
-    });
-
-    this.homeKey = this.input.keyboard.on('keydown-T', () => {
-      this.scene.start('Home');
-    });
-  }
-
-  setupMusic(key = 'homemusic', volume = 1) {
-  // If music is already playing and it's the same track, do nothing
-  // Use globalThis to store music reference
-  if (!globalThis.currentMusic || globalThis.currentMusic.key !== key) {
-    // Stop current music
-    if (globalThis.currentMusic && globalThis.currentMusic.isPlaying) {
-      globalThis.currentMusic.stop();
-    }
-
-    // Start new track
-    globalThis.currentMusic = this.sound.add(key, { loop: true });
-    globalThis.currentMusic.volume = volume;
-    globalThis.currentMusic.play();
-  }
   }
 
   setupCollisions() {
@@ -139,6 +120,16 @@ export default class BaseGame extends Phaser.Scene {
       }, null, this);
     });
 
+    this.breakableGroups.forEach(group => {
+      this.physics.add.overlap(this.playerWeapons, group, (weapon, target) => {
+        weapon.BreakableHit(target);
+      }, null, this);
+    });
+
+    this.physics.add.collider(this.player, this.breakables, (player, platform) => {
+      this.player.TouchPlatform()
+    });
+
     this.physics.add.collider(this.player, this.platforms, (player, platform) => {
       this.player.TouchPlatform()
     });
@@ -149,6 +140,31 @@ export default class BaseGame extends Phaser.Scene {
       this.pickups.Pickup(player, pickup);
     }, null, this);
   }
+
+  setupKeybinds() {
+    this.restartKey = this.input.keyboard.on('keydown-R', () => {
+      this.player.Died();
+      this.scene.restart();
+    });
+
+  }
+
+  setupMusic(key = 'homemusic', volume = 1) {
+    // If music is already playing and it's the same track, do nothing
+    // Use globalThis to store music reference
+    if (!globalThis.currentMusic || globalThis.currentMusic.key !== key) {
+      // Stop current music
+      if (globalThis.currentMusic && globalThis.currentMusic.isPlaying) {
+        globalThis.currentMusic.stop();
+      }
+
+      // Start new track
+      globalThis.currentMusic = this.sound.add(key, { loop: true });
+      globalThis.currentMusic.volume = volume;
+      globalThis.currentMusic.play();
+    }
+  }
+
 
   setupPlatforms(platformPos = [[0, 800]]) {
     platformPos.forEach(pos => this.platforms.create(pos[0], pos[1], 'platform'));
@@ -166,8 +182,7 @@ export default class BaseGame extends Phaser.Scene {
     this.setupCollisions();
   }
 
-  shrinkCollision(object, x, y)
-  {
+  shrinkCollision(object, x, y) {
     object.body.setSize(x, y); // Smaller than sprite size
     object.body.setOffset(
       (object.width - x) / 2,
@@ -175,8 +190,7 @@ export default class BaseGame extends Phaser.Scene {
     );
   }
 
-  saveLevel()
-  {
+  saveLevel() {
     GameManager.area = this.key;
     console.log(this.key);
     GameManager.save();

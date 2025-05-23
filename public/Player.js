@@ -74,6 +74,14 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
                 this.UpdateSource(5);
             }
         });
+
+        this.scene.input.keyboard.on('keydown-T', () => {
+            if (this.scene.scene.key !== 'Home' && this.body.touching.down){
+                this.scene.scene.start('Home')
+            }
+        });
+
+        this.resetJump(true);
         
     }
 
@@ -152,6 +160,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
             const direction = new Phaser.Math.Vector2(worldPos.x - this.x, worldPos.y - this.y).normalize();
 
             this.shurikans.SpawnShurikan(this.x, this.y, direction);
+
+            this.network.socket.emit('shurikanthrow', {x: this.x, y: this.y, d: {x: direction.x, y: direction.y}});
 
             
             this.scene.time.addEvent({

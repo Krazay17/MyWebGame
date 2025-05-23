@@ -46,6 +46,12 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('shurikanthrow', ({x, y, d}) => {
+    if (players[socket.id]){
+      socket.broadcast.emit('shurikanthrown', { id: socket.id, x, y, d});
+    }
+  });
+
   socket.on('playerLevel', (source) => {
     if (players[socket.id]){
     players[socket.id].source = source;

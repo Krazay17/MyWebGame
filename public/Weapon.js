@@ -35,10 +35,20 @@ export default class Weapon extends Phaser.Physics.Arcade.Sprite
         if (this.scene && this.scene.sound.get('shurikanhit'))
             this.scene.sound.play('shurikanhit');
 
-        if(this.isProjectile){
+        if (this.isProjectile){
             const Velocity = this.body.velocity;
             if (enemy.TakeDamage(this.player, this.baseDamage, Velocity))
                 this.destroy();
+        };
+    }
+
+    BreakableHit(target)
+    {
+        // Stuff
+        target.Hit(this.player, this.baseDamage);
+        // Destroy
+        if (this.isProjectile){
+            this.destroy();
         };
     }
 }

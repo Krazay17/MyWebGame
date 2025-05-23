@@ -41,9 +41,9 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite
 
         // Positioning
         this.healthBar.x = this.x;
-        this.healthBar.y = this.y - this.height / 2 - 6;
+        this.healthBar.y = this.y - this.displayHeight / 2 - 6;
         this.healthBarBg.x = this.x;
-        this.healthBarBg.y = this.y - this.height / 2 - 6;
+        this.healthBarBg.y = this.y - this.displayHeight / 2 - 6;
     }
 
     TakeDamage(player, amount, velocity)

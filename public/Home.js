@@ -28,6 +28,13 @@ export default class Home extends BaseGame
 
         this.setupGroups();
         this.platformGroups.push(this.widePlatforms = this.physics.add.staticGroup());
+        this.breakables.spawnBox(200, 400);
+        this.breakables.spawnBox(400, 500);
+        this.breakables.spawnBox(100, 550);
+        this.breakables.spawnBox(-200, 500);
+        this.breakables.spawnBox(-400, 300);
+        this.breakables.spawnBox(-500, 500);
+        this.breakables.spawnBox(-200, 200);
 
         this.setupCollisions();
 
@@ -59,7 +66,7 @@ export default class Home extends BaseGame
 
         this.tweens.add({
             targets: portal0,
-            angle: 360,
+            angle: -360,
             duration: 1000,
             repeat: -1,
         });

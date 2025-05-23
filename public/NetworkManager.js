@@ -64,6 +64,13 @@ export default class NetworkManager {
       }
     });
 
+    this.socket.on('shurikanthrown', ({id, x, y, d}) => {
+      const player = this.otherPlayers[id];
+      if (player) {
+        player.ghostShurikan(x, y, d);
+      }
+    })
+
   }
 
   addOtherPlayer(id, x = -1100, y= 400, source) {

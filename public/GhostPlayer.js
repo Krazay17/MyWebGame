@@ -91,5 +91,38 @@ export default class GhostPlayer {
       this.sprite.setFrame(5);
     }
   }
-}
 
+  ghostShurikan(x, y, d) {
+    const speed = 1000;
+
+    // Convert plain object to Vector2 (in case it's from network)
+    const direction = new Phaser.Math.Vector2(d.x, d.y).normalize();
+    const velocity = direction.scale(speed);
+
+    // Add shurikan as a physics sprite
+    const shurikan = this.scene.physics.add.sprite(x, y, 'shurikan');
+    shurikan.setScale(0.15);
+    shurikan.setAlpha(0.6);
+    shurikan.setTint(0x00ffff);
+
+    // Disable gravity if needed (optional)
+    shurikan.body.allowGravity = false;
+
+    // Set velocity
+    shurikan.setVelocity(velocity.x, velocity.y);
+
+    // Optional: add spin animation
+    this.scene.tweens.add({
+      targets: shurikan,
+      angle: 360,
+      duration: 500,
+      repeat: -1,
+      ease: 'Linear',
+    });
+
+    // Auto-destroy after time (e.g., 1 sec)
+    this.scene.time.delayedCall(1000, () => {
+      shurikan.destroy();
+    });
+  }
+}

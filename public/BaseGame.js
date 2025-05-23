@@ -97,12 +97,20 @@ export default class BaseGame extends Phaser.Scene {
     });
   }
 
-  setupMusic() {
-    if (!this.sound.get('music')) {
-      this.gameMusic = this.sound.add('music', { loop: true });
-      this.gameMusic.volume = .4;
-      this.gameMusic.play();
-    };
+  setupMusic(key = 'homemusic', volume = 1) {
+  // If music is already playing and it's the same track, do nothing
+  // Use globalThis to store music reference
+  if (!globalThis.currentMusic || globalThis.currentMusic.key !== key) {
+    // Stop current music
+    if (globalThis.currentMusic && globalThis.currentMusic.isPlaying) {
+      globalThis.currentMusic.stop();
+    }
+
+    // Start new track
+    globalThis.currentMusic = this.sound.add(key, { loop: true });
+    globalThis.currentMusic.volume = volume;
+    globalThis.currentMusic.play();
+  }
   }
 
   setupCollisions() {

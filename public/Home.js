@@ -10,6 +10,7 @@ export default class Home extends BaseGame
     preload()
     {
         super.preload();
+        this.load.audio('homemusic', 'Assets/HomeMusic.wav')
         this.load.image('sky2', 'Assets/Sky2.png')
         this.load.image('sky2layer1', 'Assets/Sky2Layer1.png')
         this.load.image('sky2layer2', 'Assets/Sky2Layer2.png')
@@ -22,6 +23,7 @@ export default class Home extends BaseGame
         this.setupWorld();
         this.setupKeybinds();
         this.MakeSky();
+        this.setupMusic('homemusic');
         this.setupFPS();
         this.setupPlayer();
 

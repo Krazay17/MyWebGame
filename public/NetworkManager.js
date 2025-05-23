@@ -5,12 +5,13 @@ export default class NetworkManager {
   static instance;
 
   constructor(scene) {
+    this.scene = scene;
+    
     if (NetworkManager.instance){
       return NetworkManager.instance;
     }
     NetworkManager.instance = this;
 
-    this.scene = scene;
 
     const serverURL = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
     ? 'http://localhost:3000'

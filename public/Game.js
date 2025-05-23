@@ -29,7 +29,7 @@ export default class MainGame extends BaseGame
     this.setupWorld();
     this.MakeSky();
     this.setupKeybinds();
-    this.setupMusic();
+    this.setupMusic('music');
     this.setupFPS();
     this.setupPlayer(-1100, 300);
 

@@ -1,5 +1,5 @@
-import Enemies from './Enemies.js';
-import Projectiles from './Projectiles.js';
+import Enemies from '../Enemies.js';
+import Projectiles from '../Projectiles.js';
 import BaseGame from './BaseGame.js';
 
 export default class MainGame extends BaseGame

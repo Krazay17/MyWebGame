@@ -1,17 +1,18 @@
 import GameManager from "./GameManager.js";
 import NetworkManager from "./NetworkManager.js";
 import RankSystem from "./RankSystem.js";
+import {createWeapon} from "./Weapons/WeaponManager.js"
 
-export default class Player extends Phaser.Physics.Arcade.Sprite
-{
-    constructor (scene, x, y)
-    {
-        super(scene, x, y, 'dudesheet');
+export default class Player extends Phaser.Physics.Arcade.Sprite {
+    constructor(scene, x, y) {
+        super(scene, x, y, 'dudesheet', {});
         GameManager.load();
         this.network = NetworkManager.instance;
 
         scene.add.existing(this);
         scene.physics.add.existing(this);
+
+        this.body.setMaxSpeed(1400);
 
         this.setupAnimation();
 
@@ -36,14 +37,17 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         this.iFrame = false;
         this.hitCD = false;
 
+        this.leftWeapon = createWeapon('shurikan', scene, this);
+
         this.tryLeftAttack = false;
         this.canLeftAttack = true;
+        this.canRightAttack = true;
         this.leftSpam = 0;
         this.rightSpam = 0;
         this.speed = 250;
 
-        this.scene.scene.launch('EscMenu', {gameScene: this.scene});
-        this.scene.scene.launch('Inventory', {player: this});
+        this.scene.scene.launch('EscMenu', { gameScene: this.scene });
+        this.scene.scene.launch('Inventory', { player: this });
 
         this.rankSystem = new RankSystem();
 
@@ -58,61 +62,69 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         this.myPointer = new Phaser.Input.Pointer(this.scene.input.manager, 1)
 
         this.scoreText = this.scene.add.text(10, 150, 'Source: ' + GameManager.source + '\n' + this.rankSystem.getRank(GameManager.source), {
-            fontSize: '32px', 
+            fontSize: '32px',
             color: '#4fffff'
         });
         this.scoreText.setScrollFactor(0);
 
         this.scene.input.on('pointerdown', (pointer) => {
-            if(pointer.middleButtonDown())
-            this.Teleport(pointer);
+            if (pointer.middleButtonDown())
+                this.Teleport(pointer);
         });
 
         this.scene.input.keyboard.on('keydown-F', () => {
-            if (GameManager.devMode){
+            if (GameManager.devMode) {
                 console.log('devmodeon')
                 this.UpdateSource(5);
             }
         });
 
         this.scene.input.keyboard.on('keydown-T', () => {
-            if (this.scene.scene.key !== 'Home' && this.body.touching.down){
+            if (this.scene.scene.key !== 'Home' && this.body.touching.down) {
                 this.scene.scene.start('Home')
             }
         });
 
         this.resetJump(true);
-        
+
+        this.scene.time.addEvent({
+            delay: 1000,
+            loop: true,
+            callback: () => {
+                this.syncNetwork();
+            }
+        })
+
     }
 
-    preUpdate(time, delta)
-    {   
+    preUpdate(time, delta) {
         super.preUpdate(time, delta);
 
-        if (this.alive)
-        {
-            if  (this.canLeftAttack){
-            this.leftSpam -= delta * .65;
-            this.leftSpam = Math.max(0, this.leftSpam);
-            }
-            const pointer = this.scene.input.activePointer
-            if (pointer.leftButtonDown())
-            {
-                this.LeftAttack(pointer);
+        if (this.alive && !this.stunned) {
+            if (this.canLeftAttack) {
+                this.leftSpam -= delta * .65;
+                this.leftSpam = Math.max(0, this.leftSpam);
             }
 
-            if (this.y > this.scene.physics.world.bounds.height + this.body.height/2 && this.alive){
+            const pointer = this.scene.input.activePointer;
+            if (pointer.leftButtonDown()) {
+                this.LeftAttack(pointer);
+            }
+            if (pointer.rightButtonDown()) {
+                this.RightAttack(pointer);
+            }
+
+            if (this.y > this.scene.physics.world.bounds.height + this.body.height / 2 && this.alive) {
                 this.Died();
             }
         }
     }
-    
-    Died()
-    {
-        if(this.alive == false) return;
+
+    Died() {
+        if (this.alive == false) return;
         this.alive = false;
 
-        this.deathPenalty = Math.floor(-GameManager.source/3);
+        this.deathPenalty = Math.floor(-GameManager.source / 3);
         this.UpdateSource(this.deathPenalty);
 
         this.leftSpam = 0;
@@ -124,14 +136,14 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         const gameOverText = this.scene.add.text(
             this.scene.cameras.main.width / 2,
             this.scene.cameras.main.height / 2,
-            'YOU DIED!\n'+ this.deathPenalty + ' Source', {
+            'YOU DIED!\n' + this.deathPenalty + ' Source', {
             fontSize: '64px',
             color: '#ff0000'
         });
 
         gameOverText.setOrigin(0.5);
         gameOverText.setScrollFactor(0);
-        
+
         this.scene.physics?.pause(); // Stop physics
         this.scene.time.addEvent({
             delay: 2000,
@@ -142,41 +154,68 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         GameManager.save();
     }
 
-    Teleport(pointer)
-    {
-        if(GameManager.devMode || GameManager.debug.canTeleport){
-        const worldPos = pointer.positionToCamera(this.scene.cameras.main);
-        this.setPosition(worldPos.x, worldPos.y);
-        this.setVelocity(0);
+    Teleport(pointer) {
+        if (GameManager.devMode || GameManager.debug.canTeleport) {
+            const worldPos = pointer.positionToCamera(this.scene.cameras.main);
+            this.setPosition(worldPos.x, worldPos.y);
+            this.setVelocity(0);
         }
     }
 
-    LeftAttack(pointer)
-    {
-        if (this.canLeftAttack){
-            this.canLeftAttack = false;
+    LeftAttack(pointer) {
 
+        this.leftWeapon.fire(pointer);
+
+        // if (this.canLeftAttack) {
+        //     this.canLeftAttack = false;
+        //     const offset = 20;
+        //     const worldPos = pointer.positionToCamera(this.scene.cameras.main);
+        //     const direction = new Phaser.Math.Vector2(worldPos.x - this.x, worldPos.y - this.y).normalize();
+
+        //     // Do attack
+        //     this.weapons.SpawnShurikan(this.x, this.y - offset, direction);
+
+        //     // Network
+        //     this.network.socket.emit('shurikanthrow', { x: this.x, y: this.y - offset, d: { x: direction.x, y: direction.y } });
+
+        //     // Cooldown
+        //     this.scene.time.addEvent({
+        //         delay: 200 + this.leftSpam,
+        //         callback: () => {
+        //             this.canLeftAttack = true;
+        //         }
+        //     });
+
+        //     this.leftSpam += 45;
+        // }
+    }
+
+    RightAttack(pointer) {
+        if (this.canRightAttack) {
+            this.canRightAttack = false;
+            const offset = 20;
             const worldPos = pointer.positionToCamera(this.scene.cameras.main);
             const direction = new Phaser.Math.Vector2(worldPos.x - this.x, worldPos.y - this.y).normalize();
 
-            this.shurikans.SpawnShurikan(this.x, this.y, direction);
+            // Do attack
+            this.weapons.SpawnShurikan(this.x, this.y - offset, direction);
 
-            this.network.socket.emit('shurikanthrow', {x: this.x, y: this.y, d: {x: direction.x, y: direction.y}});
-
+            // Network
+            this.network.socket.emit('shurikanthrow', { x: this.x, y: this.y - offset, d: { x: direction.x, y: direction.y } });
             
+            // Cooldown
             this.scene.time.addEvent({
-                delay: 200 + this.leftSpam,
+                delay: 200 + this.rightSpam,
                 callback: () => {
-                    this.canLeftAttack = true;
+                    this.canRightAttack = true;
                 }
             });
 
-            this.leftSpam += 45;
+            this.rightSpam += 45;
         }
     }
 
-    TouchPlatform(player, platform)
-    {
+    TouchPlatform(player, platform) {
         if (this.body.touching.down) {
             this.resetJump(true);
         }
@@ -193,9 +232,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         }
     }
 
-    SetWeaponGroup(group)
-    {
-        this.shurikans = group;
+    SetWeaponGroup(group) {
+        this.weapons = group;
     }
 
     handleInput(delta) {
@@ -241,7 +279,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         } else {
             this.setVelocityX(WalkLerp(0));
             this.stop();
-            if(this.body.touching.down) this.setFrame(0);
+            if (this.body.touching.down) this.setFrame(0);
             else this.setFrame(2);
         }
 
@@ -288,15 +326,14 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         }
     }
 
-    TakeDamage(x, y, damage)
-    {
+    TakeDamage(x, y, damage) {
         if (this.iFrame) return false;
         if (this.hitCD) return false;
 
         this.hitCD = true;
         this.scene.time.addEvent({
             delay: 400,
-            callback: () =>{
+            callback: () => {
                 this.hitCD = false;
             }
         });
@@ -314,7 +351,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         this.scene.time.removeEvent(this.stunTimer);
         this.stunTimer = this.scene.time.addEvent({
             delay: 400,
-            callback: () =>{
+            callback: () => {
                 this.stunned = false;
             }
         });
@@ -327,9 +364,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
 
         return true;
     }
-    
-    Dash(x)
-    {
+
+    Dash(x) {
         this.iFrame = true;
 
         this.setVelocityX(x);
@@ -345,20 +381,17 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         });
     }
 
-    CarryPlayer(player, floor)
-    {
+    CarryPlayer(player, floor) {
         player.setVelocityX(floor.body.velocity.x);
     }
 
-    PickupItem(source = 0)
-    {
-        if (source > 0){
+    PickupItem(source = 0) {
+        if (source > 0) {
             this.UpdateSource(source);
         }
     }
 
-    UpdateSource(source)
-    {
+    UpdateSource(source) {
         const intSource = Math.floor(source);
         const prevSource = GameManager.source;
         GameManager.source += intSource;
@@ -368,13 +401,16 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         this.network.socket.emit('playerLevel', GameManager.source);
     }
 
-    setupAnimation()
-    {
+    setupAnimation() {
         this.scene.anims.create({
             key: 'dudewalk',
-            frames: this.anims.generateFrameNumbers('dudesheet', {start: 2, end: 4}),
+            frames: this.anims.generateFrameNumbers('dudesheet', { start: 2, end: 4 }),
             frameRate: 10,
             repeat: -1,
         });
+    }
+
+    syncNetwork() {
+        this.UpdateSource();
     }
 }

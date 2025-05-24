@@ -1,10 +1,10 @@
-import Boot from './Boot.js';
-import Preloader from './Preloader.js';
-import MainGame from './Game.js';
-import EscMenu from './EscMenu.js';
-import Home from './Home.js';
-import Inventory from './Inventory.js';
-import Level1 from './Level1.js';
+import Boot from './Scenes/Boot.js';
+import Preloader from './Scenes/Preloader.js';
+import MainGame from './Scenes/Game.js';
+import EscMenu from './Scenes/EscMenu.js';
+import Home from './Scenes/Home.js';
+import Inventory from './Scenes/Inventory.js';
+import Level1 from './Scenes/Level1.js';
 
 
 const config = {

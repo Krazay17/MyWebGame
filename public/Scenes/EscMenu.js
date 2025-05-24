@@ -1,4 +1,4 @@
-import GameManager from "./GameManager.js";
+import GameManager from "../GameManager.js";
 
 export default class EscMenu extends Phaser.Scene
 {

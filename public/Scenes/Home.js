@@ -10,7 +10,6 @@ export default class Home extends BaseGame
     preload()
     {
         super.preload();
-        this.load.audio('homemusic', 'Assets/HomeMusic.wav')
         this.load.image('platformwide', 'Assets/platformwide.png')
         this.load.image('portal0', 'Assets/Portal1.png')
         this.load.image('portal1', 'Assets/Portal2.png')

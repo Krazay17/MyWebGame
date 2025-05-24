@@ -39,7 +39,7 @@ export default class Enemies extends Phaser.Physics.Arcade.Group {
     const sunMan = new Enemy(this.scene, x, y, 'sunsheet', 3);
     this.add(sunMan, true);
     sunMan.setScale(.4);
-    sunMan.shrinkCollision(150, 150);
+    sunMan.shrinkCollision(170, 170);
     sunMan.setBounce(1);
     sunMan.setCollideWorldBounds(true);
     sunMan.setVelocityX(-200);

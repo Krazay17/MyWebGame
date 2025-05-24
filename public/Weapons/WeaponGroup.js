@@ -1,4 +1,4 @@
-import Weapon from './Weapon.js';
+import WeaponSprite from './WeaponSprite.js';
 
 export default class PlayerWeapons extends Phaser.Physics.Arcade.Group
 {
@@ -14,7 +14,7 @@ export default class PlayerWeapons extends Phaser.Physics.Arcade.Group
         const speed = 1000;
         const velocity = direction.scale(speed);
 
-        const projectile = new Weapon(this.scene, x, y, 'shurikan', this.player, 1, true);
+        const projectile = new WeaponSprite(this.scene, x, y, 'shurikan', this.player, 1, true);
         this.add(projectile);
         projectile.setScale(.15);
         projectile.setVelocity(velocity.x, velocity.y);

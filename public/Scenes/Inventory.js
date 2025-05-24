@@ -1,5 +1,3 @@
-import GameManager from "./GameManager.js";
-
 export default class Inventory extends Phaser.Scene
 {
     constructor()

@@ -1,4 +1,4 @@
-import GameManager from "./GameManager.js";
+import GameManager from "../GameManager.js";
 
 export default class Preloader extends Phaser.Scene
 {
@@ -16,6 +16,7 @@ export default class Preloader extends Phaser.Scene
         this.load.audio('shurikanthrow', 'Assets/Whip1.wav');
         this.load.audio('shurikanhit', 'Assets/shurikan.wav');
         this.load.audio('pickup', 'Assets/SuccessBeep.wav');
+        this.load.audio('homemusic', 'Assets/HomeMusic.wav');
         this.load.image('dudecrouch', 'Assets/DudeCrouch.png');
         this.load.image('shurikan', 'Assets/shurikan.png');
         this.load.image('sword', 'Assets/PixelSword.png');

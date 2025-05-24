@@ -1,9 +1,9 @@
-import Player from './Player.js';
-import PlayerWeapons from './PlayerWeapons.js';
-import Pickups from './Pickups.js';
-import NetworkManager from './NetworkManager.js';
-import GameManager from './GameManager.js';
-import Breakables from './Breakables.js';
+import Player from '../Player.js';
+import WeaponGroup from '../Weapons/WeaponGroup.js';
+import Pickups from '../Pickups.js';
+import NetworkManager from '../NetworkManager.js';
+import GameManager from '../GameManager.js';
+import Breakables from '../Breakables.js';
 
 export default class BaseGame extends Phaser.Scene {
   constructor(key) {
@@ -95,7 +95,7 @@ export default class BaseGame extends Phaser.Scene {
     // Groups
     this.platformGroups.push(this.platforms = this.physics.add.staticGroup());
     this.pickups = new Pickups(this);
-    this.playerWeapons = new PlayerWeapons(this, this.player);
+    this.playerWeapons = new WeaponGroup(this, this.player);
     this.breakableGroups.push(this.breakables = new Breakables(this));
 
     this.player.SetWeaponGroup(this.playerWeapons);
@@ -170,14 +170,14 @@ export default class BaseGame extends Phaser.Scene {
     platformPos.forEach(pos => this.platforms.create(pos[0], pos[1], 'platform'));
   }
 
-  setupQuick() {
+  setupQuick(x = 0, y = 0) {
     this.saveLevel();
     this.setupSky();
     this.setupWorld();
     this.setupMusic();
     this.setupFPS();
     this.setupKeybinds();
-    this.setupPlayer();
+    this.setupPlayer(x, y);
     this.setupGroups();
     this.setupCollisions();
   }

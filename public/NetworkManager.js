@@ -12,7 +12,6 @@ export default class NetworkManager {
     }
     NetworkManager.instance = this;
 
-
     const serverURL = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
     ? 'http://localhost:3000'
     : 'wss://webconduit.onrender.com'

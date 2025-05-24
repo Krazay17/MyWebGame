@@ -27,8 +27,7 @@ export default class RankSystem {
   }
 
   getRank(source) {
-    if (!source) return;
-    return this.ranks.find(rank => source >= rank.min && source <= rank.max).title;
+      return this.ranks.find(rank => source >= rank.min && source <= rank.max).title;
   }
 
   hasRankChanged(prevSource, currentSource) {

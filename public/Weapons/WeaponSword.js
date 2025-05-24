@@ -1,8 +1,9 @@
 import WeaponBase from './WeaponBase.js';
-import WeaponSprite from './WeaponSprite.js'; // projectile sprite
+import WeaponSprite from './WeaponSprite.js';
 
 export default class WeaponSword extends WeaponBase {
-    constructor() {
+    constructor(scene, player) {
+        super(scene, player)
     }
 
     fire(pointer) {

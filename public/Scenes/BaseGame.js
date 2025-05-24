@@ -1,13 +1,14 @@
-import Player from '../Player.js';
+import Player from '../Things/Player.js';
 import WeaponGroup from '../Weapons/WeaponGroup.js';
-import Pickups from '../Pickups.js';
-import NetworkManager from '../NetworkManager.js';
-import GameManager from '../GameManager.js';
-import Breakables from '../Breakables.js';
+import Pickups from '../Things/Pickups.js';
+import NetworkManager from '../Things/NetworkManager.js';
+import GameManager from '../Things/GameManager.js';
+import Breakables from '../Things/Breakables.js';
 
 export default class BaseGame extends Phaser.Scene {
   constructor(key) {
     super(key);
+
     this.key = key;
 
   }
@@ -21,7 +22,7 @@ export default class BaseGame extends Phaser.Scene {
       frameWidth: 256,
       frameHeight: 256,
     });
-    
+
     this.load.spritesheet('boxsheet', 'Assets/BoxSheet.png', {
       frameWidth: 64,
       frameHeight: 64,
@@ -30,6 +31,8 @@ export default class BaseGame extends Phaser.Scene {
 
   update(time, delta) {
     if (this.player) this.player.handleInput(delta);
+    this.player.weapons.forEach(weapon => weapon.update(time, delta));
+
 
     if (this.network) {
       this.network.socket.emit('playerMove', {
@@ -92,39 +95,42 @@ export default class BaseGame extends Phaser.Scene {
     this.enemyGroups = [];
     this.bulletGroups = [];
     this.breakableGroups = [];
+
     // Groups
     this.platformGroups.push(this.platforms = this.physics.add.staticGroup());
     this.pickups = new Pickups(this);
     this.playerWeapons = new WeaponGroup(this, this.player);
     this.breakableGroups.push(this.breakables = new Breakables(this));
-
-    this.player.SetWeaponGroup(this.playerWeapons);
   }
 
   setupCollisions() {
-    this.enemyGroups.forEach(group => {
-      this.physics.add.overlap(this.playerWeapons, group, (weapon, enemy) => {
-        weapon.EnemyHit(enemy);
-      }, null, this);
-    });
+    const equippedWeapons = this.player.weapons;
 
-    this.platformGroups.forEach(group => {
-      this.physics.add.overlap(this.playerWeapons, group, (weapon, platform) => {
-        weapon.PlatformHit(platform);
-      }, null, this);
-    });
+    if (equippedWeapons) {
+    const overlapTargets = [
+      { groups: this.enemyGroups, handler: 'EnemyHit' },
+      { groups: this.platformGroups, handler: 'PlatformHit' },
+      { groups: this.bulletGroups, handler: 'BulletHit' },
+      { groups: this.breakableGroups, handler: 'BreakableHit' }
+    ];
 
-    this.bulletGroups.forEach(group => {
-      this.physics.add.overlap(this.playerWeapons, group, (weapon, bullet) => {
-        weapon.BulletHit(bullet);
-      }, null, this);
-    });
+    equippedWeapons.forEach(equippedWeapon => {
+      const weaponGroup = equippedWeapon.getGroup?.();
+      if (!weaponGroup) return;
 
-    this.breakableGroups.forEach(group => {
-      this.physics.add.overlap(this.playerWeapons, group, (weapon, target) => {
-        weapon.BreakableHit(target);
-      }, null, this);
+      overlapTargets.forEach(({ groups, handler }) => {
+        groups.forEach(group => {
+          this.physics.add.overlap(
+            weaponGroup,
+            group,
+            (weaponSprite, target) => weaponSprite[handler]?.(target),
+            null,
+            this
+          );
+        });
+      });
     });
+  }
 
     this.physics.add.collider(this.player, this.breakables, (player, platform) => {
       this.player.TouchPlatform()
@@ -152,7 +158,9 @@ export default class BaseGame extends Phaser.Scene {
   setupMusic(key = 'homemusic', volume = 1) {
     // If music is already playing and it's the same track, do nothing
     // Use globalThis to store music reference
+
     if (!globalThis.currentMusic || globalThis.currentMusic.key !== key) {
+
       // Stop current music
       if (globalThis.currentMusic && globalThis.currentMusic.isPlaying) {
         globalThis.currentMusic.stop();

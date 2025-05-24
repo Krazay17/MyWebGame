@@ -1,11 +1,12 @@
 import GameManager from "./GameManager.js";
 import NetworkManager from "./NetworkManager.js";
 import RankSystem from "./RankSystem.js";
-import {createWeapon} from "./Weapons/WeaponManager.js"
+import {createWeapon} from "../Weapons/WeaponManager.js"
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y) {
         super(scene, x, y, 'dudesheet', {});
+
         GameManager.load();
         this.network = NetworkManager.instance;
 
@@ -38,6 +39,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.hitCD = false;
 
         this.leftWeapon = createWeapon('shurikan', scene, this);
+        this.rightWeapon = createWeapon('sword', scene, this);
+        this.weapons = [this.leftWeapon, this.rightWeapon];
 
         this.tryLeftAttack = false;
         this.canLeftAttack = true;
@@ -191,28 +194,28 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     RightAttack(pointer) {
-        if (this.canRightAttack) {
-            this.canRightAttack = false;
-            const offset = 20;
-            const worldPos = pointer.positionToCamera(this.scene.cameras.main);
-            const direction = new Phaser.Math.Vector2(worldPos.x - this.x, worldPos.y - this.y).normalize();
+        // if (this.canRightAttack) {
+        //     this.canRightAttack = false;
+        //     const offset = 20;
+        //     const worldPos = pointer.positionToCamera(this.scene.cameras.main);
+        //     const direction = new Phaser.Math.Vector2(worldPos.x - this.x, worldPos.y - this.y).normalize();
 
-            // Do attack
-            this.weapons.SpawnShurikan(this.x, this.y - offset, direction);
+        //     // Do attack
+        //     this.weapons.SpawnShurikan(this.x, this.y - offset, direction);
 
-            // Network
-            this.network.socket.emit('shurikanthrow', { x: this.x, y: this.y - offset, d: { x: direction.x, y: direction.y } });
+        //     // Network
+        //     this.network.socket.emit('shurikanthrow', { x: this.x, y: this.y - offset, d: { x: direction.x, y: direction.y } });
             
-            // Cooldown
-            this.scene.time.addEvent({
-                delay: 200 + this.rightSpam,
-                callback: () => {
-                    this.canRightAttack = true;
-                }
-            });
+        //     // Cooldown
+        //     this.scene.time.addEvent({
+        //         delay: 200 + this.rightSpam,
+        //         callback: () => {
+        //             this.canRightAttack = true;
+        //         }
+        //     });
 
-            this.rightSpam += 45;
-        }
+        //     this.rightSpam += 45;
+        // }
     }
 
     TouchPlatform(player, platform) {
@@ -232,8 +235,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-    SetWeaponGroup(group) {
-        this.weapons = group;
+    getWeaponGroup() {
+        return this.weapons;
     }
 
     handleInput(delta) {
@@ -411,6 +414,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     syncNetwork() {
-        this.UpdateSource();
+        this.network.socket.emit('playerLevel', GameManager.source);
     }
 }

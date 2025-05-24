@@ -86,8 +86,8 @@ export default class Home extends BaseGame
         });
 
 
-        portal0.targetScene = 'MainGame';
-        portal1.targetScene = 'Level1';
+        portal0.targetScene = 'Level1';
+        portal1.targetScene = 'Level3';
 
         this.portalList.push(portal0, portal1);
 

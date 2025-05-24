@@ -1,4 +1,4 @@
-import GameManager from "../GameManager.js";
+import GameManager from "../Things/GameManager.js";
 
 export default class Preloader extends Phaser.Scene
 {

@@ -1,31 +1,148 @@
-import BaseGame from "./BaseGame.js";
+import Enemies from '../Things/Enemies.js';
+import Projectiles from '../Things/Projectiles.js';
+import BaseGame from './BaseGame.js';
 
-export default class Level1 extends BaseGame {
-    constructor() {
-        super('Level1')
-    }
+export default class Level1 extends BaseGame
+{
+  constructor ()
+  {
+    super('Level1');
+  }
 
-    preload() {
-        super.preload()
-    }
+  preload()
+  {
+    super.preload();
+    this.load.image('sky', 'Assets/RedGalaxy2.png');
+    this.load.image('skylayer1', 'Assets/SkyLayer1.png');
+    this.load.image('skylayer2', 'Assets/SkyLayer2.png');
+    this.load.image('coin', 'Assets/SourceCoin.png');
+    this.load.image('bullet', 'Assets/bullet.png');
+    this.load.spritesheet('sunsheet', 'Assets/SunSheet.png', {frameWidth: 256, frameHeight: 256});
+    this.load.image('duckman', 'Assets/duckman.png');
+    this.load.image('turret', 'Assets/TurretPlatform.png');
+    this.load.spritesheet('fireballsheet', 'Assets/FireballSheet.png', {frameWidth: 66, frameHeight: 26});
+    this.load.audio('music', 'Assets/Music.wav');
+  }
 
-    create() {
-        this.setupQuick();
-        this.setupPlatforms([
-  [-1014, 0], [-434, 0], [-338, 0], [-241, 0], [-145, 0], [-48, 0], [48, 0], [145, 0], [241, 0], [338, 0], [434, 0], [531, 0], [627, 0], [724, 0], [820, 0], [917, 0], [1013, 0], [1110, 0], [1206, 0], [1303, 0], [1400, 0],
-  [-434, 100], [-338, 100], [-241, 100], [-145, 100], [-48, 100], [48, 100], [145, 100], [241, 100], [338, 100], [434, 100], [531, 100], [627, 100], [724, 100], [820, 100], [917, 100], [1013, 100], [1110, 100], [1206, 100], [1303, 100], [1400, 100],
-  [-1014, 200], [-724, 200], [-434, 200], [-338, 200], [-241, 200], [-145, 200], [-48, 200], [48, 200], [145, 200], [241, 200], [338, 200], [434, 200], [531, 200], [627, 200], [724, 200], [820, 200], [917, 200], [1013, 200], [1110, 200], [1206, 200], [1303, 200], [1400, 200],
-  [-917, 300], [-531, 300], [-434, 300], [-338, 300], [-241, 300], [-145, 300], [-48, 300], [48, 300], [145, 300], [241, 300], [338, 300], [434, 300], [531, 300], [627, 300], [724, 300], [820, 300], [917, 300], [1013, 300], [1110, 300], [1206, 300], [1303, 300], [1400, 300],
-  [-1120, 400], [-434, 400], [-338, 400], [-241, 400], [-145, 400], [-48, 400], [48, 400], [145, 400], [241, 400], [338, 400], [434, 400], [531, 400], [627, 400], [724, 400], [820, 400], [917, 400], [1013, 400], [1110, 400], [1206, 400], [1303, 400], [1400, 400],
-  [-434, 500], [-338, 500], [-241, 500], [-145, 500], [-48, 500], [48, 500], [145, 500], [241, 500], [338, 500], [434, 500], [531, 500], [627, 500], [724, 500], [820, 500], [917, 500], [1013, 500], [1110, 500], [1206, 500], [1303, 500], [1400, 500],
-  [-1303, 500], [-434, 500], [-338, 500], [-241, 500], [-145, 500], [-48, 500], [48, 500], [145, 500], [241, 500], [338, 500], [434, 500], [531, 500], [627, 500], [724, 500], [820, 500], [917, 500], [1013, 500], [1110, 500], [1206, 500], [1303, 500], [1400, 500],
-  [-434, 700], [-338, 700], [-241, 700], [-145, 700], [-48, 700], [48, 700], [145, 700], [241, 700], [338, 700], [434, 700], [531, 700], [627, 700], [724, 700], [820, 700], [917, 700], [1013, 700], [1110, 700], [1206, 700], [1303, 700], [1400, 700],
-  [-1206, 700], [-434, 700], [-338, 700], [-241, 700], [-145, 700], [-48, 700], [48, 700], [145, 700], [241, 700], [338, 700], [434, 700], [531, 700], [627, 700], [724, 700], [820, 700], [917, 700], [1013, 700], [1110, 700], [1206, 700], [1303, 700], [1400, 700],
-  [-1400, 900], [-1303, 900], [-1206, 900], [-1110, 900], [-1014, 900], [-917, 900], [-821, 900], [-724, 900], [-628, 900], [-531, 900], [-434, 900], [-338, 900], [-241, 900], [-145, 900], [-48, 900], [48, 900], [145, 900], [241, 900], [338, 900], [434, 900], [531, 900], [627, 900], [724, 900], [820, 900], [917, 900], [1013, 900], [1110, 900], [1206, 900], [1303, 900], [1400, 900]
-]);
-    }
-    
-    update(time, delta){
-        super.update(time, delta);
-    }
+  create()
+  {
+    this.saveLevel();
+    this.MakeSky();
+    this.setupWorld();
+    this.setupKeybinds();
+    this.setupMusic('music');
+    this.setupFPS();
+    this.setupPlayer(-1100, 300);
+
+    this.setupGroups();
+    this.platformGroups.push(this.movingPlats = this.physics.add.group({immovable: true, allowGravity: false, velocityY: 20}));
+    this.enemyGroups.push(this.turrets = new Enemies(this, false));
+    this.enemyGroups.push(this.sunMans = new Enemies(this));
+    this.bulletGroups.push(this.bullets = new Projectiles(this));
+
+    this.setupCollisions();
+    this.physics.add.collider(this.player, this.movingPlats, (player, platform) =>{
+      this.player.TouchPlatform()
+    });
+    this.physics.add.collider(this.sunMans, this.sunMans);
+    this.sunMans.sh
+    this.physics.add.collider(this.pickups, this.movingPlats);
+    this.physics.add.overlap(this.player, this.sunMans, (player, enemy) =>{
+      this.sunMans.PlayerCollide(player, enemy, true);
+    });
+    this.physics.add.collider(this.player, this.turrets, (player, turret) => {
+      this.player.TouchPlatform()
+    }, null, this);
+    this.physics.add.overlap(this.player, this.bullets, (player, bullet) => {
+      this.bullets.PlayerHit(player, bullet);
+    }, null, this);
+
+    // Spawns
+    const moveingPlatformPos = [
+      [-1100,    ], [-900, 150],             [-400, 100],  [-200, ],    [-150,  50], [100,    ], [300,    ],             [700,    ], [900,    ], [1100,    ],
+                    [-900, 300], [-600, 200],                           [-150, 300], [100, 200], [300, 100],             [700, 450], [900, 200], [1100, 100],
+                    [-900, 500],                           [-300, 350], [-100, 225],             [300, 600],             [600, 550], [1000, 500],[1100, 300],
+      [-1100, 400], [-900, 700],             [-500, 800],  [-300, 700], [-100, 700], [100, 800], [300, 850], [500, 700], [700, 700], [900, 700], [1100, 700],
+    ];
+    const coinPos = [[100, 300], [300, 300], [500, 300], [700, 300]];
+
+    moveingPlatformPos.forEach(pos => this.movingPlats.create(pos[0], pos[1], 'platform'));
+
+    coinPos.forEach(pos => this.pickups.SpawnCoin(pos[0], pos[1]));
+    this.time.addEvent({
+      delay: Phaser.Math.Between(2000, 5000),
+      callback: () => {
+        if (this.pickups.countActive() < 9)
+        this.pickups.SpawnCoin(Phaser.Math.Between(-1100, 1100), 0);
+      },
+      loop: true
+    });
+
+    this.sunMans.SpawnSunMan(1900, 0);
+    this.sunMans.SpawnSunMan(2000, 400);
+    this.time.addEvent({
+      delay: Phaser.Math.Between(2000, 10000),
+      callback: () => {
+        if (this.sunMans.countActive() < 4)
+        this.sunMans.SpawnSunMan(1900, 0)
+      },
+      loop: true
+    });
+
+
+
+    this.turrets.SpawnTurret(1400, 100);
+
+    this.bullets.SpawnBullets(1900, 50, 8);
+    this.time.addEvent({
+      delay: 3000,
+      callback: () => this.bullets.SpawnBullets(1900, 50, 8),
+      loop: true
+    });
+
+    this.turrets.getChildren().forEach(turret => {
+        this.bullets.SpawnFireballs(turret.body.x, turret.body.y + 40)});
+    this.time.addEvent({
+      delay: 1000,
+      callback: () => this.turrets.getChildren().forEach(turret => {
+        this.bullets.SpawnFireballs(turret.body.x, turret.body.y + 40)}),
+      loop: true
+    });
+
+  }
+  
+  update(time, delta)
+  {
+    super.update(time, delta);
+    this.movingPlats.getChildren().forEach(platform => {
+      if (platform.body.y > this.physics.world.bounds.height)
+        platform.body.y = 0 - platform.body.height;
+    });
+
+    this.bullets.getChildren().forEach(child => {
+      const { x, y } = child.body;
+
+      if (
+          x < this.bounds.x - 600 || x > this.bounds.right + 600 ||
+          y < this.bounds.y - 600 || y > this.bounds.bottom + 600
+      ) {
+          child.destroy();
+        }
+    });
+  
+  }
+
+  MakeSky()
+  {
+    this.sky1 = this.add.image(0, 0, 'sky').setOrigin(0)
+    .setDisplaySize(this.scale.width, this.scale.height).setScrollFactor(0)
+    .on('resize', (gameSize) =>{
+      const width = gameSize.width;
+      const height = gameSize.height;
+
+      this.sky1.setDisplaySize(width, height);
+    });
+    this.sky2 = this.add.image(600, 0, 'skylayer1').setScale(.5).setScrollFactor(.6)
+    this.sky3 = this.add.image(600, 0, 'skylayer2').setScale(.5).setScrollFactor(.2)
+  }
 }

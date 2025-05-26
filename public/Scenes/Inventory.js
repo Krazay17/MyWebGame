@@ -24,8 +24,7 @@ export default class Inventory extends Phaser.Scene
         .setInteractive()
         .setVisible(false)
         .on('pointerover', () => this.button1.setFillStyle(0x0000AA))
-        .on('pointerout', () => this.button1.setFillStyle(0x0000FF))
-        .on('pointerdown', () => console.log(this.player));
+        .on('pointerout', () => this.button1.setFillStyle(0x0000FF));
 
         this.input.keyboard.on('keydown-C', () => {
             this.visible = true;

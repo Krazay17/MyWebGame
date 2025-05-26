@@ -71,8 +71,6 @@ export default class GhostPlayer {
     if (Math.abs(this.xv) < epsilon) this.xv = 0;
     if (Math.abs(this.yv) < epsilon) this.yv = 0;
 
-    console.log(this.yv);
-
     if (this.yv == 0 && this.xv > 0 || this.xv < 0) {
       this.sprite.play('dudewalk', true);
     } else if (this.yv == 0 && this.xv == 0) {

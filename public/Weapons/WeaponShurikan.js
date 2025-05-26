@@ -1,31 +1,30 @@
-import WeaponBase from './WeaponBase.js';
-import WeaponSprite from './WeaponSprite.js'; // projectile sprite
+import WeaponBase from './_weaponbase.js';
+import WeaponProjectile from './WeaponProjectile.js'; // projectile sprite
 
 export default class WeaponShurikan extends WeaponBase {
     constructor(scene, player, group) {
         super(scene, player, group);
+        scene.sound.add('shurikanhit');
+        scene.sound.add('shurikanthrow');
     }
 
     fire(pointer) {
         if (!this.canFire()) return;
         this.startCooldown();
 
-        const offset = 20;
-        const worldPos = pointer.positionToCamera(this.scene.cameras.main);
-        const direction = new Phaser.Math.Vector2(worldPos.x - this.player.x, worldPos.y - this.player.y).normalize();
-        const velocity = direction.scale(1000);
+        const {start, vector} = this.calculateShot(pointer, 1000);
 
-        const projectile = new WeaponSprite(this.scene, this.player.x, this.player.y - offset, 'shurikan', this.player, 1, true);
-        this.weaponGroup.add(projectile);
-
-        projectile.setScale(.15);
-        projectile.setVelocity(velocity.x, velocity.y);
+        const projectile = new WeaponProjectile(this.scene, start.x, start.y, 'shurikan', this.player, 1, true, this);
+        this.scene.weaponGroup.add(projectile);
+        projectile.allowGravity = false;
+        projectile.setScale(.12);
+        projectile.setVelocity(vector.x, vector.y);
 
         // Spin tween
         this.scene.tweens.add({
             targets: projectile,
             angle: 360,
-            duration: 500,
+            duration: 300,
             repeat: -1,
             ease: 'Linear',
         });

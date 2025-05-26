@@ -1,22 +1,20 @@
-import BaseGame from './BaseGame.js'
+import BaseGame from './_basegame.js'
+import Breakable from '../Things/Breakable.js';
 
-export default class Home extends BaseGame
-{
-    constructor()
-    {
+export default class Home extends BaseGame {
+    constructor() {
         super('Home');
     }
 
-    preload()
-    {
+    preload() {
         super.preload();
         this.load.image('platformwide', 'Assets/platformwide.png')
         this.load.image('portal0', 'Assets/Portal1.png')
         this.load.image('portal1', 'Assets/Portal2.png')
+        this.load.image('duck', 'Assets/DuckFloaty.png')
     }
 
-    create()
-    {
+    create() {
         this.saveLevel();
         this.setupKeybinds();
         this.setupSky();
@@ -26,48 +24,52 @@ export default class Home extends BaseGame
         this.setupPlayer();
 
         this.setupGroups();
-        this.platformGroups.push(this.widePlatforms = this.physics.add.staticGroup());
-        this.breakables.spawnBox(200, 400);
-        this.breakables.spawnBox(400, 500);
-        this.breakables.spawnBox(100, 550);
-        this.breakables.spawnBox(-200, 500);
-        this.breakables.spawnBox(-400, 300);
-        this.breakables.spawnBox(-500, 500);
-        this.breakables.spawnBox(-200, 200);
+
+        const boxPos = [[-200, 200], [-500, 500], [-400, 300], [-200, 500], [100, 550], [400, 500], [200, 400]];
+        boxPos.forEach(pos => this.staticItemGroup.add(new Breakable(this, pos[0], pos[1], 'boxsheet', 2)));
 
         this.setupCollisions();
 
         const widePlatformPos = [
             [-1000, 500], [-800, 600], [-400, 700], [0, 800], [400, 700], [800, 600], [1000, 500]
         ];
-        widePlatformPos.forEach(pos => this.platforms.create(pos[0], pos[1], 'platformwide'));
+        widePlatformPos.forEach(pos => this.walkableGroup.create(pos[0], pos[1], 'platformwide'));
 
         this.setupPortals();
 
+        this.spawnEnemies();
+
+
     }
 
-    update(time, delta)
-    {
+    update(time, delta) {
         super.update(time, delta);
     }
 
-    setupPortals()
-    {
+    setupPortals() {
         this.portalList = [];
 
         this.portals = this.physics.add.staticGroup();
-        
+
         const portal0 = this.portals.create(800, 300, 'portal0');
+        const portal12 = this.add.image(800, 300, 'portal0');
+        portal12.flipX = true;
         const portal1 = this.portals.create(-800, 300, 'portal1');
 
         this.shrinkCollision(portal0, 100, 100);
         this.shrinkCollision(portal1, 100, 100);
 
-        this.tweens.add({
-            targets: portal0,
-            angle: -360,
-            duration: 1000,
-            repeat: -1,
+        const portalsToSpin = [
+            { sprite: portal0, angle: -360, duration: 1500 },
+            { sprite: portal12, angle: 360, duration: 1200 }
+        ];
+        portalsToSpin.forEach(({ sprite, angle, duration }) => {
+            this.tweens.add({
+                targets: sprite,
+                angle: angle,
+                duration: duration,
+                repeat: -1,
+            });
         });
 
         this.tweens.add({
@@ -97,5 +99,10 @@ export default class Home extends BaseGame
             }
         });
 
+    }
+
+    spawnEnemies() {
+        this.spawnManager.spawnDuck(300, 300);
+        this.spawnManager.SpawnCoin(100, 300);
     }
 }

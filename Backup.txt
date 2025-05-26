@@ -446,3 +446,62 @@ function Oscilate(object, time)
 {
   object
 }
+
+
+    this.platformGroups = [];
+    this.enemyGroups = [];
+    this.bulletGroups = [];
+    this.breakableGroups = [];
+
+    // Groups
+    this.platformGroups.push(this.platforms = this.physics.add.staticGroup());
+    this.pickups = new Pickups(this);
+    this.playerWeapons = new WeaponGroup(this, this.player);
+    this.breakableGroups.push(this.breakables = new Breakables(this));
+
+    //   const equippedWeapons = this.player.weapons;
+
+    //   if (equippedWeapons) {
+    //   const overlapTargets = [
+    //     { groups: this.enemyGroups, handler: 'EnemyHit' },
+    //     { groups: this.platformGroups, handler: 'PlatformHit' },
+    //     { groups: this.bulletGroups, handler: 'BulletHit' },
+    //     { groups: this.breakableGroups, handler: 'BreakableHit' }
+    //   ];
+
+    //   equippedWeapons.forEach(equippedWeapon => {
+    //     const weaponGroup = equippedWeapon.getGroup?.();
+    //     if (!weaponGroup) return;
+
+    //     overlapTargets.forEach(({ groups, handler }) => {
+    //       groups.forEach(group => {
+    //         this.physics.add.overlap(
+    //           weaponGroup,
+    //           group,
+    //           (weaponSprite, target) => weaponSprite[handler]?.(target),
+    //           null,
+    //           this
+    //         );
+    //       });
+    //     });
+    //   });
+    // }
+	
+        // const radius = 60;
+        // const arcSteps = 8;
+        // const startAngle = angleDeg - 45;
+        // const endAngle = angleDeg + 45;
+        // this.hitBoxes = [];
+
+        // for (let i = 0; i <= arcSteps; i++) {
+        //     const theta = Phaser.Math.DegToRad(
+        //         Phaser.Math.Linear(startAngle, endAngle, i / arcSteps)
+        //     );
+        //     const dx = Math.cos(theta) * radius;
+        //     const dy = Math.sin(theta) * radius;
+
+        //     const hitbox = new WeaponSprite(this.scene, x + dx, y + dy, null, this.player, 1);
+        //     hitbox.setSize(10, 10).setVisible(false);
+        //     this.weaponGroup.add(hitbox);
+        //     this.hitBoxes.push({ box: hitbox, dx, dy });
+        // }

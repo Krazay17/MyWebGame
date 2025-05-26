@@ -22,9 +22,8 @@ export default class Breakable extends Phaser.Physics.Arcade.Sprite
         this.play('box');
     }
 
-    Hit(player, damage)
+    hit(player, damage)
     {
-        console.log('hitbox')
         this.scene.sound.play('energysound');
     }
 }

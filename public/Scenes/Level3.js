@@ -1,4 +1,4 @@
-import BaseGame from "./BaseGame.js";
+import BaseGame from "./_basegame.js";
 
 export default class Level3 extends BaseGame {
     constructor() {

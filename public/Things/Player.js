@@ -78,7 +78,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.scene.input.keyboard.on('keydown-F', () => {
             if (GameManager.devMode) {
                 console.log('devmodeon')
-                this.UpdateSource(5);
+                this.updateSource(5);
             }
         });
 
@@ -91,7 +91,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.resetJump(true);
 
         this.scene.time.addEvent({
-            delay: 1000,
+            delay: 5000,
             loop: true,
             callback: () => {
                 this.syncNetwork();
@@ -104,17 +104,15 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         super.preUpdate(time, delta);
 
         if (this.alive && !this.stunned) {
-            if (this.canLeftAttack) {
-                this.leftSpam -= delta * .65;
-                this.leftSpam = Math.max(0, this.leftSpam);
-            }
+            this.weapons.forEach(weapon => weapon.update(delta));
 
             const pointer = this.scene.input.activePointer;
+
             if (pointer.leftButtonDown()) {
-                this.LeftAttack(pointer);
+                this.leftWeapon.fire(pointer);
             }
             if (pointer.rightButtonDown()) {
-                this.RightAttack(pointer);
+                this.rightWeapon.fire(pointer);
             }
 
             if (this.y > this.scene.physics.world.bounds.height + this.body.height / 2 && this.alive) {
@@ -128,7 +126,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.alive = false;
 
         this.deathPenalty = Math.floor(-GameManager.source / 3);
-        this.UpdateSource(this.deathPenalty);
+        this.updateSource(this.deathPenalty);
 
         this.leftSpam = 0;
         this.rightSpam = 0;
@@ -163,59 +161,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             this.setPosition(worldPos.x, worldPos.y);
             this.setVelocity(0);
         }
-    }
-
-    LeftAttack(pointer) {
-
-        this.leftWeapon.fire(pointer);
-
-        // if (this.canLeftAttack) {
-        //     this.canLeftAttack = false;
-        //     const offset = 20;
-        //     const worldPos = pointer.positionToCamera(this.scene.cameras.main);
-        //     const direction = new Phaser.Math.Vector2(worldPos.x - this.x, worldPos.y - this.y).normalize();
-
-        //     // Do attack
-        //     this.weapons.SpawnShurikan(this.x, this.y - offset, direction);
-
-        //     // Network
-        //     this.network.socket.emit('shurikanthrow', { x: this.x, y: this.y - offset, d: { x: direction.x, y: direction.y } });
-
-        //     // Cooldown
-        //     this.scene.time.addEvent({
-        //         delay: 200 + this.leftSpam,
-        //         callback: () => {
-        //             this.canLeftAttack = true;
-        //         }
-        //     });
-
-        //     this.leftSpam += 45;
-        // }
-    }
-
-    RightAttack(pointer) {
-        // if (this.canRightAttack) {
-        //     this.canRightAttack = false;
-        //     const offset = 20;
-        //     const worldPos = pointer.positionToCamera(this.scene.cameras.main);
-        //     const direction = new Phaser.Math.Vector2(worldPos.x - this.x, worldPos.y - this.y).normalize();
-
-        //     // Do attack
-        //     this.weapons.SpawnShurikan(this.x, this.y - offset, direction);
-
-        //     // Network
-        //     this.network.socket.emit('shurikanthrow', { x: this.x, y: this.y - offset, d: { x: direction.x, y: direction.y } });
-            
-        //     // Cooldown
-        //     this.scene.time.addEvent({
-        //         delay: 200 + this.rightSpam,
-        //         callback: () => {
-        //             this.canRightAttack = true;
-        //         }
-        //     });
-
-        //     this.rightSpam += 45;
-        // }
     }
 
     TouchPlatform(player, platform) {
@@ -345,9 +290,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             if (this.damageSound.isPlaying)
                 this.damageSound.stop();
             this.damageSound.play();
-        } else {
-            // Sound not ready yet, just skip playing or log
-            console.log('Damage sound not ready yet.');
         }
 
         this.stunned = true;
@@ -363,7 +305,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.setVelocityY(y);
 
         this.health -= damage;
-        this.UpdateSource(-1);
+        this.updateSource(-1);
 
         return true;
     }
@@ -390,11 +332,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     PickupItem(source = 0) {
         if (source > 0) {
-            this.UpdateSource(source);
+            this.updateSource(source);
         }
     }
 
-    UpdateSource(source) {
+    updateSource(source) {
         const intSource = Math.floor(source);
         const prevSource = GameManager.source;
         GameManager.source += intSource;

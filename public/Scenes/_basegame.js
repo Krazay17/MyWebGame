@@ -1,9 +1,8 @@
 import Player from '../Things/Player.js';
-import WeaponGroup from '../Weapons/WeaponGroup.js';
-import Pickups from '../Things/Pickups.js';
 import NetworkManager from '../Things/NetworkManager.js';
 import GameManager from '../Things/GameManager.js';
-import Breakables from '../Things/Breakables.js';
+import SpawnManager from '../Things/_spawnmanager.js';
+import WeaponGroup from '../Weapons/WeaponGroup.js';
 
 export default class BaseGame extends Phaser.Scene {
   constructor(key) {
@@ -15,6 +14,7 @@ export default class BaseGame extends Phaser.Scene {
 
   preload() {
     this.load.audio('energysound', 'Assets/EnergySound.wav');
+    this.load.image('coin', 'Assets/SourceCoin.png');
     this.load.image('platform', 'Assets/platform.png');
     this.load.image('platformwide', 'Assets/platformwide.png');
     this.load.image('platformtall', 'Assets/platformtall.png');
@@ -31,8 +31,6 @@ export default class BaseGame extends Phaser.Scene {
 
   update(time, delta) {
     if (this.player) this.player.handleInput(delta);
-    this.player.weapons.forEach(weapon => weapon.update(time, delta));
-
 
     if (this.network) {
       this.network.socket.emit('playerMove', {
@@ -46,6 +44,7 @@ export default class BaseGame extends Phaser.Scene {
     this.physics.world.setBounds(-1600, 0, 3200, 900);
     this.bounds = this.physics.world.bounds;
     this.cameras.main.setBounds(-1600, 0, 3200, 900);
+    this.spawnManager = new SpawnManager(this)
 
     this.network = new NetworkManager(this);
 
@@ -54,8 +53,8 @@ export default class BaseGame extends Phaser.Scene {
     });
   }
 
-  setupSky(a = 'sky2', b = 'sky2layer1', c = 'sky2layer2') {
-    this.sky1 = this.add.image(0, 0, a).setOrigin(0)
+  setupSky( a = 'sky2', ao = {x: 0, y: 0}, b = 'sky2layer1', bo = {x: 800, y: 600}, c = 'sky2layer2', co = {x: 600, y: 500} ) {
+    this.sky1 = this.add.image(ao.x, ao.y, a).setOrigin(0)
       .setDisplaySize(this.scale.width, this.scale.height).setScrollFactor(0)
       .on('resize', (gameSize) => {
         const width = gameSize.width;
@@ -63,8 +62,8 @@ export default class BaseGame extends Phaser.Scene {
 
         this.sky1.setDisplaySize(width, height);
       });
-    this.sky2 = this.add.image(800, 600, b).setScale(.5).setScrollFactor(.2)
-    this.sky3 = this.add.image(600, 400, c).setScale(.5).setScrollFactor(.6)
+    this.sky2 = this.add.image(bo.x, bo.y, b).setScale(.5).setScrollFactor(.2)
+    this.sky3 = this.add.image(co.x, co.y, c).setScale(.5).setScrollFactor(.6)
   }
 
   setupPlayer(x = 0, y = 0) {
@@ -91,59 +90,52 @@ export default class BaseGame extends Phaser.Scene {
   }
 
   setupGroups() {
-    this.platformGroups = [];
-    this.enemyGroups = [];
-    this.bulletGroups = [];
-    this.breakableGroups = [];
+    this.weaponGroup = new WeaponGroup(this, this.player);
 
-    // Groups
-    this.platformGroups.push(this.platforms = this.physics.add.staticGroup());
-    this.pickups = new Pickups(this);
-    this.playerWeapons = new WeaponGroup(this, this.player);
-    this.breakableGroups.push(this.breakables = new Breakables(this));
+    this.attackableGroups = [
+      { group: this.walkableGroup = this.physics.add.group({ allowGravity: false, immovable: true }), handler: 'platformHit' },
+      { group: this.enemyGroup = this.physics.add.group(), handler: 'enemyHit'},
+      { group: this.softEnemyGroup = this.physics.add.group({collideWithWorldBounds: true}), handler: 'enemyHit' },
+      { group: this.bulletGroup = this.physics.add.group({allowGravity: false}), handler: 'bulletHit' },
+      { group: this.softBulletGroup = this.physics.add.group({allowGravity: false}), handler: 'bulletHit' },
+      { group: this.itemGroup = this.physics.add.group(), handler: 'itemHit' },
+      { group: this.staticItemGroup = this.physics.add.group({ allowGravity: false, immovable: true }), handler: 'itemHit' }
+    ];
   }
 
   setupCollisions() {
-    const equippedWeapons = this.player.weapons;
+      this.attackableGroups.forEach(({ group, handler }) =>
+        this.physics.add.overlap(
+          this.weaponGroup,
+          group,
+          (weapon, target) => weapon[handler]?.(target),
+          null,
+          this
+        ));
 
-    if (equippedWeapons) {
-    const overlapTargets = [
-      { groups: this.enemyGroups, handler: 'EnemyHit' },
-      { groups: this.platformGroups, handler: 'PlatformHit' },
-      { groups: this.bulletGroups, handler: 'BulletHit' },
-      { groups: this.breakableGroups, handler: 'BreakableHit' }
-    ];
+    this.physics.add.collider(this.player, this.walkableGroup, (player, walkable) => {
+      player.TouchPlatform(walkable);
+    }, null, this);
 
-    equippedWeapons.forEach(equippedWeapon => {
-      const weaponGroup = equippedWeapon.getGroup?.();
-      if (!weaponGroup) return;
+    this.physics.add.overlap(this.player, this.softBulletGroup, (player, bullet) => {
+      bullet.playerHit(player, bullet);
+    }, null, this);
 
-      overlapTargets.forEach(({ groups, handler }) => {
-        groups.forEach(group => {
-          this.physics.add.overlap(
-            weaponGroup,
-            group,
-            (weaponSprite, target) => weaponSprite[handler]?.(target),
-            null,
-            this
-          );
-        });
-      });
-    });
-  }
+    this.physics.add.overlap(this.player, this.softEnemyGroup, (player, enemy) => {
+      enemy.playerCollide(player, enemy, true);
+    }, null, this);
 
-    this.physics.add.collider(this.player, this.breakables, (player, platform) => {
-      this.player.TouchPlatform()
-    });
+    this.physics.add.overlap(this.player, this.itemGroup, (player, pickup) => {
+      pickup.pickup?.(player, pickup);
+    }, null, this);
 
-    this.physics.add.collider(this.player, this.platforms, (player, platform) => {
-      this.player.TouchPlatform()
-    });
+    this.physics.add.collider(this.player, this.staticItemGroup, (player, walkable) => {
+      player.TouchPlatform(walkable);
+    }, null, this);
 
-    this.physics.add.collider(this.pickups, this.platforms);
-
-    this.physics.add.overlap(this.player, this.pickups, (player, pickup) => {
-      this.pickups.Pickup(player, pickup);
+    this.physics.add.collider(this.itemGroup, this.walkableGroup);
+    this.physics.add.collider(this.enemyGroup, this.walkableGroup);
+    this.physics.add.collider(this.softEnemyGroup, this.softEnemyGroup, (enemy1, enemy2) => {
     }, null, this);
   }
 
@@ -175,7 +167,7 @@ export default class BaseGame extends Phaser.Scene {
 
 
   setupPlatforms(platformPos = [[0, 800]]) {
-    platformPos.forEach(pos => this.platforms.create(pos[0], pos[1], 'platform'));
+    platformPos.forEach(pos => this.walkableGroup.create(pos[0], pos[1], 'platform'));
   }
 
   setupQuick(x = 0, y = 0) {
@@ -200,7 +192,6 @@ export default class BaseGame extends Phaser.Scene {
 
   saveLevel() {
     GameManager.area = this.key;
-    console.log(this.key);
     GameManager.save();
   }
 }

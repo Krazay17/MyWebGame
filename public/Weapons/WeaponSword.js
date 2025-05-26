@@ -5,7 +5,28 @@ export default class WeaponSword extends WeaponBase {
         super(scene, player, 3)
 
         this.cooldownDelay = 1000;
-        this.meleeDuration = 600;
+        this.meleeDuration = 360;
+        this.spamAdd = 200;
+
+        if (!scene.anims.get('swordsheet')) {
+            scene.anims.create({
+                key: 'swordsheet',
+                defaultTextureKey: 'swordsheet',
+                duration: 360,
+                frames: [
+                    { frame: 0 },
+                    { frame: 1 },
+                    { frame: 2 },
+                    { frame: 2 },
+                    { frame: 3 },
+                    { frame: 3 },
+                    { frame: 3 },
+                    { frame: 3 },
+                    { frame: 4 },
+                    { frame: 5 },
+                ],
+            })
+        }
     }
 
     update(delta) {
@@ -23,18 +44,18 @@ export default class WeaponSword extends WeaponBase {
         this.startCooldown();
         this.playThrowSound();
 
-        const data = this.calculateShot(pointer, 65);
+        const data = this.calculateShot(pointer, 60);
         const angleDeg = Phaser.Math.RadToDeg(Phaser.Math.Angle.Between(data.start.x, data.start.y, data.cursorPos.x, data.cursorPos.y));
 
         this.swordOffset = data.vector;
 
-        this.sword = this.scene.add.image(data.start.x + data.vector.x, data.start.y + data.vector.y, 'sword').setScale(0.3).setAngle(angleDeg);
-        console.log(data.vector.x);
+        this.sword = this.scene.add.sprite(data.start.x + data.vector.x, data.start.y + data.vector.y, 'swordsheet').setScale(0.25).setAngle(angleDeg);
+        this.sword.play('swordsheet');
 
-        const rayData = this.calculateShot(pointer, 120);
+        const rayData = this.calculateShot(pointer, 115);
         this.fireRayAttack(rayData);
 
-        this.rayTickData = {...rayData};
+        this.rayTickData = { ...rayData };
         this.meleeRayTick = true;
 
         // Cleanup

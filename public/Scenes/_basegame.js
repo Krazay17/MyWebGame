@@ -22,7 +22,10 @@ export default class BaseGame extends Phaser.Scene {
       frameWidth: 256,
       frameHeight: 256,
     });
-
+    this.load.spritesheet('swordsheet', 'Assets/SwordSheet.png', {
+      frameWidth: 512,
+      frameHeight: 512,
+    });
     this.load.spritesheet('boxsheet', 'Assets/BoxSheet.png', {
       frameWidth: 64,
       frameHeight: 64,
@@ -121,6 +124,11 @@ export default class BaseGame extends Phaser.Scene {
     this.physics.add.collider(this.player, this.staticEnemyGroup, (player, walkable) => {
       player.TouchPlatform(walkable);
     }, null, this);
+
+    this.physics.add.overlap(this.player, this.enemyGroup, (player, enemy) => {
+      enemy.playerCollide(player, enemy);
+    }, null, this);
+
 
     this.physics.add.overlap(this.player, this.softBulletGroup, (player, bullet) => {
       bullet.playerHit(player, bullet);

@@ -76,6 +76,7 @@ export default class WeaponBase {
         const end = data.start.clone().add(data.vector);
         const hits = [];
         const ray = new Phaser.Geom.Line(data.start.x, data.start.y, end.x, end.y);
+        const polygon = this.polygonRay(data, 20);
 
         // this.scene.graphics = this.scene.add.graphics();
         // this.scene.graphics.clear();
@@ -90,25 +91,26 @@ export default class WeaponBase {
                 const bounds = target.getBounds();
                 const closestPoint = getClosestPointOnRect(bounds, data.start);
                 const toTarget = closestPoint.clone().subtract(data.start);
+                const distanceToTarget = toTarget.length();
+
                 // skip far targets
-                if (toTarget.length() > data.distance + 50) return;
+                if (distanceToTarget > data.distance) return;
+
                 // skip out of cone targets
                 const dot = data.direction.clone().dot(toTarget.normalize());
-                if (dot < 0.85) return;
+                if (dot < 0.85 && dot !== 0) return;
+
                 // line trace
-                if (Phaser.Geom.Intersects.LineToRectangle(ray, target.getBounds())) {
+                if (Phaser.Geom.Intersects.RectangleToRectangle(bounds, polygon)) {
                     console.log(target.texture)
 
                     hits.push(target);
                     this[handler]?.(target);
-
                     // this.scene.graphics.fillStyle(0x00ff00, 0.5);
                     // this.scene.graphics.fillRectShape(target.getBounds());
-
                 }
             });
         });
-
         return hits;
     }
 
@@ -177,6 +179,28 @@ export default class WeaponBase {
             scene.sound.add(this.hitSound);
             this.scene.sound.play(this.hitSound);
         }
+    }
+
+    polygonRay(data, thickness) {
+        const end = data.start.clone().add(data.vector);
+
+        // Create perpendicular vector to the direction
+        const perp = new Phaser.Math.Vector2(-data.direction.y, data.direction.x).scale(thickness / 2);
+
+        // Build a rectangle as a polygon from the start point
+        const p1 = data.start.clone().add(perp);
+        const p2 = end.clone().add(perp);
+        const p3 = end.clone().subtract(perp);
+        const p4 = data.start.clone().subtract(perp);
+
+        const rayRect = new Phaser.Geom.Polygon([p1, p2, p3, p4]);
+        
+        // Debug draw
+        // const graphics = this.scene.add.graphics();
+        // graphics.lineStyle(1, 0xffff00);
+        // graphics.strokePoints(rayRect.points, true);
+
+        return rayRect;
     }
 }
 

@@ -17,7 +17,7 @@ export default class WeaponShurikan extends WeaponBase {
         const projectile = new WeaponProjectile(this.scene, start.x, start.y, 'shurikan', this.player, 1, true, this);
         this.scene.weaponGroup.add(projectile);
         projectile.allowGravity = false;
-        projectile.setScale(.12);
+        projectile.setScale(.15);
         projectile.setVelocity(vector.x, vector.y);
 
         // Spin tween

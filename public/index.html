@@ -12,5 +12,14 @@
   <script src="https://cdn.jsdelivr.net/npm/phaser@v3.88.2/dist/phaser.js"></script>
   <script type="module" src="main.js"></script>
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+    <!-- Block all right-click context menus on the page -->
+<script>
+  e.preventDefault();
+  e.stopPropagation();
+  return false;
+</script>
+<div class="myElement" oncontextmenu="return false;"></div>
+
 </body>
 </html>

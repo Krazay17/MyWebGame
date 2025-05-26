@@ -1,7 +1,7 @@
 import GameManager from "./GameManager.js";
 import NetworkManager from "./NetworkManager.js";
 import RankSystem from "./RankSystem.js";
-import {createWeapon} from "../Weapons/WeaponManager.js"
+import { createWeapon } from "../Weapons/WeaponManager.js"
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y) {
@@ -347,12 +347,14 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     setupAnimation() {
-        this.scene.anims.create({
-            key: 'dudewalk',
-            frames: this.anims.generateFrameNumbers('dudesheet', { start: 2, end: 4 }),
-            frameRate: 10,
-            repeat: -1,
-        });
+        if (!this.scene.anims.get('dudewalk')) {
+            this.scene.anims.create({
+                key: 'dudewalk',
+                frames: this.anims.generateFrameNumbers('dudesheet', { start: 2, end: 4 }),
+                frameRate: 10,
+                repeat: -1,
+            });
+        }
     }
 
     syncNetwork() {

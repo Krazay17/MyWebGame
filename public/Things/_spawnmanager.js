@@ -1,6 +1,7 @@
 import Pickup from "./Pickup.js";
-import Enemy from "./Enemy.js";
+import Enemy from "./_baseEnemy.js";
 import Bullet from "./bullet.js"
+import Duck from "./enemyDuck.js"
 
 export default class SpawnManager {
     static instance;
@@ -36,9 +37,9 @@ export default class SpawnManager {
         sunMan.setBounce(1);
         sunMan.setCollideWorldBounds(true);
         sunMan.setVelocityX(-200);
-        if (!this.scene.anims.get('sun')) {
+        if (!this.scene.anims.get('sunsheet')) {
             this.scene.anims.create({
-                key: 'sun',
+                key: 'sunsheet',
                 frames: this.scene.anims.generateFrameNumbers('sunsheet', { start: 0, end: 3 }),
                 frameRate: 8,
                 repeat: -1
@@ -94,7 +95,7 @@ export default class SpawnManager {
     }
 
     spawnDuck(x, y) {
-        const duck = new Enemy(this.scene, x, y, 'duck', this, 200, false, true)
+        const duck = new Duck(this.scene, x, y, 'duck', this, 200, false, true)
         this.scene.enemyGroup.add(duck);
         duck.setScale(.3);
     }

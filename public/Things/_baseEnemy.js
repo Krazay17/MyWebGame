@@ -21,8 +21,8 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite
         if (showHealthBar){
             this.createHealthBar();
         }
-        if (this.anims.get('sun'))
-            this.play('sun');
+        if (this.anims.get(id))
+            this.play(id);
     }
 
     preUpdate(time, delta)

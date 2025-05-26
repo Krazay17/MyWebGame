@@ -96,6 +96,7 @@ export default class BaseGame extends Phaser.Scene {
       { group: this.walkableGroup = this.physics.add.group({ allowGravity: false, immovable: true }), handler: 'platformHit' },
       { group: this.enemyGroup = this.physics.add.group(), handler: 'enemyHit'},
       { group: this.softEnemyGroup = this.physics.add.group({collideWithWorldBounds: true}), handler: 'enemyHit' },
+      { group: this.staticEnemyGroup = this.physics.add.group( {allowGravity: false, immovable: true, collideWithWorldBounds: true}), handler: 'enemyHit' },
       { group: this.bulletGroup = this.physics.add.group({allowGravity: false}), handler: 'bulletHit' },
       { group: this.softBulletGroup = this.physics.add.group({allowGravity: false}), handler: 'bulletHit' },
       { group: this.itemGroup = this.physics.add.group(), handler: 'itemHit' },
@@ -114,6 +115,10 @@ export default class BaseGame extends Phaser.Scene {
         ));
 
     this.physics.add.collider(this.player, this.walkableGroup, (player, walkable) => {
+      player.TouchPlatform(walkable);
+    }, null, this);
+
+    this.physics.add.collider(this.player, this.staticEnemyGroup, (player, walkable) => {
       player.TouchPlatform(walkable);
     }, null, this);
 

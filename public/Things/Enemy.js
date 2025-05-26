@@ -6,7 +6,6 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite
 
         scene.add.existing(this);
         scene.physics.add.existing(this);
-        scene.softEnemyGroup.add(this);
         this.spawnManager = spawnManager;
 
         this.setImmovable(true);

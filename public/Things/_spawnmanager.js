@@ -50,7 +50,9 @@ export default class SpawnManager {
     }
 
     spawnTurret(x, y) {
-        const turret = new Enemy(this.scene, x, y, 'turret', 6, false);
+        const turret = new Enemy(this.scene, x, y, 'turret', this, 10);
+        this.scene.staticEnemyGroup.add(turret)
+        turret.body.allowGravity = false;
         turret.setVelocityY(50);
         turret.setBounce(1);
         turret.setCollideWorldBounds(true);
@@ -61,7 +63,7 @@ export default class SpawnManager {
 
             this.scene.time.addEvent({
                 delay: 5000,
-                callback: () => this.SpawnTurret(x, y)
+                callback: () => this.spawnTurret(x, y)
             });
         };
         return turret;

@@ -90,7 +90,7 @@ export default class Level1 extends BaseGame {
     this.time.addEvent({
       delay: 1000,
       callback: () => this.turrets.forEach(turret => {
-        this.spawnManager.spawnFireballs(turret.body.x, turret.body.y + 40)
+        if (turret.body) this.spawnManager.spawnFireballs(turret.body.x, turret.body.y + 40);
       }),
       loop: true
     });

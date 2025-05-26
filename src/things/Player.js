@@ -1,7 +1,7 @@
 import GameManager from "./GameManager.js";
 import NetworkManager from "./NetworkManager.js";
 import RankSystem from "./RankSystem.js";
-import { createWeapon } from "../Weapons/WeaponManager.js"
+import { createWeapon } from "../weapons/WeaponManager.js"
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y) {

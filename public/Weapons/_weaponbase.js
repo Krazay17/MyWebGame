@@ -91,10 +91,10 @@ export default class WeaponBase {
                 const closestPoint = getClosestPointOnRect(bounds, data.start);
                 const toTarget = closestPoint.clone().subtract(data.start);
                 // skip far targets
-                if (toTarget.length() > data.distance) return;
+                if (toTarget.length() > data.distance + 50) return;
                 // skip out of cone targets
                 const dot = data.direction.clone().dot(toTarget.normalize());
-                if (dot < 0.95) return;
+                if (dot < 0.85) return;
                 // line trace
                 if (Phaser.Geom.Intersects.LineToRectangle(ray, target.getBounds())) {
                     console.log(target.texture)

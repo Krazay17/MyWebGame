@@ -5,7 +5,7 @@ export default class WeaponSword extends WeaponBase {
         super(scene, player, 2)
 
         this.baseCooldown = 500;
-        this.meleeDuration = 360;
+        this.meleeDuration = 250;
         this.spamAdd = 100;
         this.hitSoundId = 'energysound';
 
@@ -13,15 +13,12 @@ export default class WeaponSword extends WeaponBase {
             scene.anims.create({
                 key: 'swordsheet',
                 defaultTextureKey: 'swordsheet',
-                duration: 360,
+                duration: 250,
                 frames: [
                     { frame: 0 },
                     { frame: 1 },
                     { frame: 2 },
                     { frame: 2 },
-                    { frame: 3 },
-                    { frame: 3 },
-                    { frame: 3 },
                     { frame: 3 },
                     { frame: 4 },
                     { frame: 5 },

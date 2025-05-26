@@ -42,15 +42,16 @@ export default class WeaponSword extends WeaponBase {
         this.startCooldown();
         this.playThrowSound();
 
-        const data = this.calculateShot(pointer, 60);
+        const data = this.calculateShot(pointer, 70);
         const angleDeg = Phaser.Math.RadToDeg(Phaser.Math.Angle.Between(data.start.x, data.start.y, data.cursorPos.x, data.cursorPos.y));
 
         this.swordOffset = data.vector;
 
-        this.sword = this.scene.add.sprite(data.start.x + data.vector.x, data.start.y + data.vector.y, 'swordsheet').setScale(0.25).setAngle(angleDeg);
+        this.sword = this.scene.add.sprite(data.start.x + data.vector.x, data.start.y + data.vector.y, 'swordsheet').setScale(0.24).setAngle(angleDeg);
         this.sword.play('swordsheet');
+        this.sword.setFlipY(angleDeg > 90 || angleDeg < -90);
 
-        const rayData = this.calculateShot(pointer, 115);
+        const rayData = this.calculateShot(pointer, 110);
         this.fireRayAttack(rayData);
 
         this.rayTickData = { ...rayData };

@@ -15,7 +15,7 @@ export default class Home extends BaseGame {
     }
 
     create() {
-        this.saveLevel();
+        this.setupSave();
         this.setupKeybinds();
         this.setupSky();
         this.setupWorld();
@@ -55,7 +55,6 @@ export default class Home extends BaseGame {
         const portal02 = this.add.image(800, 300, 'portal0');
         portal02.flipX = true;
         const portal1 = this.portals.create(-800, 300, 'portal1');
-        const portal2 = this.portals.create(-1000, 300, 'portal0');
 
         this.shrinkCollision(portal0, 100, 100);
         this.shrinkCollision(portal1, 100, 100);
@@ -90,10 +89,9 @@ export default class Home extends BaseGame {
 
 
         portal0.targetScene = 'Level1';
-        portal1.targetScene = 'Level2';
-        portal2.targetScene = 'Level3';
+        portal1.targetScene = 'Level3';
 
-        this.portalList.push(portal0, portal1, portal2);
+        this.portalList.push(portal0, portal1);
 
         this.physics.add.overlap(this.player, this.portals, (player, portal) => {
             if (portal.targetScene && this.scene.key !== portal.targetScene) {

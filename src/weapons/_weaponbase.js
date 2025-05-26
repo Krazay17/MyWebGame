@@ -11,9 +11,8 @@ export default class WeaponBase {
         this.meleeRayTick = false;
         this.rayTickData;
         this.offset;
-        this.throwSound = 'shurikanthrow';
-        this.hitSound = 'shurikanhit';
-
+        this.throwSoundId = 'shurikanthrow';
+        this.hitSoundId = 'shurikanhit';
         this.baseDamage = damage;
         this.baseCooldown = 200;
         this.spamAdd = 50;
@@ -103,7 +102,6 @@ export default class WeaponBase {
 
                 // line trace
                 if (Phaser.Geom.Intersects.RectangleToRectangle(bounds, polygon)) {
-                    console.log(target.texture)
 
                     hits.push(target);
                     this[handler]?.(target);
@@ -113,6 +111,28 @@ export default class WeaponBase {
             });
         });
         return hits;
+    }
+
+    polygonRay(data, thickness) {
+        const end = data.start.clone().add(data.vector);
+
+        // Create perpendicular vector to the direction
+        const perp = new Phaser.Math.Vector2(-data.direction.y, data.direction.x).scale(thickness / 2);
+
+        // Build a rectangle as a polygon from the start point
+        const p1 = data.start.clone().add(perp);
+        const p2 = end.clone().add(perp);
+        const p3 = end.clone().subtract(perp);
+        const p4 = data.start.clone().subtract(perp);
+
+        const rayRect = new Phaser.Geom.Polygon([p1, p2, p3, p4]);
+
+        // Debug draw
+        // const graphics = this.scene.add.graphics();
+        // graphics.lineStyle(1, 0xffff00);
+        // graphics.strokePoints(rayRect.points, true);
+
+        return rayRect;
     }
 
     platformHit(plat) {
@@ -165,43 +185,26 @@ export default class WeaponBase {
     }
 
     playThrowSound() {
-        if (this.scene && this.scene.sound.get(this.throwSound)) {
-            this.scene.sound.play(this.throwSound);
-        } else {
-            scene.sound.add(this.throwSound);
-            this.scene.sound.play(this.throwSound);
+        if (!this.hitSound) {
+            this.throwSound = this.scene.sound.add(this.throwSoundId);
+        };
+        if (this.throwSound.isPlaying) {
+            this.throwSound.stop();
         }
+        this.throwSound.play();
     }
+
 
     playHitSound() {
-        if (this.scene && this.scene.sound.get(this.hitSound)) {
-            this.scene.sound.play(this.hitSound);
-        } else {
-            this.scene.sound.add(this.hitSound);
-            this.scene.sound.play(this.hitSound);
+        if (!this.hitSound) {
+            this.hitSound = this.scene.sound.add(this.hitSoundId);
+        };
+        if (this.hitSound.isPlaying) {
+            this.hitSound.stop();
+            console.log('stoppedSound');
         }
-    }
+        this.hitSound.play();
 
-    polygonRay(data, thickness) {
-        const end = data.start.clone().add(data.vector);
-
-        // Create perpendicular vector to the direction
-        const perp = new Phaser.Math.Vector2(-data.direction.y, data.direction.x).scale(thickness / 2);
-
-        // Build a rectangle as a polygon from the start point
-        const p1 = data.start.clone().add(perp);
-        const p2 = end.clone().add(perp);
-        const p3 = end.clone().subtract(perp);
-        const p4 = data.start.clone().subtract(perp);
-
-        const rayRect = new Phaser.Geom.Polygon([p1, p2, p3, p4]);
-        
-        // Debug draw
-        // const graphics = this.scene.add.graphics();
-        // graphics.lineStyle(1, 0xffff00);
-        // graphics.strokePoints(rayRect.points, true);
-
-        return rayRect;
     }
 }
 

@@ -1,26 +1,23 @@
 export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite
 {
-    constructor(scene, x, y, id = 'duckman', spawnManager, health, showHealthBar = false, doesWalk = false)
+    constructor(scene, x, y, id = 'duck', health = 1)
     {
         super(scene, x, y, id);
 
         scene.add.existing(this);
         scene.physics.add.existing(this);
-        this.spawnManager = spawnManager;
 
         this.setImmovable(true);
-        this.body.setMaxSpeed(555);
-        this.doesWalk = doesWalk;
+        this.doesWalk = false;
         this.maxHealth = health;
         this.health = health;
         this.canDamage = true;
         this.createdHealthBar = false;
         this.alive = true;
         this.hitRecover = undefined;
+        this.velocityKnock = false;
+        this.knockPower = 500;
 
-        if (showHealthBar){
-            this.createHealthBar();
-        }
         if (this.anims.get(id))
             this.play(id);
     }
@@ -97,10 +94,11 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite
     }
 
 
-  playerCollide(player, enemy, velocity) {
-    const knockX = velocity ? enemy.body.velocity.x * 1.5 : -400;
-    const knockY = velocity ? enemy.body.velocity.y * 1.5 : -100;
-    player.TakeDamage(knockX, knockY, 1);
+  playerCollide(player, enemy) {
+        const direction = new Phaser.Math.Vector2(player.x - enemy.x, player.y - enemy.y);
+        const knockback = direction.normalize().scale(this.knockPower);
+        
+        player.TakeDamage(knockback.x, knockback.y, 1);
   }
 
     scaleCollision(x, y) {

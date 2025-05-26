@@ -2,14 +2,13 @@ import BaseEnemy from "./_baseEnemy.js";
 
 export default class Duck extends BaseEnemy
 {
-    constructor(scene, x, y, id = 'duckman', spawnManager, health, showHealthBar = false, doesWalk = false)
+    constructor(scene, x, y, id = 'duck', health)
     {
-        super(scene, x, y, id, spawnManager, health, showHealthBar, doesWalk);
-    }
+        super(scene, x, y, id);
+        this.maxHealth = health;
+        this.health = health;
+        this.doesWalk = true;
 
-    preUpdate(time, delta)
-    {
-        super.preUpdate(time, delta);
     }
 
     playerCollide(player, enemy) {

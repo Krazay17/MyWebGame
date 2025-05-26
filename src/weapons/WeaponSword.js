@@ -2,12 +2,12 @@ import WeaponBase from './_weaponbase.js';
 
 export default class WeaponSword extends WeaponBase {
     constructor(scene, player) {
-        super(scene, player, 3)
+        super(scene, player, 2)
 
         this.baseCooldown = 500;
         this.meleeDuration = 360;
         this.spamAdd = 100;
-        this.hitSound = 'energysound';
+        this.hitSoundId = 'energysound';
 
         if (!scene.anims.get('swordsheet')) {
             scene.anims.create({

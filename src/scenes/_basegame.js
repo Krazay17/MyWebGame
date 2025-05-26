@@ -98,8 +98,9 @@ export default class BaseGame extends Phaser.Scene {
     this.attackableGroups = [
       { group: this.walkableGroup = this.physics.add.group({ allowGravity: false, immovable: true }), handler: 'platformHit' },
       { group: this.enemyGroup = this.physics.add.group(), handler: 'enemyHit'},
-      { group: this.softEnemyGroup = this.physics.add.group({collideWithWorldBounds: true}), handler: 'enemyHit' },
-      { group: this.staticEnemyGroup = this.physics.add.group( {allowGravity: false, immovable: true, collideWithWorldBounds: true}), handler: 'enemyHit' },
+      { group: this.flyingEnemyGroup = this.physics.add.group({ allowGravity: false }), handler: 'enemyHit'},
+      { group: this.softEnemyGroup = this.physics.add.group(), handler: 'enemyHit' },
+      { group: this.staticEnemyGroup = this.physics.add.group({ allowGravity: false, immovable: true }), handler: 'enemyHit' },
       { group: this.bulletGroup = this.physics.add.group({allowGravity: false}), handler: 'bulletHit' },
       { group: this.softBulletGroup = this.physics.add.group({allowGravity: false}), handler: 'bulletHit' },
       { group: this.itemGroup = this.physics.add.group(), handler: 'itemHit' },
@@ -129,13 +130,17 @@ export default class BaseGame extends Phaser.Scene {
       enemy.playerCollide(player, enemy);
     }, null, this);
 
+    this.physics.add.overlap(this.player, this.flyingEnemyGroup, (player, enemy) => {
+      enemy.playerCollide(player, enemy);
+    }, null, this);
+
 
     this.physics.add.overlap(this.player, this.softBulletGroup, (player, bullet) => {
       bullet.playerHit(player, bullet);
     }, null, this);
 
     this.physics.add.overlap(this.player, this.softEnemyGroup, (player, enemy) => {
-      enemy.playerCollide(player, enemy, true);
+      enemy.playerCollide(player, enemy);
     }, null, this);
 
     this.physics.add.overlap(this.player, this.itemGroup, (player, pickup) => {
@@ -184,7 +189,7 @@ export default class BaseGame extends Phaser.Scene {
   }
 
   setupQuick(x = 0, y = 0) {
-    this.saveLevel();
+    this.setupSave();
     this.setupSky();
     this.setupWorld();
     this.setupMusic();
@@ -203,7 +208,7 @@ export default class BaseGame extends Phaser.Scene {
     );
   }
 
-  saveLevel() {
+  setupSave() {
     GameManager.area = this.key;
     GameManager.save();
   }

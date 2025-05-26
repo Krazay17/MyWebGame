@@ -25,7 +25,7 @@ export default class Level1 extends BaseGame {
   }
 
   create() {
-    this.saveLevel();
+    this.setupSave();
     this.setupSky('sky', { x: 0, y: 0 }, 'skylayer2', { x: 600, y: 0 }, 'skylayer1', { x: 600, y: 0 });
     this.setupWorld();
     this.setupKeybinds();
@@ -68,7 +68,6 @@ export default class Level1 extends BaseGame {
       delay: Phaser.Math.Between(2000, 10000),
       callback: () => {
         if (this.softEnemyGroup.countActive() < 4)
-          console.log(this.softEnemyGroup.countActive());
           this.spawnManager.spawnSunMans(1900, 0)
       },
       loop: true

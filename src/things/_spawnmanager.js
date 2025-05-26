@@ -2,14 +2,14 @@ import Pickup from "./Pickup.js";
 import Enemy from "./_baseEnemy.js";
 import Bullet from "./bullet.js"
 import Duck from "./enemyDuck.js"
+import Bat from "./enemyBat.js"
+import SunMan from "./enemySunman.js";
 
 export default class SpawnManager {
     static instance;
     constructor(scene, player) {
         this.scene = scene;
         this.player = player;
-
-        this.sunMans = 0;
     }
 
     SpawnCoin(x, y) {
@@ -29,29 +29,20 @@ export default class SpawnManager {
     }
 
     spawnSunMans(x, y) {
-        const sunMan = new Enemy(this.scene, x, y, 'sunsheet', this, 3);
+        const sunMan = new SunMan(this.scene, x, y, 'sunsheet', 3);
         this.scene.softEnemyGroup.add(sunMan);
-        this.sunMans++;
+        sunMan.setBounce(1);
         sunMan.setScale(.4);
         sunMan.scaleCollision(170, 170);
         sunMan.setBounce(1);
         sunMan.setCollideWorldBounds(true);
         sunMan.setVelocityX(-200);
-        if (!this.scene.anims.get('sunsheet')) {
-            this.scene.anims.create({
-                key: 'sunsheet',
-                frames: this.scene.anims.generateFrameNumbers('sunsheet', { start: 0, end: 3 }),
-                frameRate: 8,
-                repeat: -1
-            });
-        };
-        sunMan.play('sun');
-
+        sunMan.body.setMaxSpeed(1400);
         return sunMan;
     }
 
     spawnTurret(x, y) {
-        const turret = new Enemy(this.scene, x, y, 'turret', this, 10);
+        const turret = new Enemy(this.scene, x, y, 'turret', 10);
         this.scene.staticEnemyGroup.add(turret)
         turret.body.allowGravity = false;
         turret.setVelocityY(50);
@@ -95,8 +86,15 @@ export default class SpawnManager {
     }
 
     spawnDuck(x, y) {
-        const duck = new Duck(this.scene, x, y, 'duck', this, 200, false, true)
+        const duck = new Duck(this.scene, x, y, 'duck', 200)
         this.scene.enemyGroup.add(duck);
         duck.setScale(.3);
+    }
+
+    spawnBat(x, y) {
+        const bat = new Bat(this.scene, x, y, 'bat', 2)
+        this.scene.flyingEnemyGroup.add(bat);
+        bat.setScale(1);
+        return bat;
     }
 }

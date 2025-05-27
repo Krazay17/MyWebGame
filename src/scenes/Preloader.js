@@ -39,6 +39,10 @@ export default class Preloader extends Phaser.Scene {
             frameWidth: 128,
             frameHeight: 128,
         });
+        this.load.spritesheet('whip', 'assets/Whip.png', {
+            frameWidth: 512,
+            frameHeight: 512,
+        });
     }
 
     create() {

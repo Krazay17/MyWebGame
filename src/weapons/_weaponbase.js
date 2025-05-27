@@ -18,6 +18,8 @@ export default class WeaponBase {
         this.spamAdd = 50;
         this.knockStrength = 800;
         this.meleeDuration = this.cooldownDelay;
+        this.hitLocation;
+        this.tickHit = false;
     }
 
     update(delta) {
@@ -70,8 +72,8 @@ export default class WeaponBase {
     }
 
     fire(pointer) { }
-    
-    release(pointer) {}
+
+    release(pointer) { }
 
     fireRayAttack(data) {
         const groups = this.scene.attackableGroups;
@@ -79,6 +81,7 @@ export default class WeaponBase {
         const hits = [];
         const ray = new Phaser.Geom.Line(data.start.x, data.start.y, end.x, end.y);
         const polygon = this.polygonRay(data, 20);
+        let hitLocation;
 
         // this.scene.graphics = this.scene.add.graphics();
         // this.scene.graphics.clear();
@@ -104,15 +107,16 @@ export default class WeaponBase {
 
                 // line trace
                 if (Phaser.Geom.Intersects.RectangleToRectangle(bounds, polygon)) {
-
+                    const polygonBounds = Phaser.Geom.Polygon.GetAABB(polygon);
+                    // Phaser.Geom.Rectangle.Inflate(polygonBounds, 25, 25)
+                    hitLocation = Phaser.Geom.Rectangle.Intersection(bounds, polygonBounds);
                     hits.push(target);
-                    this[handler]?.(target);
+                    this[handler]?.(target, hitLocation);
                     // this.scene.graphics.fillStyle(0x00ff00, 0.5);
                     // this.scene.graphics.fillRectShape(target.getBounds());
                 }
             });
         });
-        return hits;
     }
 
     polygonRay(data, thickness) {
@@ -138,7 +142,6 @@ export default class WeaponBase {
     }
 
     platformHit(plat) {
-        console.log('plathit')
         if (this.isProjectile) {
             this.destroy();
         };
@@ -206,8 +209,21 @@ export default class WeaponBase {
             console.log('stoppedSound');
         }
         this.hitSound.play();
-
     }
+
+    mapRangeClamped(value, inMin, inMax, outMin, outMax) {
+        if (inMin === inMax) return outMin; // Avoid divide by zero
+
+        // Normalize input range to 0–1
+        let t = (value - inMin) / (inMax - inMin);
+
+        // Clamp the normalized value
+        t = Math.max(0, Math.min(1, t));
+
+        // Remap to output range
+        return outMin + (outMax - outMin) * t;
+    }
+
 }
 
 function getClosestPointOnRect(rect, point) {
@@ -215,3 +231,5 @@ function getClosestPointOnRect(rect, point) {
     const y = Phaser.Math.Clamp(point.y, rect.top, rect.bottom);
     return new Phaser.Math.Vector2(x, y);
 }
+
+

@@ -17,9 +17,10 @@ export default class Inventory extends Phaser.Scene {
             fontStyle: 'bold'
         }).setOrigin(0.5).setVisible(false);
 
-        this.buttons.push(this.setupButton(1000, 200, 'shurikan', .4));
+        this.buttons.push(this.setupButton(1000, 200, 'shurikan', .4, 0));
         this.buttons.push(this.setupButton(1200, 200, 'sword', .3));
         this.buttons.push(this.setupButton(1400, 200, 'darkorb'));
+        this.buttons.push(this.setupButton(1000, 400, 'whip', .3, 1));
 
         this.input.keyboard.on('keydown-C', () => {
             this.visible = true;
@@ -43,13 +44,13 @@ export default class Inventory extends Phaser.Scene {
 
     }
 
-    setupButton(x = 1200, y = 200, weapon = 'darkorb', scale) {
+    setupButton(x = 1200, y = 200, weapon = 'darkorb', scale = 1, frame = 2) {
         
-        const button = this.add.image(x, y, weapon, 2)
+        const button = this.add.image(x, y, weapon, frame)
             .setScale(scale)
             .setInteractive()
             .setVisible(false)
-            .on('pointerover', () => button.setTint(0x000000))
+            .on('pointerover', () => button.setTint(0x7d7d7d))
             .on('pointerout', () => button.setTint())
             .on('pointerdown', (pointer) => {
                 const left = pointer.button === 0;

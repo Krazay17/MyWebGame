@@ -27,7 +27,7 @@ export default class Preloader extends Phaser.Scene {
             frameWidth: 256,
             frameHeight: 256,
         });
-        this.load.spritesheet('swordsheet', 'assets/SwordSheet.png', {
+        this.load.spritesheet('sword', 'assets/SwordSheet.png', {
             frameWidth: 512,
             frameHeight: 512,
         });
@@ -35,7 +35,7 @@ export default class Preloader extends Phaser.Scene {
             frameWidth: 64,
             frameHeight: 64,
         });
-        this.load.spritesheet('darkorbsheet', 'assets/DarkOrbSheet.png', {
+        this.load.spritesheet('darkorb', 'assets/DarkOrbSheet.png', {
             frameWidth: 128,
             frameHeight: 128,
         });

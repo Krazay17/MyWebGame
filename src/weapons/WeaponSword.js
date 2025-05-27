@@ -9,10 +9,10 @@ export default class WeaponSword extends WeaponBase {
         this.spamAdd = 100;
         this.hitSoundId = 'energysound';
 
-        if (!scene.anims.get('swordsheet')) {
+        if (!scene.anims.get('sword')) {
             scene.anims.create({
-                key: 'swordsheet',
-                defaultTextureKey: 'swordsheet',
+                key: 'sword',
+                defaultTextureKey: 'sword',
                 duration: 250,
                 frames: [
                     { frame: 0 },
@@ -48,8 +48,8 @@ export default class WeaponSword extends WeaponBase {
 
         this.swordOffset = data.vector;
 
-        this.sword = this.scene.add.sprite(data.start.x + data.vector.x, data.start.y + data.vector.y, 'swordsheet').setScale(0.24).setAngle(angleDeg);
-        this.sword.play('swordsheet');
+        this.sword = this.scene.add.sprite(data.start.x + data.vector.x, data.start.y + data.vector.y, 'sword').setScale(0.24).setAngle(angleDeg);
+        this.sword.play('sword');
         this.sword.setFlipY(angleDeg > 90 || angleDeg < -90);
 
         const rayData = this.calculateShot(pointer, 110);

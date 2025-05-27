@@ -8,8 +8,8 @@ export default class WeaponDarkOrb extends WeaponBase {
         scene.sound.add('shurikanthrow');
 
         scene.anims.create({
-            key: 'darkorbsheet',
-            frames: scene.anims.generateFrameNumbers('darkorbsheet', { start: 0, end: 3 }),
+            key: 'darkorb',
+            frames: scene.anims.generateFrameNumbers('darkorb', { start: 0, end: 3 }),
             frameRate: 10,
             repeat: -1,
         })

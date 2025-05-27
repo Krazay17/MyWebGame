@@ -17,9 +17,9 @@ export default class Inventory extends Phaser.Scene {
             fontStyle: 'bold'
         }).setOrigin(0.5).setVisible(false);
 
-        this.buttons.push(this.setupButton(800, 200, 'shurikan'));
-        this.buttons.push(this.setupButton(1000, 200, 'sword'));
-        this.buttons.push(this.setupButton(1200, 200, 'darkorb'));
+        this.buttons.push(this.setupButton(1000, 200, 'shurikan', .4));
+        this.buttons.push(this.setupButton(1200, 200, 'sword', .3));
+        this.buttons.push(this.setupButton(1400, 200, 'darkorb'));
 
         this.input.keyboard.on('keydown-C', () => {
             this.visible = true;
@@ -43,12 +43,14 @@ export default class Inventory extends Phaser.Scene {
 
     }
 
-    setupButton(x = 1200, y = 200, weapon = 'darkorb') {
-        const button = this.add.rectangle(x, y, 100, 80, 0x0000FF, 1)
+    setupButton(x = 1200, y = 200, weapon = 'darkorb', scale) {
+        
+        const button = this.add.image(x, y, weapon, 2)
+            .setScale(scale)
             .setInteractive()
             .setVisible(false)
-            .on('pointerover', () => button.setFillStyle(0x0000AA))
-            .on('pointerout', () => button.setFillStyle(0x0000FF))
+            .on('pointerover', () => button.setTint(0x000000))
+            .on('pointerout', () => button.setTint())
             .on('pointerdown', (pointer) => {
                 const left = pointer.button === 0;
                 this.player.equipWeapon(weapon, left)

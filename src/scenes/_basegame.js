@@ -54,11 +54,11 @@ export default class BaseGame extends Phaser.Scene {
     this.cameras.main.startFollow(this.player, false, .01, .01);
 
     if (!this.scene.isActive('EscMenu')) {
-      this.scene.launch('EscMenu', { gameScene: this.scene });
+      this.scene.launch('EscMenu', { gameScene: this });
       this.escMenu = this.scene.get('EscMenu');
     } else {
       this.escMenu = this.scene.get('EscMenu');
-      this.escMenu.init({ gameScene: this.scene })
+      this.escMenu.init({ gameScene: this })
     }
     if (!this.scene.isActive('Inventory')) {
       this.scene.launch('Inventory', { player: this.player });

@@ -7,4 +7,8 @@ export default class Bat extends BaseEnemy {
         this.health = 2;
         this.body.allowGravity = false;
     }
+
+    preUpdate(time, delta) {
+        super.preUpdate(time, delta);
+    }
 }

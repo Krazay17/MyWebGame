@@ -13,23 +13,7 @@ export default class BaseGame extends Phaser.Scene {
   }
 
   preload() {
-    this.load.audio('energysound', 'assets/EnergySound.wav');
-    this.load.image('coin', 'assets/SourceCoin.png');
-    this.load.image('platform', 'assets/platform.png');
-    this.load.image('platformwide', 'assets/platformwide.png');
-    this.load.image('platformtall', 'assets/platformtall.png');
-    this.load.spritesheet('dudesheet', 'assets/DudeSheet.png', {
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    this.load.spritesheet('swordsheet', 'assets/SwordSheet.png', {
-      frameWidth: 512,
-      frameHeight: 512,
-    });
-    this.load.spritesheet('boxsheet', 'assets/BoxSheet.png', {
-      frameWidth: 64,
-      frameHeight: 64,
-    });
+    this.loadingBar();
   }
 
   update(time, delta) {
@@ -56,7 +40,7 @@ export default class BaseGame extends Phaser.Scene {
     });
   }
 
-  setupSky( a = 'sky2', ao = {x: 0, y: 0}, b = 'sky2layer1', bo = {x: 800, y: 600}, c = 'sky2layer2', co = {x: 600, y: 500} ) {
+  setupSky(a = 'sky2', ao = { x: 0, y: 0 }, b = 'sky2layer1', bo = { x: 800, y: 600 }, c = 'sky2layer2', co = { x: 600, y: 500 }) {
     this.sky1 = this.add.image(ao.x, ao.y, a).setOrigin(0)
       .setDisplaySize(this.scale.width, this.scale.height).setScrollFactor(0)
       .on('resize', (gameSize) => {
@@ -97,26 +81,26 @@ export default class BaseGame extends Phaser.Scene {
 
     this.attackableGroups = [
       { group: this.walkableGroup = this.physics.add.group({ allowGravity: false, immovable: true }), handler: 'platformHit' },
-      { group: this.enemyGroup = this.physics.add.group(), handler: 'enemyHit'},
-      { group: this.flyingEnemyGroup = this.physics.add.group({ allowGravity: false }), handler: 'enemyHit'},
+      { group: this.enemyGroup = this.physics.add.group(), handler: 'enemyHit' },
+      { group: this.flyingEnemyGroup = this.physics.add.group({ allowGravity: false }), handler: 'enemyHit' },
       { group: this.softEnemyGroup = this.physics.add.group(), handler: 'enemyHit' },
       { group: this.staticEnemyGroup = this.physics.add.group({ allowGravity: false, immovable: true }), handler: 'enemyHit' },
-      { group: this.bulletGroup = this.physics.add.group({allowGravity: false}), handler: 'bulletHit' },
-      { group: this.softBulletGroup = this.physics.add.group({allowGravity: false}), handler: 'bulletHit' },
+      { group: this.bulletGroup = this.physics.add.group({ allowGravity: false }), handler: 'bulletHit' },
+      { group: this.softBulletGroup = this.physics.add.group({ allowGravity: false }), handler: 'bulletHit' },
       { group: this.itemGroup = this.physics.add.group(), handler: 'itemHit' },
       { group: this.staticItemGroup = this.physics.add.group({ allowGravity: false, immovable: true }), handler: 'itemHit' }
     ];
   }
 
   setupCollisions() {
-      this.attackableGroups.forEach(({ group, handler }) =>
-        this.physics.add.overlap(
-          this.weaponGroup,
-          group,
-          (weapon, target) => weapon[handler]?.(target),
-          null,
-          this
-        ));
+    this.attackableGroups.forEach(({ group, handler }) =>
+      this.physics.add.overlap(
+        this.weaponGroup,
+        group,
+        (weapon, target) => weapon[handler]?.(target),
+        null,
+        this
+      ));
 
     this.physics.add.collider(this.player, this.walkableGroup, (player, walkable) => {
       player.TouchPlatform(walkable);
@@ -211,5 +195,33 @@ export default class BaseGame extends Phaser.Scene {
   setupSave() {
     GameManager.area = this.key;
     GameManager.save();
+  }
+
+  loadingBar() {
+    // Create a progress bar background
+    const { width, height } = this.cameras.main;
+    const barWidth = 300;
+    const barHeight = 30;
+    const barX = (width - barWidth) / 2;
+    const barY = (height - barHeight) / 2;
+
+    const progressBarBg = this.add.graphics();
+    progressBarBg.fillStyle(0x222222, 1);
+    progressBarBg.fillRect(barX, barY, barWidth, barHeight);
+
+    const progressBar = this.add.graphics();
+
+    // Optional: Add text
+    const loadingText = this.add.text(width / 2, barY - 40, 'Loading...', {
+      fontSize: '20px',
+      fill: '#ffffff'
+    }).setOrigin(0.5);
+
+    // Listen to loading progress
+    this.load.on('progress', (value) => {
+      progressBar.clear();
+      progressBar.fillStyle(0xffffff, 1);
+      progressBar.fillRect(barX, barY, barWidth * value, barHeight);
+    });
   }
 }

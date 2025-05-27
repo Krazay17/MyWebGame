@@ -1,17 +1,16 @@
 import GameManager from "../things/GameManager.js";
 
-export default class Preloader extends Phaser.Scene
-{
-    constructor ()
-    {
+export default class Preloader extends Phaser.Scene {
+    constructor() {
         super('Preloader');
     }
 
-    preload()
-    {
-        this.load.image('sky2', 'assets/Sky2.png')
-        this.load.image('sky2layer1', 'assets/Sky2Layer1.png')
-        this.load.image('sky2layer2', 'assets/Sky2Layer2.png')
+    preload() {
+        this.loadingBar();
+
+        this.load.image('sky2', 'assets/Sky2.png');
+        this.load.image('sky2layer1', 'assets/Sky2Layer1.png');
+        this.load.image('sky2layer2', 'assets/Sky2Layer2.png');
         this.load.audio('playerHit', 'assets/PlayerGotHit.wav');
         this.load.audio('shurikanthrow', 'assets/Whip1.wav');
         this.load.audio('shurikanhit', 'assets/shurikan.wav');
@@ -19,10 +18,26 @@ export default class Preloader extends Phaser.Scene
         this.load.audio('homemusic', 'assets/HomeMusic.wav');
         this.load.image('dudecrouch', 'assets/DudeCrouch.png');
         this.load.image('shurikan', 'assets/shurikan.png');
+        this.load.audio('energysound', 'assets/EnergySound.wav');
+        this.load.image('coin', 'assets/SourceCoin.png');
+        this.load.image('platform', 'assets/platform.png');
+        this.load.image('platformwide', 'assets/platformwide.png');
+        this.load.image('platformtall', 'assets/platformtall.png');
+        this.load.spritesheet('dudesheet', 'assets/DudeSheet.png', {
+            frameWidth: 256,
+            frameHeight: 256,
+        });
+        this.load.spritesheet('swordsheet', 'assets/SwordSheet.png', {
+            frameWidth: 512,
+            frameHeight: 512,
+        });
+        this.load.spritesheet('boxsheet', 'assets/BoxSheet.png', {
+            frameWidth: 64,
+            frameHeight: 64,
+        });
     }
 
-    create()
-    {
+    create() {
         GameManager.load();
 
         window.secretTeleport = () => {
@@ -34,5 +49,33 @@ export default class Preloader extends Phaser.Scene
         };
 
         this.scene.start(GameManager.area);
+    }
+
+    loadingBar() {
+        // Create a progress bar background
+        const { width, height } = this.cameras.main;
+        const barWidth = 300;
+        const barHeight = 30;
+        const barX = (width - barWidth) / 2;
+        const barY = (height - barHeight) / 2;
+
+        const progressBarBg = this.add.graphics();
+        progressBarBg.fillStyle(0x222222, 1);
+        progressBarBg.fillRect(barX, barY, barWidth, barHeight);
+
+        const progressBar = this.add.graphics();
+
+        // Optional: Add text
+        const loadingText = this.add.text(width / 2, barY - 40, 'Loading...', {
+            fontSize: '20px',
+            fill: '#ffffff'
+        }).setOrigin(0.5);
+
+        // Listen to loading progress
+        this.load.on('progress', (value) => {
+            progressBar.clear();
+            progressBar.fillStyle(0xffffff, 1);
+            progressBar.fillRect(barX, barY, barWidth * value, barHeight);
+        });
     }
 }

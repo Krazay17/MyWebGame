@@ -196,7 +196,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         const isUp = up.isDown || cursors.up.isDown || cursors.space.isDown;
 
         const WalkLerp = (a, modify) => {
-            if (!modify) modify = this.body.touching.down ? .5 : .04;
+            if (!modify) modify = this.body.touching.down ? .5 : .09;
+
+            modify = Phaser.Math.Clamp(modify * (delta / 16.666), 0, 1);
             return Phaser.Math.Linear(this.body.velocity.x, a, modify);
         };
 

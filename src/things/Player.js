@@ -38,8 +38,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.iFrame = false;
         this.hitCD = false;
 
-        this.leftWeapon = createWeapon(GameManager.weapons.left, scene, this);
-        this.rightWeapon = createWeapon(GameManager.weapons.right, scene, this);
+        this.playerUI;
+        this.scene.scene.launch('EscMenu', { gameScene: this.scene });
+        this.scene.scene.launch('Inventory', { player: this });
+        this.scene.scene.launch('PlayerUI', { player: this });
+
+        this.equipWeapon(GameManager.weapons.left, true);
+        this.equipWeapon(GameManager.weapons.right, false);
         this.weapons = [this.leftWeapon, this.rightWeapon];
 
         this.tryLeftAttack = false;
@@ -49,8 +54,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.rightSpam = 0;
         this.speed = 250;
 
-        this.scene.scene.launch('EscMenu', { gameScene: this.scene });
-        this.inventory = this.scene.scene.launch('Inventory', { player: this });
 
         this.rankSystem = new RankSystem();
 
@@ -111,20 +114,20 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     preUpdate(time, delta) {
         super.preUpdate(time, delta);
 
-        if (this.alive && !this.stunned) {
-            this.leftWeapon.update(delta);
-            this.rightWeapon.update(delta);
+        if (this.alive && !this.stunned && this.leftWeapon && this.rightWeapon) {
+            this.leftWeapon.update?.(delta);
+            this.rightWeapon.update?.(delta);
 
             const pointer = this.scene.input.activePointer;
 
-            if (pointer.leftButtonDown()) {
+            if (pointer.leftButtonDown() && !this.inventory.visible) {
                 this.leftWeapon.fire(pointer);
             }
-            if (pointer.rightButtonDown()) {
+            if (pointer.rightButtonDown() && !this.inventory.visible) {
                 this.rightWeapon.fire(pointer);
             }
 
-            if (this.y > this.scene.physics.world.bounds.height + this.body.height / 2 && this.alive) {
+            if (this.y > this.scene.physics.world.bounds.height + this.body.height + 150 && this.alive) {
                 this.Died();
             }
         }
@@ -373,14 +376,20 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     equipWeapon(name = 'Shurikan', left = true,) {
+        var equippedWeapon;
         if (left) {
             this.leftWeapon = createWeapon(name, this.scene, this);
+            equippedWeapon = this.leftWeapon;
             GameManager.weapons.left = name;
         } else {
             this.rightWeapon = createWeapon(name, this.scene, this);
+            equippedWeapon = this.rightWeapon;
             GameManager.weapons.right = name;
         }
-        
+        if (this.playerUI) {
+            this.playerUI.setWeaponIcon(name, left);
+        }
         GameManager.save();
+        return equippedWeapon;
     }
 }

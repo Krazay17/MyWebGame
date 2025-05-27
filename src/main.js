@@ -3,6 +3,7 @@ import Boot from './scenes/Boot.js'
 import Preloader from './scenes/Preloader.js'
 import EscMenu from './scenes/EscMenu.js'
 import Inventory from './scenes/Inventory.js'
+import PlayerUI from './scenes/playerUI.js'
 import Home from './scenes/Home.js'
 import Level1 from './scenes/Level1.js'
 import level2 from './scenes/level2.js'
@@ -31,7 +32,7 @@ const config = {
       }
     },
     scene: [Boot, Preloader, Home, Level1, level2, Level3,
-      Inventory, EscMenu],
+      PlayerUI, Inventory, EscMenu],
 };
 
 let game = new Phaser.Game(config);

@@ -20,11 +20,16 @@ export default class WeaponBase {
         this.meleeDuration = this.cooldownDelay;
         this.hitLocation;
         this.tickHit = false;
+        this.cooldownTimer = 0;
     }
 
     update(delta) {
         if (!this.cooldown)
             this.cooldownDelay = Math.max(this.baseCooldown, this.cooldownDelay -= delta * .65);
+        else {
+            const elapsed = this.scene.time.now - this.cooldownStartTime;
+            this.cdProgress = Phaser.Math.Clamp(elapsed / this.cd, 0, 1);
+        }
 
         if (this.meleeRayTick) {
             this.rayTickData.start.x = this.player.x;
@@ -39,8 +44,11 @@ export default class WeaponBase {
 
     startCooldown() {
         this.cooldown = true;
-        const cd = Math.max(this.baseCooldown, this.baseCooldown + this.cooldownDelay);
-        this.scene.time.delayedCall(cd, () => {
+        this.cd = Math.max(this.baseCooldown, this.baseCooldown + this.cooldownDelay);
+        
+        this.cooldownStartTime = this.scene.time.now;
+
+        this.cooldownTimer = this.scene.time.delayedCall(this.cd, () => {
             this.cooldown = false;
         });
 
@@ -81,9 +89,10 @@ export default class WeaponBase {
         const hits = [];
         const ray = new Phaser.Geom.Line(data.start.x, data.start.y, end.x, end.y);
         const polygon = this.polygonRay(data, 20);
-        let hitLocation;
+        var hit;
+        this.hitLocation = hit;
 
-        // this.scene.graphics = this.scene.add.graphics();
+        this.scene.graphics = this.scene.add.graphics();
         // this.scene.graphics.clear();
         // this.scene.graphics.lineStyle(2, 0xff0000);
 
@@ -103,15 +112,16 @@ export default class WeaponBase {
 
                 // skip out of cone targets
                 const dot = data.direction.clone().dot(toTarget.normalize());
-                if (dot < 0.85 && dot !== 0) return;
+                console.log(dot);
+                if (dot < 0.1 && dot !== 0) return;
+                const polytoSquare = Phaser.Geom.Polygon.GetAABB(polygon);
+                Phaser.Geom.Rectangle.Inflate(polytoSquare, 1, 1)
 
                 // line trace
-                if (Phaser.Geom.Intersects.RectangleToRectangle(bounds, polygon)) {
-                    const polygonBounds = Phaser.Geom.Polygon.GetAABB(polygon);
-                    // Phaser.Geom.Rectangle.Inflate(polygonBounds, 25, 25)
-                    hitLocation = Phaser.Geom.Rectangle.Intersection(bounds, polygonBounds);
+                if (Phaser.Geom.Intersects.RectangleToRectangle(bounds, polytoSquare)) {
+                    hit = Phaser.Geom.Rectangle.Intersection(bounds, polytoSquare);
                     hits.push(target);
-                    this[handler]?.(target, hitLocation);
+                    this[handler]?.(target, hit);
                     // this.scene.graphics.fillStyle(0x00ff00, 0.5);
                     // this.scene.graphics.fillRectShape(target.getBounds());
                 }
@@ -142,9 +152,6 @@ export default class WeaponBase {
     }
 
     platformHit(plat) {
-        if (this.isProjectile) {
-            this.destroy();
-        };
     }
 
     enemyHit(target) {
@@ -206,7 +213,6 @@ export default class WeaponBase {
         };
         if (this.hitSound.isPlaying) {
             this.hitSound.stop();
-            console.log('stoppedSound');
         }
         this.hitSound.play();
     }

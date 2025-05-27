@@ -4,6 +4,7 @@ export default class WeaponSword extends WeaponBase {
     constructor(scene, player) {
         super(scene, player, 2)
 
+        this.name = 'sword'
         this.baseCooldown = 500;
         this.meleeDuration = 250;
         this.spamAdd = 100;
@@ -55,7 +56,7 @@ export default class WeaponSword extends WeaponBase {
         const rayData = this.calculateShot(pointer, 110);
         this.fireRayAttack(rayData);
 
-        this.rayTickData = { ...rayData };
+        this.rayTickData = rayData;
         this.meleeRayTick = true;
 
         // Cleanup

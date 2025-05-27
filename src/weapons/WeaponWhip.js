@@ -4,6 +4,7 @@ export default class WeaponWhip extends WeaponBase {
     constructor(scene, player) {
         super(scene, player, 1)
 
+        this.name = 'whip'
         this.baseCooldown = 500;
         this.meleeDuration = 250;
         this.spamAdd = 100;
@@ -14,7 +15,7 @@ export default class WeaponWhip extends WeaponBase {
             scene.anims.create({
                 key: 'whip',
                 defaultTextureKey: 'whip',
-                duration: 100,
+                duration: 150,
                 frames: [
                     { frame: 0 },
                     { frame: 1 },
@@ -43,12 +44,12 @@ export default class WeaponWhip extends WeaponBase {
     }
     update(delta) {
         super.update(delta);
-        if (this.sword) {
-            this.sword.x = this.player.x;
-            this.sword.y = this.player.y - 15 + this.swordOffset.y;
+        if (this.weaponSprite) {
+            this.weaponSprite.x = this.player.x;
+            this.weaponSprite.y = this.player.y - 25 + this.weaponSpriteOffset.y;
         }
 
-        if (this.whipConnect && this.hitLocation && !this.player.stunned) {
+        if (this.weaponSprite && this.whipConnect && this.hitLocation && !this.player.stunned) {
             this.meleeRayTick = false;
             this.wasGrappling = true;
             const g = this.scene.add.graphics();
@@ -57,24 +58,24 @@ export default class WeaponWhip extends WeaponBase {
             // g.moveTo(this.player.x, this.player.y);
             // g.lineTo(this.hitLocation.x, this.hitLocation.y);
             // g.strokePath();
-            this.scene.physics.accelerateTo(this.player, this.hitLocation.x, this.hitLocation.y, 3200, 1000, 300);
             const distance = Phaser.Math.Distance.Between(
                 this.player.x, this.player.y,
                 this.hitLocation.x, this.hitLocation.y
             );
-            const angleDeg = Phaser.Math.RadToDeg(Phaser.Math.Angle.Between(this.sword.x, this.sword.y, this.hitLocation.x, this.hitLocation.y));
-            
-            this.sword.setAngle(angleDeg);
-            this.sword.setScale(this.mapRangeClamped(distance, 25, 200, 0.02, 0.4))
-            if(distance < 100 || distance > 350 && this.sword) {
-                this.sword.play('whipend')
+            const angleDeg = Phaser.Math.RadToDeg(Phaser.Math.Angle.Between(this.weaponSprite.x, this.weaponSprite.y, this.hitLocation.x, this.hitLocation.y));
+
+            if (distance > 200) this.scene.physics.accelerateTo(this.player, this.hitLocation.x, this.hitLocation.y, 3000, 450, 450);
+            this.weaponSprite.setAngle(angleDeg);
+            this.weaponSprite.setScale(this.mapRangeClamped(distance, 25, 200, 0.02, 0.4))
+            if (distance > 400 && this.weaponSprite) {
+                this.weaponSprite.play('whipend')
                 this.whipConnect = false
             }
         } else if (this.wasGrappling) {
             this.player.body.setAcceleration(0, 0);
             this.player.body.setMaxSpeed(1200);
-            this.player.body.maxVelocity.x =1200;
-            this.player.body.maxVelocity.y =1200;
+            this.player.body.maxVelocity.x = 1200;
+            this.player.body.maxVelocity.y = 1200;
             this.hitLocation = null;
             this.wasGrappling = false;
 
@@ -82,64 +83,69 @@ export default class WeaponWhip extends WeaponBase {
     }
 
     fire(pointer) {
-        if (this.sword) return;
+        if (this.weaponSprite) return;
         if (!this.canFire()) return;
         this.clearHits();
         this.playThrowSound();
 
-        const data = this.calculateShot(pointer, 1);
+        const data = this.calculateShot(pointer, 15);
         const angleDeg = Phaser.Math.RadToDeg(Phaser.Math.Angle.Between(data.start.x, data.start.y, data.cursorPos.x, data.cursorPos.y));
 
-        this.swordOffset = data.vector;
+        this.weaponSpriteOffset = data.vector;
 
-        this.sword = this.scene.add.sprite(data.start.x + data.vector.x, data.start.y + data.vector.y, 'whip')
-            .setScale(0.45)
+        this.weaponSprite = this.scene.add.sprite(data.start.x + data.vector.x, data.start.y + data.vector.y, 'whip')
+            .setScale(0.48)
             .setOrigin(0, .5)
             .setAngle(angleDeg);
-        this.sword.play('whip');
-        this.sword.setFlipY(angleDeg > 90 || angleDeg < -90);
+        this.weaponSprite.play('whip');
+        this.weaponSprite.setFlipY(angleDeg > 90 || angleDeg < -90);
 
-        const rayData = this.calculateShot(pointer, 250);
+        const rayData = this.calculateShot(pointer, 235);
 
-        this.rayTickData = { ...rayData };
+        this.rayTickData = rayData;
 
-        this.sword.once('animationcomplete-whipend', () => {
-            this.stopWhip();
-        });
-        this.sword.once('animationcomplete-whip', () => {
+        this.weaponSprite.on('animationcomplete-whip', () => {
             this.meleeRayTick = true;
         });
-        // Cleanup
-        // this.scene.time.delayedCall(this.meleeDuration, () => {
-        //     this.meleeRayTick = false;
-        //     this.sword.destroy();
-        //     delete this.sword;
-        // });
+
+        this.weaponSprite.on('animationcomplete-whipend', () => {
+            this.stopWhip();
+        });
     }
 
     release() {
-        this.meleeRayTick = false;
         this.whipConnect = false;
-        if (this.sword) this.sword.play('whipend')
+        if (this.weaponSprite) {
+            this.weaponSprite.play('whipend');
+        }
     }
 
     platformHit(plat, hitLocation) {
         this.hitLocation = hitLocation;
-        this.sword.stop()
-        this.sword.setFrame(4)
         this.whipConnect = true;
+        if (this.weaponSprite) {
+            this.weaponSprite.stop();
+            this.weaponSprite.setFrame(4)
+        }
     }
 
     itemHit(item, hitLocation) {
         this.hitLocation = hitLocation;
-        this.sword.stop()
-        this.sword.setFrame(4)
         this.whipConnect = true;
+        if (this.weaponSprite) {
+            this.weaponSprite.stop();
+            this.weaponSprite.setFrame(4)
+        }
     }
 
     stopWhip() {
         this.startCooldown();
-        this.sword.destroy();
-        delete this.sword;
+        this.whipConnect = false;
+        this.meleeRayTick = false;
+        if (this.weaponSprite) {
+            this.weaponSprite.stop();
+            this.weaponSprite.destroy();
+            delete this.weaponSprite;
+        }
     }
 }

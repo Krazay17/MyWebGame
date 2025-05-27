@@ -4,8 +4,8 @@ import DarkOrbProjectile from './darkOrbProjectile.js';
 export default class WeaponDarkOrb extends WeaponBase {
     constructor(scene, player, group) {
         super(scene, player, group);
-        scene.sound.add('shurikanhit');
-        scene.sound.add('shurikanthrow');
+
+        this.name = 'darkorb';
 
         scene.anims.create({
             key: 'darkorb',

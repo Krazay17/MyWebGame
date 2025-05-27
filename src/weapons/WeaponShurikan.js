@@ -4,8 +4,8 @@ import WeaponProjectile from './_baseWeaponProjectile.js'; // projectile sprite
 export default class WeaponShurikan extends WeaponBase {
     constructor(scene, player, group) {
         super(scene, player, group);
-        scene.sound.add('shurikanhit');
-        scene.sound.add('shurikanthrow');
+
+        this.name = 'shurikan';
     }
 
     fire(pointer) {
@@ -32,9 +32,6 @@ export default class WeaponShurikan extends WeaponBase {
         // Cleanup
         this.scene.time.delayedCall(550, () => projectile.destroy());
 
-        // Sound
-        const sfx = this.scene.sound;
-        if (!sfx.get('shurikanthrow')) sfx.add('shurikanthrow');
-        sfx.play('shurikanthrow');
+        this.playThrowSound();
     }
 }

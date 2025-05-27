@@ -5,6 +5,7 @@ export default class Inventory extends Phaser.Scene {
     }
     init(data) {
         this.player = data.player;
+        this.player.inventory = this
     }
 
     create() {
@@ -17,10 +18,10 @@ export default class Inventory extends Phaser.Scene {
             fontStyle: 'bold'
         }).setOrigin(0.5).setVisible(false);
 
-        this.buttons.push(this.setupButton(1000, 200, 'shurikan', .4, 0));
-        this.buttons.push(this.setupButton(1200, 200, 'sword', .3));
-        this.buttons.push(this.setupButton(1400, 200, 'darkorb'));
-        this.buttons.push(this.setupButton(1000, 400, 'whip', .3, 1));
+        this.buttons.push(this.setupButton(1000, 200, 'shurikan', 'shurikan', .4));
+        this.buttons.push(this.setupButton(1200, 200, 'sword', 'swordicon', .5));
+        this.buttons.push(this.setupButton(1400, 200, 'darkorb', 'darkorb', 1, 0));
+        this.buttons.push(this.setupButton(1000, 400, 'whip', 'whipicon', .5));
 
         this.input.keyboard.on('keydown-C', () => {
             this.visible = true;
@@ -44,9 +45,8 @@ export default class Inventory extends Phaser.Scene {
 
     }
 
-    setupButton(x = 1200, y = 200, weapon = 'darkorb', scale = 1, frame = 2) {
-        
-        const button = this.add.image(x, y, weapon, frame)
+    setupButton(x = 1200, y = 200, weapon = 'darkorb', icon = 'darkorb', scale = 1, frame = 2) {
+        const button = this.add.image(x, y, icon, frame)
             .setScale(scale)
             .setInteractive()
             .setVisible(false)

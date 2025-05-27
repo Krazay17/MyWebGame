@@ -18,10 +18,14 @@ export default class Preloader extends Phaser.Scene {
         this.load.audio('homemusic', 'assets/HomeMusic.wav');
         this.load.image('dudecrouch', 'assets/DudeCrouch.png');
         this.load.image('shurikan', 'assets/shurikan.png');
+        this.load.image('shurikanicon', 'assets/shurikan.png');
         this.load.audio('energysound', 'assets/EnergySound.wav');
         this.load.image('coin', 'assets/SourceCoin.png');
         this.load.image('platform', 'assets/platform.png');
         this.load.image('platformwide', 'assets/platformwide.png');
+        this.load.image('whipicon', 'assets/WhipIcon.png');
+        this.load.image('swordicon', 'assets/SwordIcon.png');
+        this.load.image('darkorbicon', 'assets/DarkOrbIcon.png');
         this.load.image('platformtall', 'assets/platformtall.png');
         this.load.spritesheet('dudesheet', 'assets/DudeSheet.png', {
             frameWidth: 256,

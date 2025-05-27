@@ -7,7 +7,7 @@ export default class WeaponProjectile extends Phaser.Physics.Arcade.Sprite {
         scene.add.existing(this);
         scene.physics.add.existing(this);
 
-        this.hitSound = 'shurikanhit';
+        this.hitSoundId = 'shurikanhit';
         this.baseDamage = damage;
         this.hitTargets = [];
         this.destroyOnHit = true;
@@ -53,11 +53,13 @@ export default class WeaponProjectile extends Phaser.Physics.Arcade.Sprite {
     }
 
     playHitSound() {
-        if (this.scene && this.scene.sound.get(this.hitSound)) {
-            this.scene.sound.play(this.hitSound);
-        } else {
-            scene.sound.add(this.hitSound);
-            this.scene.sound.play(this.hitSound);
+        if (!this.hitSound) {
+            this.hitSound = this.scene.sound.add(this.hitSoundId);
+        };
+        if (this.hitSound.isPlaying) {
+            this.hitSound.stop();
+            console.log('stoppedSound');
         }
+        this.hitSound.play();
     }
 }

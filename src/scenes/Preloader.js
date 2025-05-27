@@ -35,6 +35,10 @@ export default class Preloader extends Phaser.Scene {
             frameWidth: 64,
             frameHeight: 64,
         });
+        this.load.spritesheet('darkorbsheet', 'assets/DarkOrbSheet.png', {
+            frameWidth: 128,
+            frameHeight: 128,
+        });
     }
 
     create() {

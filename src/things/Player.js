@@ -38,8 +38,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.iFrame = false;
         this.hitCD = false;
 
-        this.leftWeapon = createWeapon('shurikan', scene, this);
-        this.rightWeapon = createWeapon('sword', scene, this);
+        this.leftWeapon = createWeapon(GameManager.weapons.left, scene, this);
+        this.rightWeapon = createWeapon(GameManager.weapons.right, scene, this);
         this.weapons = [this.leftWeapon, this.rightWeapon];
 
         this.tryLeftAttack = false;
@@ -50,7 +50,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.speed = 250;
 
         this.scene.scene.launch('EscMenu', { gameScene: this.scene });
-        this.scene.scene.launch('Inventory', { player: this });
+        this.inventory = this.scene.scene.launch('Inventory', { player: this });
 
         this.rankSystem = new RankSystem();
 
@@ -73,6 +73,14 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.scene.input.on('pointerdown', (pointer) => {
             if (pointer.middleButtonDown())
                 this.Teleport(pointer);
+        });
+
+        this.scene.input.on('pointerup', (pointer) => {
+            if (pointer.leftButtonReleased()) {
+                this.leftWeapon.release();
+            } else if (pointer.rightButtonReleased()) {
+                this.rightWeapon.release();
+            }
         });
 
         this.scene.input.keyboard.on('keydown-F', () => {
@@ -104,7 +112,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         super.preUpdate(time, delta);
 
         if (this.alive && !this.stunned) {
-            this.weapons.forEach(weapon => weapon.update(delta));
+            this.leftWeapon.update(delta);
+            this.rightWeapon.update(delta);
 
             const pointer = this.scene.input.activePointer;
 
@@ -361,5 +370,17 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     syncNetwork() {
         this.network.socket.emit('playerLevel', GameManager.source);
+    }
+
+    equipWeapon(name = 'Shurikan', left = true,) {
+        if (left) {
+            this.leftWeapon = createWeapon(name, this.scene, this);
+            GameManager.weapons.left = name;
+        } else {
+            this.rightWeapon = createWeapon(name, this.scene, this);
+            GameManager.weapons.right = name;
+        }
+        
+        GameManager.save();
     }
 }

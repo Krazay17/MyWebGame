@@ -70,6 +70,8 @@ export default class WeaponBase {
     }
 
     fire(pointer) { }
+    
+    release(pointer) {}
 
     fireRayAttack(data) {
         const groups = this.scene.attackableGroups;

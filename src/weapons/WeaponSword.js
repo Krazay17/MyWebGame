@@ -30,6 +30,7 @@ export default class WeaponSword extends WeaponBase {
     update(delta) {
         super.update(delta);
         if (this.sword) {
+        
             this.sword.x = this.player.x + this.swordOffset.x;
             this.sword.y = this.player.y - 15 + this.swordOffset.y;
         }

@@ -1,5 +1,5 @@
 import WeaponBase from './_weaponbase.js';
-import WeaponProjectile from './WeaponProjectile.js'; // projectile sprite
+import WeaponProjectile from './_baseWeaponProjectile.js'; // projectile sprite
 
 export default class WeaponShurikan extends WeaponBase {
     constructor(scene, player, group) {

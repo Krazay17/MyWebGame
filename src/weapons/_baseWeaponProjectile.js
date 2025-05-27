@@ -1,17 +1,16 @@
-export default class Weapon extends Phaser.Physics.Arcade.Sprite {
-    constructor(scene, x, y, id = 'shurikan', player, damage, weaponManager, throwSound = 'shurikanthrow', hitSound = 'shurikanhit') {
+export default class WeaponProjectile extends Phaser.Physics.Arcade.Sprite {
+    constructor(scene, x, y, id = 'shurikan', player, damage = 1) {
         super(scene, x, y, id);
         this.scene = scene;
         this.player = player;
-        this.weaponManager = weaponManager;
-        this.throwSound = throwSound;
-        this.hitSound = hitSound;
 
         scene.add.existing(this);
         scene.physics.add.existing(this);
 
+        this.hitSound = 'shurikanhit';
         this.baseDamage = damage;
         this.hitTargets = [];
+        this.destroyOnHit = true;
 
     }
 
@@ -19,11 +18,11 @@ export default class Weapon extends Phaser.Physics.Arcade.Sprite {
         if (!this.canHit(bullet)) return;
         this.playHitSound();
         bullet.destroy();
-        this.destroy();
+        if (this.destroyOnHit) this.destroy();
     }
 
     platformHit(plat) {
-        this.destroy();
+        if (this.destroyOnHit) this.destroy();
     }
 
     enemyHit(enemy) {
@@ -32,7 +31,7 @@ export default class Weapon extends Phaser.Physics.Arcade.Sprite {
         if (this.canHit(enemy)) {
             if (enemy.TakeDamage(this.player, this.baseDamage, velocity)) {
                 this.playHitSound();
-                this.destroy();
+                if (this.destroyOnHit) this.destroy();
                 return;
             }
         }
@@ -44,22 +43,13 @@ export default class Weapon extends Phaser.Physics.Arcade.Sprite {
         if (!this.canHit(target)) return;
         this.playHitSound();
         target.hit?.(this.player, this.baseDamage, velocity);
-        this.destroy();
+        if (this.destroyOnHit) this.destroy();
     }
 
     canHit(target) {
         if (this.hitTargets.find(t => t === target)) return false;
         this.hitTargets.push(target);
         return true;
-    }
-
-    playThrowSound() {
-        if (this.scene && this.scene.sound.get(this.throwSound)) {
-            this.scene.sound.play(this.throwSound);
-        } else {
-            scene.sound.add(this.throwSound);
-            this.scene.sound.play(this.throwSound);
-        }
     }
 
     playHitSound() {

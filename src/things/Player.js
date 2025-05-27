@@ -38,10 +38,18 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.iFrame = false;
         this.hitCD = false;
 
-        this.playerUI;
-        this.scene.scene.launch('EscMenu', { gameScene: this.scene });
-        this.scene.scene.launch('Inventory', { player: this });
-        this.scene.scene.launch('PlayerUI', { player: this });
+        // this.playerUI;
+        // if (!this.scene.scene.isActive('EscMenu')) {
+        // this.scene.scene.launch('EscMenu', { gameScene: this.scene });
+        // } else {
+
+        // }
+        // if (!this.scene.scene.isActive('Inventory')) {
+        // this.scene.scene.launch('Inventory', { player: this });
+        // }
+        // if (!this.scene.scene.isActive('PlayerUI')) {
+        // this.scene.scene.launch('PlayerUI', { player: this });
+        // }
 
         this.equipWeapon(GameManager.weapons.left, true);
         this.equipWeapon(GameManager.weapons.right, false);

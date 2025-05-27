@@ -3,6 +3,7 @@ import NetworkManager from '../things/NetworkManager.js';
 import GameManager from '../things/GameManager.js';
 import SpawnManager from '../things/_spawnmanager.js';
 import WeaponGroup from '../weapons/WeaponGroup.js';
+import Inventory from './Inventory.js';
 
 export default class BaseGame extends Phaser.Scene {
   constructor(key) {
@@ -51,6 +52,28 @@ export default class BaseGame extends Phaser.Scene {
   setupPlayer(x = 0, y = 0) {
     this.player = new Player(this, x, y);
     this.cameras.main.startFollow(this.player, false, .01, .01);
+
+    if (!this.scene.isActive('EscMenu')) {
+      this.scene.launch('EscMenu', { gameScene: this.scene });
+      this.escMenu = this.scene.get('EscMenu');
+    } else {
+      this.escMenu = this.scene.get('EscMenu');
+      this.escMenu.init({ gameScene: this.scene })
+    }
+    if (!this.scene.isActive('Inventory')) {
+      this.scene.launch('Inventory', { player: this.player });
+      this.invMenu = this.scene.get('Inventory');
+    } else {
+      this.invMenu = this.scene.get('Inventory');
+      this.invMenu.init({ player: this.player });
+    }
+    if (!this.scene.isActive('PlayerUI')) {
+      this.scene.launch('PlayerUI', { player: this.player });
+      this.uiMenu = this.scene.get('PlayerUI');
+    } else {
+      this.uiMenu = this.scene.get('PlayerUI');
+      this.uiMenu.init({ player: this.player });
+    }
   }
 
   setupFPS() {
@@ -221,9 +244,9 @@ export default class BaseGame extends Phaser.Scene {
   }
 
   resizeSky(gameSize) {
-        const width = gameSize.width;
-        const height = gameSize.height;
-        console.log('mapresize');
-        this.sky1.setDisplaySize(width, height);
+    const width = gameSize.width;
+    const height = gameSize.height;
+    console.log('mapresize');
+    this.sky1.setDisplaySize(width, height);
   }
 }

@@ -39,9 +39,10 @@ export default class PlayerUI extends Phaser.Scene {
         this.rightWeaponIcon.y = height;
     }
 
-    setWeaponIcon(name = 'shurikan', left = true) {
+    setWeaponIcon(name = 'shurikan', slot = 0) {
         const icon = name + 'icon'
-        if (left) {
+        console.log(icon)
+        if (slot === 0) {
             if (!this.leftWeaponIcon) {
                 this.leftWeaponIcon = this.add.image(0, this.scale.height, icon, 1).setOrigin(0, 1).setScale(.5);
             } else {

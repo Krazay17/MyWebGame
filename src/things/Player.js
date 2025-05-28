@@ -401,7 +401,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             GameManager.weapons.aura = name;
         }
         if (this.playerUI) {
-            this.playerUI.setWeaponIcon(name, left);
+            this.playerUI.setWeaponIcon(name, slot);
         }
         GameManager.save();
         return equippedWeapon;

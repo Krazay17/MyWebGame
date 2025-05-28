@@ -315,6 +315,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         }
 
         this.stunned = true;
+        this.emit('playerstunned');
         this.scene.time.removeEvent(this.stunTimer);
         this.stunTimer = this.scene.time.addEvent({
             delay: 400,

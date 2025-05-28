@@ -60,7 +60,7 @@ export default class WeaponBase {
         // any other cleanup here
     }
 
-    calculateShot(pointer, scale = 1) {
+    calculateShot(pointer, scale = 1, rayThickness = 26) {
         const headOffset = 15;
         const x = this.player.x;
         const y = this.player.y - headOffset;
@@ -76,6 +76,7 @@ export default class WeaponBase {
             direction: tempDirection.clone(),
             distance: scale,
             vector: scaledDistance.clone(),
+            rayThickness: rayThickness,
         };
     }
 
@@ -87,10 +88,9 @@ export default class WeaponBase {
         const groups = this.scene.attackableGroups;
         const end = data.start.clone().add(data.vector);
         const hits = [];
-        const ray = new Phaser.Geom.Line(data.start.x, data.start.y, end.x, end.y);
-        const polygon = this.polygonRay(data, 20);
-        var hit;
-        this.hitLocation = hit;
+        const ray = new Phaser.Geom.Line(data.start.x, data.start.y, data.end.x, data.end.y);
+        const RectRay = this.polygonRay(data, data.rayThickness);
+        var hitRec;
 
         this.scene.graphics = this.scene.add.graphics();
         // this.scene.graphics.clear();
@@ -108,18 +108,17 @@ export default class WeaponBase {
                 const distanceToTarget = toTarget.length();
 
                 // skip far targets
-                if (distanceToTarget > data.distance) return;
+                if (distanceToTarget > data.distance + 200) return;
 
                 // skip out of cone targets
-                const dot = data.direction.clone().dot(toTarget.normalize());
-                console.log(dot);
-                if (dot < 0.1 && dot !== 0) return;
-                const polytoSquare = Phaser.Geom.Polygon.GetAABB(polygon);
-                Phaser.Geom.Rectangle.Inflate(polytoSquare, 1, 1)
+                // const dot = data.direction.clone().dot(toTarget.normalize());
+                // console.log(dot);
+                // if (dot < 0.5) return;
 
                 // line trace
-                if (Phaser.Geom.Intersects.RectangleToRectangle(bounds, polytoSquare)) {
-                    hit = Phaser.Geom.Rectangle.Intersection(bounds, polytoSquare);
+                if (Phaser.Geom.Intersects.RectangleToRectangle(bounds, RectRay)) {
+                    hitRec = Phaser.Geom.Rectangle.Intersection(bounds, RectRay);
+                    var hit = {x: hitRec.centerX, y: hitRec.centerY};
                     hits.push(target);
                     this[handler]?.(target, hit);
                     // this.scene.graphics.fillStyle(0x00ff00, 0.5);
@@ -130,7 +129,9 @@ export default class WeaponBase {
     }
 
     polygonRay(data, thickness) {
-        const end = data.start.clone().add(data.vector);
+        const end = this.rayTrackEnd
+        ? data.end
+        :data.start.clone().add(data.vector);
 
         // Create perpendicular vector to the direction
         const perp = new Phaser.Math.Vector2(-data.direction.y, data.direction.x).scale(thickness / 2);
@@ -141,12 +142,14 @@ export default class WeaponBase {
         const p3 = end.clone().subtract(perp);
         const p4 = data.start.clone().subtract(perp);
 
-        const rayRect = new Phaser.Geom.Polygon([p1, p2, p3, p4]);
+        const rayPoly = new Phaser.Geom.Polygon([p1, p2, p3, p4]);
+        const rayRect = Phaser.Geom.Polygon.GetAABB(rayPoly);
+        Phaser.Geom.Rectangle.Inflate(rayRect, 1, 1)
 
         // Debug draw
         // const graphics = this.scene.add.graphics();
         // graphics.lineStyle(1, 0xffff00);
-        // graphics.strokePoints(rayRect.points, true);
+        // graphics.strokePoints(rayPoly.points, true);
 
         return rayRect;
     }

@@ -11,5 +11,18 @@ export default class DarkOrbProjectile extends WeaponProjectile {
             callback: () => this.hitTargets = [],
             repeat: -1,
         })
+
+    }
+
+    preUpdate(time, delta) {
+        super.preUpdate(time, delta);
+        this.setScale(this.scale + .0005);
+        if(this.detonate) {
+            this.setVelocity(0, 0);
+            this.setScale(this.scale + .015);
+            if (!this.detonated) {
+                this.scene.time.delayedCall(350, () => this.destroy())
+            }
+        }
     }
 }

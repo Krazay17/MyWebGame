@@ -2,10 +2,11 @@ import WeaponBase from './_weaponbase.js';
 import DarkOrbProjectile from './darkOrbProjectile.js';
 
 export default class WeaponDarkOrb extends WeaponBase {
-    constructor(scene, player, group) {
-        super(scene, player, group);
+    constructor(scene, player) {
+        super(scene, player);
 
         this.name = 'darkorb';
+        this.baseCooldown = 400;
 
         scene.anims.create({
             key: 'darkorb',
@@ -17,8 +18,11 @@ export default class WeaponDarkOrb extends WeaponBase {
 
     fire(pointer) {
         if (this.projectile) return;
+        if(!this.canFire()) return;
+        this.cooldown = true;
+        console.log(this.cd)
 
-        const {start, vector} = this.calculateShot(pointer, 100);
+        const {start, vector} = this.calculateShot(pointer, 275);
 
         this.projectile = new DarkOrbProjectile(this.scene, start.x, start.y, this.player);
         this.scene.weaponGroup.add(this.projectile);
@@ -39,7 +43,8 @@ export default class WeaponDarkOrb extends WeaponBase {
     
     release() {
         if (this.projectile)
-        this.projectile.destroy();
+        this.startCooldown();
+            this.projectile.detonate = true;
         delete this.projectile;
     }
 }

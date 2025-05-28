@@ -58,7 +58,6 @@ export default class WeaponProjectile extends Phaser.Physics.Arcade.Sprite {
         };
         if (this.hitSound.isPlaying) {
             this.hitSound.stop();
-            console.log('stoppedSound');
         }
         this.hitSound.play();
     }

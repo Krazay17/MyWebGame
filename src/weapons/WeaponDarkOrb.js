@@ -6,7 +6,7 @@ export default class WeaponDarkOrb extends WeaponBase {
         super(scene, player);
 
         this.name = 'darkorb';
-        this.baseCooldown = 400;
+        this.baseCooldown = 550;
 
         scene.anims.create({
             key: 'darkorb',
@@ -20,7 +20,6 @@ export default class WeaponDarkOrb extends WeaponBase {
         if (this.projectile) return;
         if(!this.canFire()) return;
         this.cooldown = true;
-        console.log(this.cd)
 
         const {start, vector} = this.calculateShot(pointer, 275);
 

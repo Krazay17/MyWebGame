@@ -27,6 +27,8 @@ export default class Preloader extends Phaser.Scene {
         this.load.image('swordicon', 'assets/SwordIcon.png');
         this.load.image('darkorbicon', 'assets/DarkOrbIcon.png');
         this.load.image('platformtall', 'assets/platformtall.png');
+        this.load.image('zap', 'assets/Zap.png');
+        this.load.image('auraicon', 'assets/AuraIcon.png');
         this.load.spritesheet('dudesheet', 'assets/DudeSheet.png', {
             frameWidth: 256,
             frameHeight: 256,

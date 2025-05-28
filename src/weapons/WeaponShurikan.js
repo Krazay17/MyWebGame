@@ -4,7 +4,6 @@ import WeaponProjectile from './_baseWeaponProjectile.js'; // projectile sprite
 export default class WeaponShurikan extends WeaponBase {
     constructor(scene, player) {
         super(scene, player);
-
         this.name = 'shurikan';
     }
 

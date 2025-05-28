@@ -98,15 +98,15 @@ export default class BaseGame extends Phaser.Scene {
     this.weaponGroup = new WeaponGroup(this, this.player);
 
     this.attackableGroups = [
-      { group: this.walkableGroup = this.physics.add.group({ allowGravity: false, immovable: true }), handler: 'platformHit' },
-      { group: this.enemyGroup = this.physics.add.group(), handler: 'enemyHit' },
-      { group: this.flyingEnemyGroup = this.physics.add.group({ allowGravity: false }), handler: 'enemyHit' },
-      { group: this.softEnemyGroup = this.physics.add.group(), handler: 'enemyHit' },
-      { group: this.staticEnemyGroup = this.physics.add.group({ allowGravity: false, immovable: true }), handler: 'enemyHit' },
-      { group: this.bulletGroup = this.physics.add.group({ allowGravity: false }), handler: 'bulletHit' },
-      { group: this.softBulletGroup = this.physics.add.group({ allowGravity: false }), handler: 'bulletHit' },
-      { group: this.itemGroup = this.physics.add.group(), handler: 'itemHit' },
-      { group: this.staticItemGroup = this.physics.add.group({ allowGravity: false, immovable: true }), handler: 'itemHit' }
+      { group: this.walkableGroup = this.physics.add.group({ allowGravity: false, immovable: true }), handler: 'platformHit', zap: false },
+      { group: this.enemyGroup = this.physics.add.group(), handler: 'enemyHit', zap: true },
+      // { group: this.flyingEnemyGroup = this.physics.add.group({ allowGravity: false }), handler: 'enemyHit' },
+      { group: this.softEnemyGroup = this.physics.add.group(), handler: 'enemyHit', zap: true },
+      { group: this.staticEnemyGroup = this.physics.add.group({ allowGravity: false, immovable: true }), handler: 'enemyHit', zap: true },
+      { group: this.bulletGroup = this.physics.add.group({ allowGravity: false }), handler: 'bulletHit', zap: true },
+      { group: this.softBulletGroup = this.physics.add.group({ allowGravity: false }), handler: 'bulletHit', zap: true },
+      { group: this.itemGroup = this.physics.add.group(), handler: 'itemHit', zap: false },
+      { group: this.staticItemGroup = this.physics.add.group({ allowGravity: false, immovable: true }), handler: 'itemHit', zap: false }
     ];
   }
 
@@ -246,7 +246,6 @@ export default class BaseGame extends Phaser.Scene {
   resizeSky(gameSize) {
     const width = gameSize.width;
     const height = gameSize.height;
-    console.log('mapresize');
     this.sky1.setDisplaySize(width, height);
   }
 }

@@ -86,14 +86,19 @@ export default class SpawnManager {
     }
 
     spawnDuck(x, y) {
-        const duck = new Duck(this.scene, x, y, 'duck', 200)
+        const duck = new Duck(this.scene, x, y, 'duck', 40)
         this.scene.enemyGroup.add(duck);
+        duck.body.setBounce(.55);
         duck.setScale(.3);
+
+        return duck;
     }
 
     spawnBat(x, y) {
         const bat = new Bat(this.scene, x, y, 'bat', 2)
-        this.scene.flyingEnemyGroup.add(bat);
+        this.scene.enemyGroup.add(bat);
+        bat.body.allowGravity = false;
+        bat.body.setBounce(1);
         bat.setScale(1);
         return bat;
     }

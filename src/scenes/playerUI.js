@@ -37,7 +37,6 @@ export default class PlayerUI extends Phaser.Scene {
         this.rightWeaponBox.y = height;
         this.rightWeaponIcon.x = width;
         this.rightWeaponIcon.y = height;
-        console.log('resizing')
     }
 
     setWeaponIcon(name = 'shurikan', left = true) {

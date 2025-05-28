@@ -52,7 +52,6 @@ export default class WeaponWhip extends WeaponBase {
         }
 
         if (this.weaponSprite && this.whipConnect && this.hitLocation && this.holding) {
-            console.log(this.hitLocation)
             this.wasGrappling = true;
             this.rayTrackEnd = true;
             // const g = this.scene.add.graphics();
@@ -69,10 +68,10 @@ export default class WeaponWhip extends WeaponBase {
             this.rayTickData.end.y = this.hitLocation.y;
             const angleDeg = Phaser.Math.RadToDeg(Phaser.Math.Angle.Between(this.weaponSprite.x, this.weaponSprite.y, this.hitLocation.x, this.hitLocation.y));
 
-            if (distance > 100) this.scene.physics.accelerateTo(this.player, this.hitLocation.x, this.hitLocation.y, 3000, 450, 450);
+            if (distance > 150) this.scene.physics.accelerateTo(this.player, this.hitLocation.x, this.hitLocation.y, 2500, 400, 400);
             this.weaponSprite.setAngle(angleDeg);
             this.weaponSprite.setScale(this.mapRangeClamped(distance, 25, 400, 0.02, 0.6))
-            if (distance >600 && this.weaponSprite) {
+            if (distance >500 && this.weaponSprite) {
                 this.weaponSprite.play('whipend')
                 this.whipConnect = false
             }

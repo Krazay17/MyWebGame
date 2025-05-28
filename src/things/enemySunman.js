@@ -20,6 +20,5 @@ export default class SunMan extends BaseEnemy {
             });
         };
         this.play('sun');
-        console.log('sunspawn')
     }
 }

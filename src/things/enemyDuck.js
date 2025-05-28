@@ -11,6 +11,12 @@ export default class Duck extends BaseEnemy
 
     }
 
+    preUpdate(time, delta) {
+        super.preUpdate(time, delta);
+        
+        this.handleMovement(time);
+    }
+
     playerCollide(player, enemy) {
         const direction = new Phaser.Math.Vector2(player.x - enemy.x, player.y - enemy.y);
         const knockback = direction.normalize().scale(600);

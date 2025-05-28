@@ -14,19 +14,21 @@ export default class Level3 extends BaseGame {
     }
 
     create() {
-        this.setupWorld(-1200, 0, 2400, 6000)
         this.setupSave();
         this.setupSky();
-        this.setupGroups();
+        this.setupWorld(-1200, 0, 2400, 6000)
         this.setupKeybinds();
-        this.setupMusic('farted', .4);
+        this.setupGroups();
         this.setupPlayer(0, 5500);
+        this.setupMusic('farted', .4);
+        this.setupFPS();
         this.setupCollisions();
         this.makeClimbingPlatforms();
 
         this.walkableGroup.create(0, 5600, 'platform');
 
-        this.enemyTimer();
+        this.spawnSpeed = 2500;
+        this.enemyTimers();
     }
     
     update(time, delta){
@@ -34,32 +36,56 @@ export default class Level3 extends BaseGame {
     }
 
     makeClimbingPlatforms() {
-        const length = 50;
-        for (var i = 0; i < length; i++) {
+        const length = 45;
+        for (let i = 0; i < length; i++) {
             const yloc = i * 125;
             const xloc1 = Phaser.Math.Between(-1000, -250);
             const xloc2 = Phaser.Math.Between(-250, 250);
             const xloc3 = Phaser.Math.Between(250, 1000);
-            // const xloc4 = Phaser.Math.Between(-1000, 1000);
             const platform1 = this.walkableGroup.create(xloc1, yloc + Phaser.Math.Between(-20, 20), 'platform');
             const platform2 = this.walkableGroup.create(xloc2, yloc + Phaser.Math.Between(-20, 20), 'platform');
             const platform3 = this.walkableGroup.create(xloc3, yloc + Phaser.Math.Between(-20, 20), 'platform');
-            // const platform4 = this.walkableGroup.create(xloc4, yloc + Phaser.Math.Between(-20, 20), 'platform');
 
         }
     }
 
-    makeLongFloor() {
-        const length = 200;
-        for (var i = 0; i < length; i++) {
+    checkPlayerY() {
+        if (!this.player) return ;
+        const y = this.player.y;
 
+        if (y > 5000) {
+            this.batTimer.delay = 2500;
+            return;
+        }
+        if (y > 4000) {
+            this.batTimer.delay = 2000;
+            return;
+        }
+        if (y > 3000) {
+            this.batTimer.delay = 1600;
+            return;
+        }
+        if (y > 2000) {
+            this.batTimer.delay = 1000;
+            return;
+        }
+        if (y > 1000) {
+            this.batTimer.delay = 500;
+            return;
+        }
+        if (y > 0) {
+            this.batTimer.delay = 100;
+            return;
         }
     }
 
-    enemyTimer() {
-        this.time.addEvent({
-            delay: this.spawnSpeed = 500,
-            callback: () => this.spawnEnemies(),
+    enemyTimers() {
+        this.batTimer = this.time.addEvent({
+            delay: 2500,
+            callback: () => {
+                this.spawnEnemies();
+                this.checkPlayerY();
+            },
             loop: true
         })
     }
@@ -67,8 +93,6 @@ export default class Level3 extends BaseGame {
     spawnEnemies() {
         const { x, y, spawnLeft } = this.getSpawnPos();
         const bat = this.spawnManager.spawnBat(x, y);
-        bat.setVelocityX(spawnLeft? 100 : -100);
-        bat.flipX = spawnLeft;
     }
 
     getSpawnPos() {

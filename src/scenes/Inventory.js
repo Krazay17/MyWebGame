@@ -6,6 +6,7 @@ export default class Inventory extends Phaser.Scene {
     init(data) {
         this.player = data.player;
         this.player.inventory = this
+        this.aura = this.player.aura;
     }
 
     create() {
@@ -18,16 +19,30 @@ export default class Inventory extends Phaser.Scene {
             fontStyle: 'bold'
         }).setOrigin(0.5).setVisible(false);
 
-        this.buttons.push(this.setupButton(1000, 200, 'shurikan', 'shurikan', .4));
-        this.buttons.push(this.setupButton(1200, 200, 'sword', 'swordicon', .5));
-        this.buttons.push(this.setupButton(1400, 200, 'darkorb', 'darkorb', 1, 0));
-        this.buttons.push(this.setupButton(1000, 400, 'whip', 'whipicon', .5));
+        this.buttons.push(this.setupButton(1000, 200, false, 'shurikan', 'shurikan', .4));
+        this.buttons.push(this.setupButton(1200, 200, false, 'sword', 'swordicon', .5));
+        this.buttons.push(this.setupButton(1400, 200, false, 'darkorb', 'darkorb', 1, 0));
+        this.buttons.push(this.setupButton(1000, 400, false, 'whip', 'whipicon', .5));
+
+        this.buttons.push(this.setupButton(1200, 550, true, 'zap', 'auraicon', 1, 0));
+
+        this.auraText = this.add.text(1200, 500, 'Aura level: ' + this.aura.level, {
+            fontSize: '24px',
+            fontStyle: 'bold',
+        }).setOrigin(0.5).setVisible(false);
+
+        this.auraCostText = this.add.text(1200, 600, 'Cost: ' + this.aura.getCost(), {
+            fontSize: '24px',
+            fontStyle: 'bold',
+        }).setOrigin(0.5).setVisible(false);
 
         this.input.keyboard.on('keydown-C', () => {
             this.visible = true;
             this.bg.setVisible(this.visible);
             this.text.setVisible(this.visible);
             this.buttons.forEach(button => button.setVisible(this.visible));
+            this.auraText.setVisible(this.visible);
+            this.auraCostText.setVisible(this.visible);
         });
 
         this.input.keyboard.on('keyup-C', () => {
@@ -35,17 +50,21 @@ export default class Inventory extends Phaser.Scene {
             this.bg.setVisible(this.visible);
             this.text.setVisible(this.visible);
             this.buttons.forEach(button => button.setVisible(this.visible));
+            this.auraText.setVisible(this.visible);
+            this.auraCostText.setVisible(this.visible);
         });
         this.input.keyboard.on('keydown-X', () => {
             this.visible = !this.visible;
             this.bg.setVisible(this.visible);
             this.text.setVisible(this.visible);
             this.buttons.forEach(button => button.setVisible(this.visible));
+            this.auraText.setVisible(this.visible);
+            this.auraCostText.setVisible(this.visible);
         });
 
     }
 
-    setupButton(x = 1200, y = 200, weapon = 'darkorb', icon = 'darkorb', scale = 1, frame = 2) {
+    setupButton(x = 1200, y = 200, isAura = false, weapon = 'darkorb', icon = 'darkorb', scale = 1, frame = 2) {
         const button = this.add.image(x, y, icon, frame)
             .setScale(scale)
             .setInteractive()
@@ -53,9 +72,25 @@ export default class Inventory extends Phaser.Scene {
             .on('pointerover', () => button.setTint(0x7d7d7d))
             .on('pointerout', () => button.setTint())
             .on('pointerdown', (pointer) => {
-                const left = pointer.button === 0;
-                this.player.equipWeapon(weapon, left)
+                this.clickedButton(pointer, button)
             });
+
+        button.weapon = weapon;
+        button.isAura = isAura;
         return button;
+    }
+
+    clickedButton(pointer, button) {
+        if (!button.isAura) {
+            const slot = pointer.button === 0
+                ? 0
+                : 1;
+            this.player.equipWeapon(button.weapon, slot)
+        } else {
+            if (this.player.tryIncreaseAura()) {
+                this.auraText.setText('Aura level: ' + this.aura.level);
+                this.auraCostText.setText('Cost: ' + this.aura.getCost());
+            }
+        }
     }
 }

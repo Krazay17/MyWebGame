@@ -51,8 +51,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         // this.scene.scene.launch('PlayerUI', { player: this });
         // }
 
-        this.equipWeapon(GameManager.weapons.left, true);
-        this.equipWeapon(GameManager.weapons.right, false);
+        this.equipWeapon(GameManager.weapons.left, 0);
+        this.equipWeapon(GameManager.weapons.right, 1);
+        this.equipWeapon('zap', 2)
         this.weapons = [this.leftWeapon, this.rightWeapon];
 
         this.tryLeftAttack = false;
@@ -302,7 +303,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
         this.hitCD = true;
         this.scene.time.addEvent({
-            delay: 400,
+            delay: 500,
             callback: () => {
                 this.hitCD = false;
             }
@@ -318,7 +319,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.emit('playerstunned');
         this.scene.time.removeEvent(this.stunTimer);
         this.stunTimer = this.scene.time.addEvent({
-            delay: 400,
+            delay: 300,
             callback: () => {
                 this.stunned = false;
             }
@@ -384,21 +385,41 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.network.socket.emit('playerLevel', GameManager.source);
     }
 
-    equipWeapon(name = 'Shurikan', left = true,) {
+    equipWeapon(name = 'Shurikan', slot = 0,) {
         var equippedWeapon;
-        if (left) {
+        if (slot === 0) {
             this.leftWeapon = createWeapon(name, this.scene, this);
             equippedWeapon = this.leftWeapon;
             GameManager.weapons.left = name;
-        } else {
+        } else if (slot === 1) {
             this.rightWeapon = createWeapon(name, this.scene, this);
             equippedWeapon = this.rightWeapon;
             GameManager.weapons.right = name;
+        } else {
+            this.aura = createWeapon(name, this.scene, this);
+            equippedWeapon = this.aura;
+            GameManager.weapons.aura = name;
         }
         if (this.playerUI) {
             this.playerUI.setWeaponIcon(name, left);
         }
         GameManager.save();
         return equippedWeapon;
+    }
+
+    tryIncreaseAura() {
+
+        const cost = this.aura.getCost();
+        if (GameManager.source >= cost) {
+            this.aura.levelUp();
+            this.updateSource(-cost);
+            return true;
+        } else {
+            return false;
+        };
+    }
+
+    getCurrentPos() {
+        return new Phaser.Math.Vector2(this.x, this.y);
     }
 }

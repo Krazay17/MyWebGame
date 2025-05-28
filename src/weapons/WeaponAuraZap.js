@@ -39,7 +39,7 @@ export default class AuraZap extends WeaponBase {
 
 fire() {
     const groups = this.scene.attackableGroups;
-    const range = Phaser.Math.Clamp(this.level * 50, 100, 700);
+    const range = Phaser.Math.Clamp(this.level * 50, 200, 800);
     const playerPos = this.player.getCurrentPos();
     const validTargets = [];
 

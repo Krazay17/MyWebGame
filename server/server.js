@@ -30,7 +30,7 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('playerLeft', { id: socket.id});
   });
 
-  players[socket.id] = {x: -1100, y: 200, source: 0};
+  players[socket.id] = {x: -1100, y: 200, data: {source: 0, auraLevel: 1, name: {text: 'Hunter', color: '#ffffff'}}};
 
   socket.emit('existingPlayers',
      Object.entries(players).map(([id, player]) => ({id, ...player}))
@@ -56,9 +56,10 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('shurikanthrow', ({x, y, d}) => {
+  socket.on('playerName', ({text, color}) => {
     if (players[socket.id]){
-      socket.broadcast.emit('shurikanthrown', { id: socket.id, x, y, d});
+
+    socket.broadcast.emit('playerNamed', { id: socket.id, text, color });
     }
   });
 
@@ -67,6 +68,13 @@ io.on('connection', (socket) => {
     players[socket.id].source = source;
 
     socket.broadcast.emit('playerLeveled', { id: socket.id, source });
+    }
+  });
+
+  socket.on('shurikanthrow', ({x, y, d}) => {
+    if (players[socket.id]){
+
+      socket.broadcast.emit('shurikanthrown', { id: socket.id, x, y, d});
     }
   });
 

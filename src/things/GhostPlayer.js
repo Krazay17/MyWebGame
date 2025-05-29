@@ -2,15 +2,19 @@ import AuraSprite from "../weapons/auraSprite.js";
 import RankSystem from "./RankSystem.js";
 
 export default class GhostPlayer {
-  constructor(scene, id, x = 400, y = 300, source, aura) {
+  constructor(scene, id, x = 400, y = 300, data = {source: 0, auraLevel, name: {text: 'Hunter', color: '#ffffff'}}) {
     this.scene = scene;
     this.id = id;
+
     this.x = x;
     this.y = y;
-    this.source = source;
-    this.aura = aura;
-    this.ranks = new RankSystem();
+    this.source = data.source;
+    console.log(this.source);
+    this.auraLevel = data.auraLevel;
+    this.nameText = data.name.text;
+    this.nameColor = data.name.color;
 
+    this.ranks = new RankSystem();
     this.createVisuals();
   }
 
@@ -26,10 +30,16 @@ export default class GhostPlayer {
     this.sprite.setTint(0x00ffff);
 
 
-    this.nameText = this.scene.add.text(this.x, this.y - 40, this.source + '\n' + this.ranks.getRank(this.source), {
+    this.sourceText = this.scene.add.text(this.x, this.y - 45, this.ranks.getRank(this.source) + '\n' + this.source, {
       fontSize: '12px',
       align: 'center',
       fill: '#ffffff'
+    }).setOrigin(0.5);
+
+    this.headName = this.scene.add.text(this.x, this.y - 65, this.nameText, {
+      fontSize: '12px',
+      align: 'center',
+      fill: this.nameColor,
     }).setOrigin(0.5);
 
     // this.nameText2 = this.scene.add.text(this.x, this.y - 40, this.source + '\n' + this.ranks.getRank(this.source), {
@@ -50,16 +60,15 @@ export default class GhostPlayer {
     this.x = x;
     this.y = y;
     if (this.sprite) this.sprite.setPosition(x, y);
-    if (this.nameText) this.nameText.setPosition(x, y - 40);
+    if (this.sourceText) this.sourceText.setPosition(x, y - 45);
+    if (this.headName) this.headName.setPosition(x, y - 65);
     if (this.auraSprite) this.auraSprite.setPosition(x, y);
   }
 
   updateScene(newScene) {
     this.scene = newScene;
 
-    // Destroy old visuals
-    if (this.sprite) this.sprite.destroy();
-    if (this.nameText) this.nameText.destroy();
+    this.destroy();
 
     // Recreate visuals in new scene
     this.createVisuals();
@@ -68,9 +77,16 @@ export default class GhostPlayer {
     this.updatePosition(this.x, this.y);
   }
 
-  updateName(source) {
+  updateName(text, color) {
+    this.nameColor = color;
+    this.nameText = text;
+    this.headName.setText(this.nameText);
+    this.headName.setFill(this.nameColor);
+  }
+
+  updateSource(source) {
     this.source = source;
-    this.nameText.setText(this.source + '\n' + this.ranks.getRank(this.source));
+    this.sourceText.setText(this.ranks.getRank(this.source) + '\n' + this.source);
   }
 
   updateAura(auraLevel) {
@@ -79,13 +95,15 @@ export default class GhostPlayer {
 
   syncAll(x, y, source, auraLevel) {
     this.updatePosition(x, y);
-    this.updateName(source);
+    this.updateSource(source);
     this.updateAura(auraLevel);
   }
 
   destroy() {
     if (this.sprite) this.sprite.destroy();
-    if (this.nameText) this.nameText.destroy();
+    if (this.sourceText) this.sourceText.destroy();
+    if (this.headName) this.headName.destroy();
+
   }
 
   ghostVelocity(x, y) {

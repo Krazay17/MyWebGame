@@ -5,7 +5,7 @@ import { createWeapon } from "../weapons/WeaponManager.js"
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y) {
-        super(scene, x, y, 'dudesheet', {});
+        super(scene, x, y, 'dudesheet');
 
         GameManager.load();
         this.network = NetworkManager.instance;
@@ -25,6 +25,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.alive = true;
         this.health = 5;
         this.deathPenalty;
+        this.source = GameManager.source;
+        this.auraLevel = GameManager.auraLevel;
+        this.name = GameManager.name;
 
         this.isCrouch = false;
         this.baseJumpPower = 150;
@@ -66,14 +69,16 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
         this.rankSystem = new RankSystem();
 
-        this.controls = scene.input.keyboard.addKeys({
-            up: Phaser.Input.Keyboard.KeyCodes.W,
-            down: Phaser.Input.Keyboard.KeyCodes.S,
-            left: Phaser.Input.Keyboard.KeyCodes.A,
-            right: Phaser.Input.Keyboard.KeyCodes.D,
-            dash: Phaser.Input.Keyboard.KeyCodes.SHIFT
-        });
-        this.cursors = scene.input.keyboard.createCursorKeys();
+        this.controls = {
+            up: [scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W, false),
+                scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE, false)
+            ],
+            down: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S, false),
+            left: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A, false),
+            right: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D, false),
+            dash: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT, false)
+
+        };
         this.myPointer = new Phaser.Input.Pointer(this.scene.input.manager, 1)
 
         this.scoreText = this.scene.add.text(10, 150, 'Source: ' + GameManager.source + '\n' + this.rankSystem.getRank(GameManager.source), {
@@ -103,8 +108,14 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         });
 
         this.scene.input.keyboard.on('keydown-T', () => {
-            if (this.scene.scene.key !== 'Home' && this.body.touching.down) {
+            if (this.scene.scene.key !== 'Home' && this.body.touching.down && !this.playerUI.Chatting) {
                 this.scene.scene.start('Home')
+            }
+        });
+        this.scene.input.keyboard.on('keydown-R', () => {
+            if (!this.playerUI.Chatting){
+            this.Died();
+            this.scene.scene.restart();
             }
         });
 
@@ -167,7 +178,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         gameOverText.setScrollFactor(0);
 
         this.scene.physics?.pause(); // Stop physics
-        this.scene.time.addEvent({
+        this.scene.time.delayedCall({
             delay: 2000,
             callback: () => this.scene.scene.restart()
         });
@@ -209,12 +220,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         if (this.stunned || !this.alive) return;
 
         const { left, right, down, up, dash } = this.controls;
-        const cursors = this.cursors;
 
-        const isDown = down.isDown || cursors.down.isDown;
-        const isLeft = left.isDown || cursors.left.isDown;
-        const isRight = right.isDown || cursors.right.isDown;
-        const isUp = up.isDown || cursors.up.isDown || cursors.space.isDown;
+        const isDown = down.isDown
+        const isLeft = left.isDown
+        const isRight = right.isDown
+        const isUp = up.some(key => key.isDown);
 
         const WalkLerp = (a, modify) => {
             if (!modify) modify = this.body.touching.down ? .5 : .09;
@@ -223,7 +233,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             return Phaser.Math.Linear(this.body.velocity.x, a, modify);
         };
 
-        if (isLeft && !isDown) {
+        if (isLeft && !isDown && !this.playerUI.Chatting) {
             this.setVelocityX(WalkLerp(-this.speed));
             this.flipX = true;
             if (this.body.touching.down) {
@@ -234,7 +244,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             if (dash.isDown && this.canDash) {
                 this.Dash(-600);
             }
-        } else if (isRight && !isDown) {
+        } else if (isRight && !isDown && !this.playerUI.Chatting) {
             this.setVelocityX(WalkLerp(this.speed));
             this.flipX = false;
             if (this.body.touching.down) {
@@ -245,7 +255,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             if (dash.isDown && this.canDash) {
                 this.Dash(600);
             }
-        } else if (isDown) {
+        } else if (isDown && !this.playerUI.Chatting) {
             this.setVelocityX(WalkLerp(0, 0.01));
         } else {
             this.setVelocityX(WalkLerp(0));

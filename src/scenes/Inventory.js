@@ -64,8 +64,8 @@ export default class Inventory extends Phaser.Scene {
 
     }
 
-    setupButton(x = 1200, y = 200, isAura = false, weapon = 'darkorb', icon = 'darkorb', scale = 1, frame = 2) {
-        const button = this.add.image(x, y, icon, frame)
+    setupButton(x = 1200, y = 200, isAura = false, weapon = 'darkorb', icon = 'darkorb', scale = 1) {
+        const button = this.add.image(x, y, icon)
             .setScale(scale)
             .setInteractive()
             .setVisible(false)

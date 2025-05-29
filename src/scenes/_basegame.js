@@ -53,13 +53,6 @@ export default class BaseGame extends Phaser.Scene {
     this.player = new Player(this, x, y);
     this.cameras.main.startFollow(this.player, false, .01, .01);
 
-    if (!this.scene.isActive('EscMenu')) {
-      this.scene.launch('EscMenu', { gameScene: this });
-      this.escMenu = this.scene.get('EscMenu');
-    } else {
-      this.escMenu = this.scene.get('EscMenu');
-      this.escMenu.init({ gameScene: this })
-    }
 
     if (!this.scene.isActive('Inventory')) {
       this.scene.launch('Inventory', { player: this.player });
@@ -70,11 +63,18 @@ export default class BaseGame extends Phaser.Scene {
     }
     
     if (!this.scene.isActive('PlayerUI')) {
-      this.scene.launch('PlayerUI', { player: this.player });
-      this.uiMenu = this.scene.get('PlayerUI');
+      this.scene.launch('PlayerUI', { player: this.player, gameScene: this });
+      this.playerUI = this.scene.get('PlayerUI');
     } else {
-      this.uiMenu = this.scene.get('PlayerUI');
-      this.uiMenu.init({ player: this.player });
+      this.playerUI = this.scene.get('PlayerUI');
+      this.playerUI.init({ player: this.player, gameScene: this });
+    }
+    if (!this.scene.isActive('EscMenu')) {
+      this.scene.launch('EscMenu', { gameScene: this, playerUI: this.playerUI });
+      this.escMenu = this.scene.get('EscMenu');
+    } else {
+      this.escMenu = this.scene.get('EscMenu');
+      this.escMenu.init({ gameScene: this, playerUI: this.playerUI })
     }
   }
 
@@ -161,14 +161,6 @@ export default class BaseGame extends Phaser.Scene {
     }, null, this);
   }
 
-  setupKeybinds() {
-    this.restartKey = this.input.keyboard.on('keydown-R', () => {
-      this.player.Died();
-      this.scene.restart();
-    });
-
-  }
-
   setupMusic(key = 'homemusic', volume = 1) {
     // If music is already playing and it's the same track, do nothing
     // Use globalThis to store music reference
@@ -198,7 +190,6 @@ export default class BaseGame extends Phaser.Scene {
     this.setupWorld();
     this.setupMusic();
     this.setupFPS();
-    this.setupKeybinds();
     this.setupPlayer(x, y);
     this.setupGroups();
     this.setupCollisions();

@@ -6,11 +6,13 @@ export default class PlayerUI extends Phaser.Scene {
     }
     init(data) {
         this.player = data.player;
+        this.gameScene = data.gameScene;
         this.player.playerUI = this;
     }
 
     create() {
         this.visible = true;
+        this.Chatting = false;
 
         this.setWeaponIcon(this.player.leftWeapon.name, 0);
         this.setWeaponIcon(this.player.rightWeapon.name, 1);
@@ -18,7 +20,35 @@ export default class PlayerUI extends Phaser.Scene {
         this.leftWeaponBox = this.add.graphics().setDepth(1);
         this.rightWeaponBox = this.add.graphics().setDepth(1);
 
+        this.textBoxX = this.scale.width / 2
+        this.textBoxY = this.scale.height / 2 + 100;
+
         this.scale.on('resize', this.resizeUI, this);
+
+this.input.keyboard.on('keydown-ENTER', () => {
+    if (this.Chatting) {
+        const input = this.textBox?.node?.querySelector('#textchat');
+        if (input) {
+            this.closeTextChat(input.value);
+        }
+        return;
+    }
+
+    if (this.inputFocused) {
+        // You're typing in a different input (e.g. name field), do nothing
+        return;
+    }
+
+    // Open chat if none of the above is true
+    this.openTextChat();
+});
+
+
+this.input.keyboard.on('keydown-ESC', () => {
+    if (this.Chatting) {
+        this.closeTextChat('');
+    }
+});
     }
 
     update() {
@@ -38,11 +68,12 @@ export default class PlayerUI extends Phaser.Scene {
         this.rightWeaponBox.y = height;
         this.rightWeaponIcon.x = width;
         this.rightWeaponIcon.y = height;
+        this.textBoxX = width / 2;
+        this.textBoxY = height / 2 + 100;
     }
 
     setWeaponIcon(name = 'shurikan', slot = 0) {
         const icon = name + 'icon'
-        console.log(icon)
         if (slot === 0) {
             if (!this.leftWeaponIcon) {
                 this.leftWeaponIcon = this.add.image(0, this.scale.height, icon).setOrigin(0, 1).setScale(.5);
@@ -58,31 +89,72 @@ export default class PlayerUI extends Phaser.Scene {
         }
     }
 
-cooldownRed(left) {
-    const weaponBox = left ? this.leftWeaponBox : this.rightWeaponBox;
-    const weaponIcon = left ? this.leftWeaponIcon : this.rightWeaponIcon;
-    const cdProgress = left ? this.player.leftWeapon.cdProgress : this.player.rightWeapon.cdProgress;
+    cooldownRed(left) {
+        const weaponBox = left ? this.leftWeaponBox : this.rightWeaponBox;
+        const weaponIcon = left ? this.leftWeaponIcon : this.rightWeaponIcon;
+        const cdProgress = left ? this.player.leftWeapon.cdProgress : this.player.rightWeapon.cdProgress;
 
-    if (!weaponIcon) return;
-    if (cdProgress > .95) {
-    weaponBox.clear();
-    return;
+        if (!weaponIcon) return;
+        if (cdProgress > .95) {
+            weaponBox.clear();
+            return;
+        }
+        weaponBox.clear();
+
+        if (cdProgress > 0) {
+            const fillHeight = cdProgress * weaponIcon.displayHeight;
+
+            // fillX is based on the weapon icon origin
+            const fillX = left
+                ? weaponIcon.x
+                : weaponIcon.x - weaponIcon.displayWidth;
+
+            const fillY = weaponIcon.y - fillHeight;
+
+            weaponBox.fillStyle(0xff0000, 0.5);
+            weaponBox.fillRect(fillX, fillY, weaponIcon.displayWidth, fillHeight);
+        }
+    }
+
+openTextChat() {
+    if (this.Chatting) return;
+
+    this.Chatting = true;
+
+    if (!this.cache.html.exists('textchat')) {
+        this.textBox = this.add.dom(this.textBoxX, this.textBoxY).createFromHTML(`
+            <input type="text" id="textchat" name="textchat" placeholder="Chat.." 
+                   style="font-size: 20px; width: 300px; padding: 5px;" />
+        `);
+    } else {
+        this.textBox = this.add.dom(this.textBoxX, this.textBoxY).createFromCache('textchat');
+    }
+
+    const input = this.textBox.node?.querySelector('#textchat');
+    if (!input) {
+        console.error('Input element not found!');
+        this.Chatting = false;
+        return;
+    }
+
+    input.focus();
+    this.inputFocused = true;
 }
-    weaponBox.clear();
 
-    if (cdProgress > 0) {
-        const fillHeight = cdProgress * weaponIcon.displayHeight;
 
-        // fillX is based on the weapon icon origin
-        const fillX = left
-            ? weaponIcon.x
-            : weaponIcon.x - weaponIcon.displayWidth;
+closeTextChat(message) {
+    console.log('Player typed:', message);
 
-        const fillY = weaponIcon.y - fillHeight;
+    this.Chatting = false;
 
-        weaponBox.fillStyle(0xff0000, 0.5);
-        weaponBox.fillRect(fillX, fillY, weaponIcon.displayWidth, fillHeight);
+    if (this.textBox) {
+        this.textBox.destroy();
+        this.textBox = null;
+    this.inputFocused = false;
     }
 }
+
+
+
 
 }

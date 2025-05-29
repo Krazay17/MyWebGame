@@ -17,7 +17,6 @@ export default class Level3 extends BaseGame {
         this.setupSave();
         this.setupSky();
         this.setupWorld(-1200, 0, 2400, 6000)
-        this.setupKeybinds();
         this.setupGroups();
         this.setupPlayer(0, 5500);
         this.setupMusic('farted', .4);

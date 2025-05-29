@@ -1,122 +1,151 @@
 import GameManager from "../things/GameManager.js";
+import NetworkManager from "../things/NetworkManager.js";
 
-export default class EscMenu extends Phaser.Scene
-{
-    constructor()
-    {
+export default class EscMenu extends Phaser.Scene {
+    constructor() {
         super('EscMenu');
     }
-    
-    init(data)
-    {
+
+    init(data) {
         this.gameScene = data.gameScene;
+        this.playerUI = data.playerUI;
+        this.nameInput = null;
+        this.colorInput = null;
     }
 
-    create()
-    {
+    create() {
+        this.uiElements = [];
+
+        this.network = NetworkManager.instance;
+
         window.addEventListener('beforeunload', () => GameManager.save());
-        // Add slider track
-        const track = this.add.rectangle(400, 400, 200, 10, 0xffffff).setOrigin(0.5).setVisible(false);
 
-        // Add draggable handle
-        const handle = this.add.circle(400, 400, 10, 0xff0000).setInteractive().setVisible(false);
-
+        // Slider track and handle
+        const track = this.add.rectangle(400, 400, 200, 10, 0xffffff).setOrigin(0.5);
+        const handle = this.add.circle(400, 400, 10, 0xff0000).setInteractive();
         this.input.setDraggable(handle);
-
-        // Store references
         this.slider = { track, handle };
-        this.visible = false;
 
-        this.bg = this.add.rectangle(400, 300, 800, 600, 0x000000, 0.5).setVisible(false);
-        this.text = this.add.text(400, 300, 'Menu', {
+        // Background
+        this.bg = this.add.rectangle(400, 300, 800, 600, 0x000000, 0.5);
+
+        // Name display
+        this.nameDisplay = this.add.text(400, 250, GameManager.name.text || 'Hunter', {
             fontSize: '32px',
-            fontStyle: 'bold'
-        }).setOrigin(0.5).setVisible(false);
+            fontStyle: 'bold',
+            color: GameManager.name.color || '#FFFFFF',
+        }).setOrigin(0.5);
 
+        // Store all UI elements for visibility toggling
+        this.uiElements.push(this.bg, this.nameDisplay, track, handle);
+
+        // Hide initially
+        this.setUIVisible(false);
+
+        // ESC key
         this.input.keyboard.on('keydown-ESC', () => {
             this.visible = !this.visible;
-            this.bg.setVisible(this.visible);
-            this.text.setVisible(this.visible);
-            this.slider.track.setVisible(this.visible);
-            this.slider.handle.setVisible(this.visible);
+            this.setUIVisible(this.visible);
 
             if (this.visible) {
                 this.scene.pause(this.gameScene);
+                this.openNameInput();
+                this.openColorInput();
             } else {
                 this.scene.resume(this.gameScene);
-        }
+                this.destroyNameInput();
+                this.destroyColorInput();
+            }
         });
 
-        // Drag logic
+        // Slider drag logic
         this.input.on('drag', (pointer, gameObject, dragX) => {
             const minX = track.x - track.width / 2;
             const maxX = track.x + track.width / 2;
 
-            // Clamp drag
             dragX = Phaser.Math.Clamp(dragX, minX, maxX);
             gameObject.x = dragX;
 
-            // Set global volume
             const percent = (dragX - minX) / (maxX - minX);
             this.sound.volume = percent;
-            
-            // Save Volume
+
             GameManager.volume = this.sound.volume;
             GameManager.save();
         });
 
-        const setInitialVolume = (volume) => {
-            const minX = track.x - track.width / 2;
-            const maxX = track.x + track.width / 2;
-            handle.x = Phaser.Math.Linear(minX, maxX, volume);
-
-            this.sound.volume = volume;
-        };
-
-        setInitialVolume(GameManager.volume);
-
-        //         // Show the name input box when the scene starts
-        // this.createNameInput((playerName) => {
-        //     console.log('Player name is:', playerName);
-
-        //     // You can store it wherever you like
-        //     this.gameManager.playerName = playerName;
-
-        //     // Move to next scene or start game, etc.
-        //     this.scene.start('GameScene');
-        // });
+        this.setInitialVolume(GameManager.volume);
     }
 
-    // createNameInput(onSubmitCallback) {
-    //     const input = document.createElement('input');
-    //     input.type = 'text';
-    //     input.placeholder = 'Enter your name';
-    //     input.style.position = 'absolute';
-    //     input.style.top = '50%';
-    //     input.style.left = '50%';
-    //     input.style.transform = 'translate(-50%, -50%)';
-    //     input.style.fontSize = '24px';
-    //     input.style.padding = '8px';
-    //     input.maxLength = 20;
+    setUIVisible(visible) {
+        this.uiElements.forEach(obj => obj.setVisible(visible));
+        if (this.nameInput) this.nameInput.setVisible(visible);
+        if (this.colorInput) this.colorInput.setVisible(visible);
+    }
 
-    //     document.body.appendChild(input);
-    //     input.focus();
+    setInitialVolume(volume) {
+        const minX = this.slider.track.x - this.slider.track.width / 2;
+        const maxX = this.slider.track.x + this.slider.track.width / 2;
+        this.slider.handle.x = Phaser.Math.Linear(minX, maxX, volume);
+        this.sound.volume = volume;
+    }
 
-    //     input.addEventListener('keydown', (event) => {
-    //         if (event.key === 'Enter') {
-    //             const name = input.value.trim();
-    //             if (name) {
-    //                 onSubmitCallback(name);
-    //                 document.body.removeChild(input);
-    //             }
-    //         }
-    //     });
+    openNameInput() {
+        this.nameInput = this.add.dom(400, 300).createFromHTML(`
+            <input type="text" id="nameInput" name="name" placeholder="Enter name"
+                   style="font-size: 20px; width: 200px; padding: 5px;" />
+        `).setOrigin(0.5);
 
-    //     // Optional: Remove the input when the scene shuts down
-    //     this.events.once('shutdown', () => {
-    //         if (document.body.contains(input)) {
-    //             document.body.removeChild(input);
-    //         }
-    //     });
-    // }
+        this.playerUI.inputFocused = true;
+
+        const domElement = this.nameInput.getChildByName('name');
+        domElement.value = GameManager.name.text || 'Hunter';
+        domElement.focus();
+
+        domElement.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.stopImmediatePropagation();
+                const name = domElement.value.trim();
+                GameManager.name.text = name;
+                this.nameDisplay.setText(name);
+                GameManager.save();
+
+                this.network.socket.emit('playerName', {text: GameManager.name.text, color: GameManager.name.color});
+
+                domElement.blur();
+                this.playerUI.inputFocused = false;
+            }
+        });
+    }
+
+    destroyNameInput() {
+        if (this.nameInput) {
+            this.nameInput.destroy();
+            this.nameInput = null;
+            this.playerUI.inputFocused = false;
+        }
+    }
+
+    openColorInput() {
+        this.colorInput = this.add.dom(400, 350).createFromHTML(`
+            <input type="color" id="nameColor" value="${GameManager.name.color || '#ffffff'}"
+                   style="width: 80px; height: 40px; border: none;" />
+        `).setOrigin(0.5);
+
+        const colorPicker = this.colorInput.getChildByID('nameColor');
+        colorPicker.addEventListener('input', (event) => {
+            const color = event.target.value;
+            GameManager.name.color = color;
+            this.nameDisplay.setColor(color);
+            GameManager.save();
+
+            this.network.socket.emit('playerName', {text: GameManager.name.text, color: GameManager.name.color});
+        });
+    }
+
+    destroyColorInput() {
+        if (this.colorInput) {
+            this.colorInput.destroy();
+            this.colorInput = null;
+        }
+    }
 }

@@ -6,15 +6,15 @@ export default class NetworkManager {
 
   constructor(scene) {
     this.scene = scene;
-    
-    if (NetworkManager.instance){
+
+    if (NetworkManager.instance) {
       return NetworkManager.instance;
     }
     NetworkManager.instance = this;
 
     const serverURL = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
-    ? 'http://localhost:3000'
-    : 'wss://webconduit.onrender.com'
+      ? 'http://localhost:3000'
+      : 'wss://webconduit.onrender.com'
     this.socket = io(serverURL);
 
     this.otherPlayers = {};
@@ -29,15 +29,15 @@ export default class NetworkManager {
       console.log('existing players recieved', players);
       players.forEach(player => {
         if (player.id !== this.socket.id) {
-          this.addOtherPlayer(player.id, player.x, player.y, player.source);
+          this.addOtherPlayer(player.id, player.x, player.y, player.data);
         }
       });
     });
 
     // Handle new player
-    this.socket.on('playerJoined', ({ id, x, y, source }) => {
+    this.socket.on('playerJoined', ({ id, x, y, data }) => {
       if (id !== this.socket.id) {
-        this.addOtherPlayer(id, x, y, source);
+        this.addOtherPlayer(id, x, y, data);
       }
     });
 
@@ -49,28 +49,36 @@ export default class NetworkManager {
       }
     });
 
-    this.socket.on('playerSynced', ({id, x, y, source, auraLevel}) => {
+    this.socket.on('playerSynced', ({ id, x, y, source, auraLevel }) => {
       const player = this.otherPlayers[id];
       if (player) {
-        player.syncAll({x, y, source, auraLevel});
+        player.syncAll({ x, y, source, auraLevel });
       }
-    })
+    });
+
+    this.socket.on('playerNamed', ({ id, text, color }) => {
+      const player = this.otherPlayers[id];
+      if (player) {
+
+        player.updateName(text, color);
+      }
+    });
 
     this.socket.on('playerMoved', ({ id, x, y }) => {
       const player = this.otherPlayers[id];
-      if (player){
+      if (player) {
         player.updatePosition(x, y);
       }
     });
 
-    this.socket.on('playerLeveled', ({id, source}) => {
+    this.socket.on('playerLeveled', ({ id, source }) => {
       const player = this.otherPlayers[id];
       if (player) {
-        player.updateName(source);
+        player.updateSource(source);
       }
     });
 
-    this.socket.on('shurikanthrown', ({id, x, y, d}) => {
+    this.socket.on('shurikanthrown', ({ id, x, y, d }) => {
       const player = this.otherPlayers[id];
       if (player) {
         player.ghostShurikan(x, y, d);
@@ -79,11 +87,11 @@ export default class NetworkManager {
 
   }
 
-  addOtherPlayer(id, x = -1100, y= 400, source) {
+  addOtherPlayer(id, x = -1100, y = 400, data) {
     if (this.otherPlayers[id]) {
       this.otherPlayers[id].destroy()
     }
-    const ghostPlayer = new GhostPlayer(this.scene, id, x, y, source);
+    const ghostPlayer = new GhostPlayer(this.scene, id, x, y, data);
     this.otherPlayers[id] = ghostPlayer;
   }
 }

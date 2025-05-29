@@ -16,7 +16,6 @@ export default class Home extends BaseGame {
 
     create() {
         this.setupSave();
-        this.setupKeybinds();
         this.setupSky();
         this.setupWorld();
         this.setupFPS();

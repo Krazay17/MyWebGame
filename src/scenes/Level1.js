@@ -28,7 +28,6 @@ export default class Level1 extends BaseGame {
     this.setupSave();
     this.setupSky('sky', { x: 0, y: 0 }, 'skylayer2', { x: 600, y: 0 }, 'skylayer1', { x: 600, y: 0 });
     this.setupWorld();
-    this.setupKeybinds();
     this.setupMusic('music');
     this.setupFPS();
     this.setupPlayer(-1100, 300);

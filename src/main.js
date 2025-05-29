@@ -31,6 +31,10 @@ const config = {
         debug: false,
       }
     },
+    parent: 'body',
+    dom: {
+      createContainer: true,
+    },
     scene: [Boot, Preloader, Home, Level1, level2, Level3,
       PlayerUI, Inventory, EscMenu],
 };

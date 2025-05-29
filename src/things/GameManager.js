@@ -1,9 +1,9 @@
 
-const CURRENT_VERSION = 1.1;
+const CURRENT_VERSION = 1.2;
 
 export default {
     version: CURRENT_VERSION,
-    name: 'Hunter',
+    name: { text: 'Hunter', color: '#FFFFFF' },
     level: 1,
     area: 'Home',
     source: 0,
@@ -44,15 +44,15 @@ export default {
 
         if (parsed.version !== CURRENT_VERSION) {
             console.warn('Save version mismatch. Resetting progress.');
-            this.reset(true);
+            this.reset(false);
             return;
         }
             this.version = parsed.version ?? CURRENT_VERSION;
             this.level = Math.floor(parsed.level) ?? 1;
-            this.name = parsed.name ?? 'Hunter';
+            this.name = parsed.name ?? { text: 'Hunter', color: '#FFFFFF' };
             this.area = parsed.area ?? 'Home';
             this.source = Math.floor(parsed.source) ?? 0;
-            this.weapons = parsed.weapons ?? { left: 'shurikan', right: 'sword', aura: 'zap' },
+            this.weapons = parsed.weapons ?? { left: 'shurikan', right: 'sword', aura: 'zap' };
             this.auraLevel = parsed.auraLevel ?? 1;
             this.playerHealth = parsed.playerHealth ?? 5;
             this.volume = parsed.volume ?? 1;
@@ -61,16 +61,16 @@ export default {
         }
     },
 
-    reset(resetSource) {
+    reset(levels) {
         this.version = CURRENT_VERSION;
         this.level = 1;
-        this.name = 'Hunter';
+        this.name = { text: 'Hunter', color: '#FFFFFF' };
         this.area = 'Home';
-        if (resetSource) this.source = 0;
+        if (levels) this.source = 0;
         this.weapons = { left: 'shurikan', right: 'sword', aura: 'zap' };
-        this.auraLevel = 1;
+        if (levels) this.auraLevel = 1;
         this.playerHealth = 5;
-        this.volume = 1;
+        if (levels) this.volume = 1;
         this.collectedItems = [];
         this.flags = {
             seenIntro: false,

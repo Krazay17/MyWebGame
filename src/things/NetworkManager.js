@@ -73,6 +73,9 @@ export default class NetworkManager {
   }
 
   addOtherPlayer(id, x = -1100, y= 400, source) {
+    if (this.otherPlayers[id]) {
+      this.otherPlayers[id].destroy()
+    }
     const ghostPlayer = new GhostPlayer(this.scene, id, x, y, source);
     this.otherPlayers[id] = ghostPlayer;
   }

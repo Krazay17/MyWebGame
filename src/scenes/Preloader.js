@@ -50,6 +50,10 @@ export default class Preloader extends Phaser.Scene {
             frameWidth: 512,
             frameHeight: 512,
         });
+        this.load.spritesheet('aura', 'assets/Aura.png', {
+            frameWidth: 256,
+            frameHeight: 256,
+        });
     }
 
     create() {

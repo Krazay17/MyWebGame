@@ -18,10 +18,10 @@ export default class WeaponDarkOrb extends WeaponBase {
 
     fire(pointer) {
         if (this.projectile) return;
-        if(!this.canFire()) return;
+        if (!this.canFire()) return;
         this.cooldown = true;
 
-        const {start, vector} = this.calculateShot(pointer, 275);
+        const { start, vector } = this.calculateShot(pointer, 275);
 
         this.projectile = new DarkOrbProjectile(this.scene, start.x, start.y, this.player);
         this.scene.weaponGroup.add(this.projectile);
@@ -38,12 +38,15 @@ export default class WeaponDarkOrb extends WeaponBase {
             ease: 'Linear',
         });
         this.playThrowSound();
+        
+        this.player.on('playerstunned', () => this.release());
     }
-    
+
     release() {
-        if (this.projectile)
-        this.startCooldown();
+        if (this.projectile) {
+            this.startCooldown();
             this.projectile.detonate = true;
-        delete this.projectile;
+            delete this.projectile;
+        }
     }
 }

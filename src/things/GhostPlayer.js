@@ -1,22 +1,30 @@
+import AuraSprite from "../weapons/auraSprite.js";
 import RankSystem from "./RankSystem.js";
 
 export default class GhostPlayer {
-  constructor(scene, id, x = 400, y = 300, source) {
+  constructor(scene, id, x = 400, y = 300, source, aura) {
     this.scene = scene;
     this.id = id;
     this.x = x;
     this.y = y;
     this.source = source;
+    this.aura = aura;
     this.ranks = new RankSystem();
 
     this.createVisuals();
   }
 
   createVisuals() {
+    this.auraSprite = new AuraSprite(this.scene, this.x, this.y)
+    .setScale(.3)
+    .setAlpha(.6)
+    .setTint(0x00ffff);
+
     this.sprite = this.scene.add.sprite(this.x, this.y, 'dudesheet');
     this.sprite.setScale(0.3);
     this.sprite.setAlpha(0.6);
     this.sprite.setTint(0x00ffff);
+
 
     this.nameText = this.scene.add.text(this.x, this.y - 40, this.source + '\n' + this.ranks.getRank(this.source), {
       fontSize: '12px',
@@ -43,6 +51,7 @@ export default class GhostPlayer {
     this.y = y;
     if (this.sprite) this.sprite.setPosition(x, y);
     if (this.nameText) this.nameText.setPosition(x, y - 40);
+    if (this.auraSprite) this.auraSprite.setPosition(x, y);
   }
 
   updateScene(newScene) {
@@ -62,6 +71,16 @@ export default class GhostPlayer {
   updateName(source) {
     this.source = source;
     this.nameText.setText(this.source + '\n' + this.ranks.getRank(this.source));
+  }
+
+  updateAura(auraLevel) {
+    this.auraSprite.updateAura(auraLevel);
+  }
+
+  syncAll(x, y, source, auraLevel) {
+    this.updatePosition(x, y);
+    this.updateName(source);
+    this.updateAura(auraLevel);
   }
 
   destroy() {

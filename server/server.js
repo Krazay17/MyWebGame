@@ -12,6 +12,7 @@ const io = new Server(server, {
       "http://localhost:3000",
       "http://127.0.0.1:3000",
       "http://localhost:5500",
+      "http://localhost:5173",
       "http://127.0.0.1:5500",
     ],
     methods: ["GET", "POST"]
@@ -36,6 +37,15 @@ io.on('connection', (socket) => {
     );
 
   socket.broadcast.emit('playerJoined', {id: socket.id, ...players[socket.id]});
+
+  socket.on('playerSync', ({ x, y, source, auraLevel }) => {
+    if (players[socket.id]) {
+      players[socket.id].x = x;
+      players[socket.id].y = y;
+
+      socket.broadcast.emit('playerSynced', {id: socket.id, x, y, source, auraLevel});
+    }
+  })
 
   socket.on('playerMove', ({x, y}) => {
     if (players[socket.id]){

@@ -49,6 +49,13 @@ export default class NetworkManager {
       }
     });
 
+    this.socket.on('playerSynced', ({id, x, y, source, auraLevel}) => {
+      const player = this.otherPlayers[id];
+      if (player) {
+        player.syncAll({x, y, source, auraLevel});
+      }
+    })
+
     this.socket.on('playerMoved', ({ id, x, y }) => {
       const player = this.otherPlayers[id];
       if (player){

@@ -42,11 +42,24 @@ export default {
         if (data) {
             const parsed = JSON.parse(data);
 
-        if (parsed.version !== CURRENT_VERSION) {
-            console.warn('Save version mismatch. Resetting progress.');
-            this.reset(false);
-            return;
-        }
+            if (parsed.version !== CURRENT_VERSION) {
+                console.warn('Save version mismatch. Resetting progress.');
+
+                this.reset({
+                    keep: {
+                        name: parsed.name,
+                        volume: parsed.volume,
+                        collectedItems: parsed.collectedItems,
+                        flags: parsed.flags,
+                        weapons: parsed.weapons,
+                        auraLevel: parsed.auraLevel,
+                    }
+                });
+
+                return;
+            }
+
+            // Normal loading path
             this.version = parsed.version ?? CURRENT_VERSION;
             this.level = Math.floor(parsed.level) ?? 1;
             this.name = parsed.name ?? { text: 'Hunter', color: '#FFFFFF' };
@@ -61,18 +74,19 @@ export default {
         }
     },
 
-    reset(levels) {
+    reset({ keep = {} } = {}) {
+        // Merge preserved values first
         this.version = CURRENT_VERSION;
-        this.level = 1;
-        this.name = { text: 'Hunter', color: '#FFFFFF' };
-        this.area = 'Home';
-        this.source = levels? 0 : this.source;
-        this.weapons = { left: 'shurikan', right: 'sword', aura: 'zap' };
-        this.auraLevel = levels? 1 : this.auraLevel;
+        this.name = keep.name ?? { text: 'Hunter', color: '#FFFFFF' };
+        this.level = keep.level ?? 1;
+        this.area = keep.area ?? 'Home';
+        this.source = keep.source ?? 0;
+        this.weapons = keep.weapons ?? { left: 'shurikan', right: 'sword', aura: 'zap' };
+        this.auraLevel = keep.auraLevel ?? 1;
         this.playerHealth = 5;
-        this.volume = this.volume;
-        this.collectedItems = [];
-        this.flags = {
+        this.volume = keep.volume ?? 1;
+        this.collectedItems = keep.collectedItems ?? [];
+        this.flags = keep.flags ?? {
             seenIntro: false,
         };
 
@@ -80,8 +94,8 @@ export default {
     },
 
     clear() {
-    localStorage.removeItem('webConduitSave');
-    this.reset();
-}
+        localStorage.removeItem('webConduitSave');
+        this.reset();
+    }
 
 }

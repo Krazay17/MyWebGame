@@ -60,6 +60,7 @@ export default class BaseGame extends Phaser.Scene {
       this.escMenu = this.scene.get('EscMenu');
       this.escMenu.init({ gameScene: this })
     }
+
     if (!this.scene.isActive('Inventory')) {
       this.scene.launch('Inventory', { player: this.player });
       this.invMenu = this.scene.get('Inventory');
@@ -67,6 +68,7 @@ export default class BaseGame extends Phaser.Scene {
       this.invMenu = this.scene.get('Inventory');
       this.invMenu.init({ player: this.player });
     }
+    
     if (!this.scene.isActive('PlayerUI')) {
       this.scene.launch('PlayerUI', { player: this.player });
       this.uiMenu = this.scene.get('PlayerUI');

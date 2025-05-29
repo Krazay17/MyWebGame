@@ -7,13 +7,13 @@ export default class PlayerUI extends Phaser.Scene {
     init(data) {
         this.player = data.player;
         this.player.playerUI = this;
-        this.setWeaponIcon(this.player.leftWeapon.name, true);
-        this.setWeaponIcon(this.player.rightWeapon.name, false);
     }
 
     create() {
         this.visible = true;
 
+        this.setWeaponIcon(this.player.leftWeapon.name, 0);
+        this.setWeaponIcon(this.player.rightWeapon.name, 1);
 
         this.leftWeaponBox = this.add.graphics().setDepth(1);
         this.rightWeaponBox = this.add.graphics().setDepth(1);

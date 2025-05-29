@@ -1,5 +1,5 @@
 
-const CURRENT_VERSION = 1.2;
+const CURRENT_VERSION = 1.3;
 
 export default {
     version: CURRENT_VERSION,
@@ -66,11 +66,11 @@ export default {
         this.level = 1;
         this.name = { text: 'Hunter', color: '#FFFFFF' };
         this.area = 'Home';
-        if (levels) this.source = 0;
+        this.source = levels? 0 : this.source;
         this.weapons = { left: 'shurikan', right: 'sword', aura: 'zap' };
-        if (levels) this.auraLevel = 1;
+        this.auraLevel = levels? 1 : this.auraLevel;
         this.playerHealth = 5;
-        if (levels) this.volume = 1;
+        this.volume = this.volume;
         this.collectedItems = [];
         this.flags = {
             seenIntro: false,

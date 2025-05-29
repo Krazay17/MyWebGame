@@ -3,6 +3,7 @@ const CURRENT_VERSION = 1.1;
 
 export default {
     version: CURRENT_VERSION,
+    name: 'Hunter',
     level: 1,
     area: 'Home',
     source: 0,
@@ -22,6 +23,7 @@ export default {
     save() {
         const data = {
             version: this.version,
+            name: this.name,
             level: this.level,
             area: this.area,
             source: this.source,
@@ -47,6 +49,7 @@ export default {
         }
             this.version = parsed.version ?? CURRENT_VERSION;
             this.level = Math.floor(parsed.level) ?? 1;
+            this.name = parsed.name ?? 'Hunter';
             this.area = parsed.area ?? 'Home';
             this.source = Math.floor(parsed.source) ?? 0;
             this.weapons = parsed.weapons ?? { left: 'shurikan', right: 'sword', aura: 'zap' },
@@ -61,6 +64,7 @@ export default {
     reset(resetSource) {
         this.version = CURRENT_VERSION;
         this.level = 1;
+        this.name = 'Hunter';
         this.area = 'Home';
         if (resetSource) this.source = 0;
         this.weapons = { left: 'shurikan', right: 'sword', aura: 'zap' };

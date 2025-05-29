@@ -73,7 +73,7 @@ export default class WeaponWhip extends WeaponBase {
             this.weaponSprite.setScale(this.mapRangeClamped(distance, 25, 400, 0.02, 0.6))
             if (distance >500 && this.weaponSprite) {
                 this.weaponSprite.play('whipend')
-                this.whipConnect = false
+                this.whipConnect = false;
             }
         } 
         else if (this.wasGrappling) {

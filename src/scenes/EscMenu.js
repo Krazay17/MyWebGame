@@ -74,6 +74,49 @@ export default class EscMenu extends Phaser.Scene
         };
 
         setInitialVolume(GameManager.volume);
+
+        //         // Show the name input box when the scene starts
+        // this.createNameInput((playerName) => {
+        //     console.log('Player name is:', playerName);
+
+        //     // You can store it wherever you like
+        //     this.gameManager.playerName = playerName;
+
+        //     // Move to next scene or start game, etc.
+        //     this.scene.start('GameScene');
+        // });
     }
-    
+
+    // createNameInput(onSubmitCallback) {
+    //     const input = document.createElement('input');
+    //     input.type = 'text';
+    //     input.placeholder = 'Enter your name';
+    //     input.style.position = 'absolute';
+    //     input.style.top = '50%';
+    //     input.style.left = '50%';
+    //     input.style.transform = 'translate(-50%, -50%)';
+    //     input.style.fontSize = '24px';
+    //     input.style.padding = '8px';
+    //     input.maxLength = 20;
+
+    //     document.body.appendChild(input);
+    //     input.focus();
+
+    //     input.addEventListener('keydown', (event) => {
+    //         if (event.key === 'Enter') {
+    //             const name = input.value.trim();
+    //             if (name) {
+    //                 onSubmitCallback(name);
+    //                 document.body.removeChild(input);
+    //             }
+    //         }
+    //     });
+
+    //     // Optional: Remove the input when the scene shuts down
+    //     this.events.once('shutdown', () => {
+    //         if (document.body.contains(input)) {
+    //             document.body.removeChild(input);
+    //         }
+    //     });
+    // }
 }

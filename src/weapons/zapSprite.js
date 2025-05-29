@@ -5,6 +5,7 @@ export default class ZapSprite extends Phaser.GameObjects.TileSprite {
         this.player = player;
         this.target = target;
         this.setOrigin(0, 0.5);
+        this.updateZapLine();
 
         scene.add.existing(this);
 
@@ -13,8 +14,8 @@ export default class ZapSprite extends Phaser.GameObjects.TileSprite {
     // ...
 
     preUpdate(time, delta) {
-        this.tilePositionX += 10; // in update loop
         this.updateZapLine();
+        this.tilePositionX += 10; // in update loop
     }
 
     updateZapLine() {

@@ -7,13 +7,13 @@ export default class PlayerUI extends Phaser.Scene {
     init(data) {
         this.player = data.player;
         this.player.playerUI = this;
+        this.setWeaponIcon(this.player.leftWeapon.name, true);
+        this.setWeaponIcon(this.player.rightWeapon.name, false);
     }
 
     create() {
         this.visible = true;
 
-        this.setWeaponIcon(this.player.leftWeapon.name, true);
-        this.setWeaponIcon(this.player.rightWeapon.name, false);
 
         this.leftWeaponBox = this.add.graphics().setDepth(1);
         this.rightWeaponBox = this.add.graphics().setDepth(1);
@@ -31,6 +31,7 @@ export default class PlayerUI extends Phaser.Scene {
 
     resizeUI(gamesize) {
         const { width, height } = gamesize;
+        if (!this.leftWeaponBox || !this.leftWeaponIcon || !this.rightWeaponBox || !this.rightWeaponIcon) return;
         this.leftWeaponBox.y = height;
         this.leftWeaponIcon.y = height;
         this.rightWeaponBox.x = width;
@@ -44,13 +45,13 @@ export default class PlayerUI extends Phaser.Scene {
         console.log(icon)
         if (slot === 0) {
             if (!this.leftWeaponIcon) {
-                this.leftWeaponIcon = this.add.image(0, this.scale.height, icon, 1).setOrigin(0, 1).setScale(.5);
+                this.leftWeaponIcon = this.add.image(0, this.scale.height, icon).setOrigin(0, 1).setScale(.5);
             } else {
                 this.leftWeaponIcon.setTexture(icon)
             }
         } else {
             if (!this.rightWeaponIcon) {
-                this.rightWeaponIcon = this.add.image(this.scale.width, this.scale.height, icon, 1).setOrigin(1, 1).setScale(.5);
+                this.rightWeaponIcon = this.add.image(this.scale.width, this.scale.height, icon).setOrigin(1, 1).setScale(.5);
             } else {
                 this.rightWeaponIcon.setTexture(icon)
             }

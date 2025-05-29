@@ -76,6 +76,7 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
             this.die(player);
         } else {
             this.stunned = true;
+            this.scene.time.removeEvent(this.hitRecover);
             const prevVelocity = this.body.velocity.clone();
             this.setVelocity(velocity.x / 3, velocity.y / 3)
             this.setTint(0xff0000);

@@ -23,6 +23,12 @@ export default class GhostPlayer {
       align: 'center',
       fill: '#ffffff'
     }).setOrigin(0.5);
+
+    this.nameText2 = this.scene.add.text(this.x, this.y - 40, this.source + '\n' + this.ranks.getRank(this.source), {
+      fontSize: '12px',
+      align: 'center',
+      fill: '#ffffff'
+    }).setOrigin(0.5);
   }
 
   updatePosition(x, y) {

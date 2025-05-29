@@ -5,7 +5,7 @@ export default class WeaponSword extends WeaponBase {
         super(scene, player, 2)
 
         this.name = 'sword'
-        this.baseCooldown = 500;
+        this.baseCooldown = 250;
         this.meleeDuration = 250;
         this.spamAdd = 100;
         this.hitSoundId = 'energysound';

@@ -104,7 +104,7 @@ export default class GhostPlayer {
     if (this.sprite) this.sprite.destroy();
     if (this.sourceText) this.sourceText.destroy();
     if (this.headName) this.headName.destroy();
-
+    if (this.auraSprite) this.auraSprite.destroy();
   }
 
   ghostVelocity(x, y) {

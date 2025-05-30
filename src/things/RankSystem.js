@@ -26,10 +26,11 @@ export default class RankSystem {
     ];
   }
 
-  getRank(source) {
-    console.log(source);
-      return this.ranks.find(rank => source >= rank.min && source <= rank.max).title;
-  }
+getRank(source) {
+  const rank = this.ranks.find(rank => source >= rank.min && source <= rank.max);
+  return rank?.title || "Newbie";
+}
+
 
   hasRankChanged(prevSource, currentSource) {
     return this.getRank(prevSource) !== this.getRank(currentSource);

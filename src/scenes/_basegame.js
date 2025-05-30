@@ -149,6 +149,8 @@ export default class BaseGame extends Phaser.Scene {
       player.TouchPlatform(walkable);
     }, null, this);
 
+    this.physics.add.collider(this.weaponGroup, this.staticItemGroup);
+    this.physics.add.collider(this.weaponGroup, this.walkableGroup);
     this.physics.add.collider(this.itemGroup, this.walkableGroup);
     this.physics.add.collider(this.enemyGroup, this.walkableGroup);
     this.physics.add.collider(this.softEnemyGroup, this.softEnemyGroup, (enemy1, enemy2) => {

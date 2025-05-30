@@ -6,6 +6,7 @@ export default class ShurikanProjectile extends WeaponProjectile {
 
         this.maxTargets = 2;
         this.chainCount = chainCount;
+        this.destroyOnHit = false;
 
         // Spin tween
         this.scene.tweens.add({
@@ -39,8 +40,6 @@ export default class ShurikanProjectile extends WeaponProjectile {
     itemHit(item) {
         super.itemHit(item);
 
-        this.chainAttack(item);
-        this.destroy();
     }
 
     chainAttack(enemy) {
@@ -78,7 +77,7 @@ export default class ShurikanProjectile extends WeaponProjectile {
             this.chainCount--;
             const chainShurikan = new ShurikanProjectile(this.scene, thisPos.x, thisPos.y, this.player, this.chainCount)
             const direction = pos.subtract(thisPos).normalize().scale(1000);
-            //chainShurikan.hitTargets.push(target);
+            chainShurikan.hitTargets.push(target);
             this.scene.weaponGroup.add(chainShurikan);
             chainShurikan.allowGravity = false;
             chainShurikan.setVelocity(direction.x, direction.y)

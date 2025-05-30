@@ -95,6 +95,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             const worldPos = pointer.positionToCamera(this.scene.cameras.main);
             this.setPosition(worldPos.x, worldPos.y);
             this.setVelocity(0);
+            } else {
+                // const distance = new Phaser.Math.Vector2(pointer)
+                // scene.cameras.main.setOffset
             }
         });
         this.scene.input.keyboard.on('keydown-F', () => {

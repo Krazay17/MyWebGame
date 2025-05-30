@@ -51,7 +51,7 @@ export default class BaseGame extends Phaser.Scene {
 
   setupPlayer(x = 0, y = 0) {
     this.player = new Player(this, x, y);
-    this.cameras.main.startFollow(this.player, false, .01, .01);
+    this.cameras.main.startFollow(this.player, false, .025, .025);
 
 
     if (!this.scene.isActive('Inventory')) {

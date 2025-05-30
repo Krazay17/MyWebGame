@@ -169,23 +169,22 @@ export default class PlayerUI extends Phaser.Scene {
     }
 
     updatePlayerList() {
-        if (!this.network.savedOtherPlayers) return;
+        const otherPlayers = this.network.otherPlayers;
+        if (!otherPlayers) return;
 
         const activeIds = new Set();
 
-        this.network.savedOtherPlayers.forEach((player, index) => {
+        Object.entries(otherPlayers).forEach(([id, player], index) => {
+            const playerId = String(id); // ensure string consistency
             const yloc = index * 50 + 200;
-            const playerId = player.id || player.source; // use a stable unique ID
             activeIds.add(playerId);
 
             if (this.playerTextMap[playerId]) {
-                // Update existing text
                 const textObj = this.playerTextMap[playerId];
                 textObj.setText(player.nameText + ' - ' + player.source);
                 textObj.setY(yloc);
                 textObj.setColor(player.nameColor);
             } else {
-                // Create new text and store it
                 const textObj = this.add.text(0, yloc, player.nameText + ' - ' + player.source, {
                     fontSize: '24px',
                     fill: '#FFFFFF',
@@ -194,7 +193,7 @@ export default class PlayerUI extends Phaser.Scene {
             }
         });
 
-        // Clean up texts for players no longer in the list
+        // Clean up any removed players' text
         for (const id in this.playerTextMap) {
             if (!activeIds.has(id)) {
                 this.playerTextMap[id].destroy();
@@ -202,5 +201,6 @@ export default class PlayerUI extends Phaser.Scene {
             }
         }
     }
+
 }
 

@@ -71,10 +71,10 @@ export default class NetworkManager {
       }
     });
 
-    this.socket.on('playerLeveled', ({ id, source }) => {
+    this.socket.on('playerLeveled', ({ id, source, auraLevel }) => {
       const player = this.otherPlayers[id];
       if (player) {
-        player.updateSource(source);
+        player.updateSource(source, auraLevel);
       }
     });
 

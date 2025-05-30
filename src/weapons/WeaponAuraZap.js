@@ -1,13 +1,16 @@
 import GameManager from "../things/GameManager.js";
 import WeaponBase from "./_weaponbase.js";
+import AuraSprite from "./auraSprite.js";
 import ZapSprite from "./zapSprite.js";
 
 export default class AuraZap extends WeaponBase {
     constructor(scene, player) {
         super(scene, player, 1);
         this.maxTargets = 1;
-        this.level = GameManager.auraLevel;
+        this.level = GameManager.power.auraLevel;
         this.baseZapCd = 5000;
+
+        this.auraSprite = new AuraSprite(scene, player.x, player.y, this.level);
 
         this.zapTimer = this.scene.time.addEvent({
             delay: 5000,
@@ -18,16 +21,28 @@ export default class AuraZap extends WeaponBase {
         }, this);
 
         this.setStats();
+        this.setLevel(this.level)
+    }
+
+    update(delta) {
+        super.update(delta);
+        this.auraSprite.setPosition(this.player.x, this.player.y);
+        console.log('auratick');
     }
 
     getCost() {
         return this.level * 50;
     }
 
-    levelUp() {
+    setLevel(level) {
+        if (level) {
+        this.level = level;
+        this.auraSprite.setAuraLevel(this.level);
+        this.setStats();
+        return this.level;
+        }
         this.level++;
-        GameManager.auraLevel = this.level;
-        GameManager.save();
+        this.auraSprite.setAuraLevel(this.level);
         this.setStats();
     }
 

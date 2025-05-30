@@ -6,6 +6,7 @@ export default {
     name: { text: 'Hunter', color: '#FFFFFF' },
     level: 1,
     area: 'Home',
+    power: { source: 0, auraLevel: 1},
     source: 0,
     weapons: { left: 'shurikan', right: 'sword', aura: 'zap' },
     auraLevel: 1,
@@ -26,6 +27,7 @@ export default {
             name: this.name,
             level: this.level,
             area: this.area,
+            power: this.power,
             source: this.source,
             weapons: this.weapons,
             auraLevel: this.auraLevel,
@@ -53,6 +55,7 @@ export default {
                         flags: parsed.flags,
                         weapons: parsed.weapons,
                         auraLevel: parsed.auraLevel,
+                        power: parsed.power,
                     }
                 });
 
@@ -64,6 +67,7 @@ export default {
             this.level = Math.floor(parsed.level) ?? 1;
             this.name = parsed.name ?? { text: 'Hunter', color: '#FFFFFF' };
             this.area = parsed.area ?? 'Home';
+            this.power = parsed.power ?? { source: 0, auraLevel: 1};
             this.source = Math.floor(parsed.source) ?? 0;
             this.weapons = parsed.weapons ?? { left: 'shurikan', right: 'sword', aura: 'zap' };
             this.auraLevel = parsed.auraLevel ?? 1;
@@ -80,6 +84,7 @@ export default {
         this.name = keep.name ?? { text: 'Hunter', color: '#FFFFFF' };
         this.level = keep.level ?? 1;
         this.area = keep.area ?? 'Home';
+        this.power = keep.power ?? { source: 0, auraLevel: 1};
         this.source = keep.source ?? 0;
         this.weapons = keep.weapons ?? { left: 'shurikan', right: 'sword', aura: 'zap' };
         this.auraLevel = keep.auraLevel ?? 1;

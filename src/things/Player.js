@@ -25,8 +25,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.alive = true;
         this.health = 5;
         this.deathPenalty;
-        this.source = GameManager.source;
-        this.auraLevel = GameManager.auraLevel;
+        this.source = GameManager.power.source;
+        this.auraLevel = GameManager.power.auraLevel;
         this.name = GameManager.name;
 
         this.isCrouch = false;
@@ -71,7 +71,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
         this.controls = {
             up: [scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W, false),
-                scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE, false)
+            scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE, false)
             ],
             down: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S, false),
             left: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A, false),
@@ -103,7 +103,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.scene.input.keyboard.on('keydown-F', () => {
             if (GameManager.devMode) {
                 console.log('devmodeon')
-                this.updateSource(5);
+                this.updateSource(500);
+            }
+        });
+        this.scene.input.keyboard.on('keydown-G', () => {
+            if (GameManager.devMode) {
+                console.log('devmodeon')
+                this.tryIncreaseAura(true)
             }
         });
 
@@ -113,9 +119,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             }
         });
         this.scene.input.keyboard.on('keydown-R', () => {
-            if (!this.playerUI.Chatting){
-            this.Died();
-            this.scene.scene.restart();
+            if (!this.playerUI.Chatting) {
+                this.Died();
+                this.scene.scene.restart();
             }
         });
 
@@ -137,6 +143,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         if (this.alive && !this.stunned && this.leftWeapon && this.rightWeapon) {
             this.leftWeapon.update?.(delta);
             this.rightWeapon.update?.(delta);
+            this.aura.update?.(delta);
 
             const pointer = this.scene.input.activePointer;
 
@@ -178,10 +185,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         gameOverText.setScrollFactor(0);
 
         this.scene.physics?.pause(); // Stop physics
-        this.scene.time.delayedCall({
-            delay: 2000,
-            callback: () => this.scene.scene.restart()
-        });
+        this.scene.time.delayedCall(2000, () => this.scene.scene.restart());
         this.emit('playerdied');
 
         GameManager.save();
@@ -418,12 +422,22 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         return equippedWeapon;
     }
 
-    tryIncreaseAura() {
+    tryIncreaseAura(reset) {
+        if (reset) {
+            GameManager.power.auraLevel = 1;
+            GameManager.save();
+            this.aura.setLevel(1);
+            return true;
+        }
 
         const cost = this.aura.getCost();
+
         if (GameManager.source >= cost) {
-            this.aura.levelUp();
             this.updateSource(-cost);
+            GameManager.power.auraLevel++;
+            GameManager.save();
+            this.aura.setLevel(GameManager.power.auraLevel);
+            this.network.socket.emit('playerLevel', GameManager.power);
             return true;
         } else {
             return false;

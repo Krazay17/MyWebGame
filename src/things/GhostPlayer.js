@@ -84,13 +84,11 @@ export default class GhostPlayer {
     this.headName.setFill(this.nameColor);
   }
 
-  updateSource(source) {
+  updatePower(source, auraLevel) {
     this.source = source;
+    this.auraLevel = auraLevel;
+    this.auraSprite.setAuraLevel(this.auraLevel);
     this.sourceText.setText(this.ranks.getRank(this.source) + '\n' + this.source);
-  }
-
-  updateAura(auraLevel) {
-    this.auraSprite.updateAura(auraLevel);
   }
 
   syncAll(x, y, source, auraLevel) {

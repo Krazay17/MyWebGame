@@ -14,7 +14,7 @@ export default class Duck extends BaseEnemy
     preUpdate(time, delta) {
         super.preUpdate(time, delta);
         
-        //this.handleMovement(time);
+        this.handleMovement(time);
     }
 
     playerCollide(player, enemy) {

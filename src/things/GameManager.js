@@ -103,8 +103,18 @@ export default {
         this.reset();
     },
 
-    getNetworkData() {
-        return { name: this.name, power: this.power }
+getNetworkData() {
+  return {
+    name: {
+      text: this.name?.text ?? 'Hunter',
+      color: this.name?.color ?? '#ffffff'
+    },
+    power: {
+      source: typeof this.power?.source === 'number' ? this.power.source : 0,
+      auraLevel: typeof this.power?.auraLevel === 'number' ? this.power.auraLevel : 1
     }
+  };
+}
+
 
 }

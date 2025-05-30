@@ -27,9 +27,13 @@ export default class RankSystem {
   }
 
 getRank(source) {
+  if (typeof source !== 'number' || isNaN(source)) {
+    return "_";
+  }
   const rank = this.ranks.find(rank => source >= rank.min && source <= rank.max);
-  return rank?.title || "Newbie";
+  return rank?.title || "_";
 }
+
 
 
   hasRankChanged(prevSource, currentSource) {

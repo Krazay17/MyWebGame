@@ -7,13 +7,15 @@ export default class WeaponDarkOrb extends WeaponBase {
 
         this.name = 'darkorb';
         this.baseCooldown = 550;
-
-        scene.anims.create({
-            key: 'darkorb',
-            frames: scene.anims.generateFrameNumbers('darkorb', { start: 0, end: 3 }),
-            frameRate: 10,
-            repeat: -1,
-        })
+        
+        if (!scene.anims.get('darkorb')) {
+            scene.anims.create({
+                key: 'darkorb',
+                frames: scene.anims.generateFrameNumbers('darkorb', { start: 0, end: 3 }),
+                frameRate: 10,
+                repeat: -1,
+            })
+        }
     }
 
     fire(pointer) {
@@ -38,7 +40,7 @@ export default class WeaponDarkOrb extends WeaponBase {
             ease: 'Linear',
         });
         this.playThrowSound();
-        
+
         this.player.on('playerstunned', () => this.release());
     }
 

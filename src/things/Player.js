@@ -139,11 +139,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     preUpdate(time, delta) {
         super.preUpdate(time, delta);
+        if(this.aura) this.aura.update?.(delta);
 
         if (this.alive && !this.stunned && this.leftWeapon && this.rightWeapon) {
             this.leftWeapon.update?.(delta);
             this.rightWeapon.update?.(delta);
-            this.aura.update?.(delta);
 
             const pointer = this.scene.input.activePointer;
 

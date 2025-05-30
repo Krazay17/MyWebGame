@@ -2,15 +2,18 @@ import AuraSprite from "../weapons/auraSprite.js";
 import RankSystem from "./RankSystem.js";
 
 export default class GhostPlayer {
-  constructor(scene, id, x = 400, y = 300, data = {source: 0, auraLevel, name: {text: 'Hunter', color: '#ffffff'}}) {
+  constructor(scene, id, x = 400, y = 300,
+    data = {
+      power: { source: 0, auraLevel: 1 },
+      name: { text: 'Hunter', color: '#ffffff' }
+    }) {
     this.scene = scene;
     this.id = id;
 
     this.x = x;
     this.y = y;
-    this.source = data.source;
-    console.log(this.source);
-    this.auraLevel = data.auraLevel;
+    this.source = data.power.source;
+    this.auraLevel = data.power.auraLevel;
     this.nameText = data.name.text;
     this.nameColor = data.name.color;
 
@@ -19,10 +22,8 @@ export default class GhostPlayer {
   }
 
   createVisuals() {
-    this.auraSprite = new AuraSprite(this.scene, this.x, this.y)
-    .setScale(.3)
-    .setAlpha(.6)
-    .setTint(0x00ffff);
+    this.auraSprite = new AuraSprite(this.scene, this.x, this.y, this.auraLevel)
+      .setTint(0x00ffff);
 
     this.sprite = this.scene.add.sprite(this.x, this.y, 'dudesheet');
     this.sprite.setScale(0.3);
@@ -91,10 +92,10 @@ export default class GhostPlayer {
     this.sourceText.setText(this.ranks.getRank(this.source) + '\n' + this.source);
   }
 
-  syncAll(x, y, source, auraLevel) {
+  syncAll(x, y, data) {
+    const power = data.power || { source: 0, auraLevel: 1 }
     this.updatePosition(x, y);
-    this.updateSource(source);
-    this.updateAura(auraLevel);
+    this.updatePower(power.source, power.auraLevel);
   }
 
   destroy() {
@@ -112,7 +113,7 @@ export default class GhostPlayer {
     if (Math.abs(this.xv) < epsilon) this.xv = 0;
     if (Math.abs(this.yv) < epsilon) this.yv = 0;
 
-    if (this.yv == 0 && this.xv > 0 || this.xv < 0) {
+    if ((this.yv === 0 && this.xv > 0) || this.xv < 0) {
       this.sprite.play('dudewalk', true);
     } else if (this.yv == 0 && this.xv == 0) {
       this.sprite.stop();

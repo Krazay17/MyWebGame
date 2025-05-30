@@ -7,14 +7,14 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: 
-    ["https://krazay17.github.io",
-      "http://localhost:3000",
-      "http://127.0.0.1:3000",
-      "http://localhost:5500",
-      "http://localhost:5173",
-      "http://127.0.0.1:5500",
-    ],
+    origin:
+      ["https://krazay17.github.io",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:5500",
+        "http://localhost:5173",
+        "http://127.0.0.1:5500",
+      ],
     methods: ["GET", "POST"]
   }
 });
@@ -23,32 +23,40 @@ const players = {};
 
 io.on('connection', (socket) => {
   console.log('New client connected:', socket.id);
-  
+
   socket.on('disconnect', () => {
     console.log('Client disconnected:', socket.id);
     delete players[socket.id];
-    socket.broadcast.emit('playerLeft', { id: socket.id});
+    socket.broadcast.emit('playerLeft', { id: socket.id });
   });
 
-  players[socket.id] = {x: -1100, y: 200, data: {source: 0, auraLevel: 1, name: {text: 'Hunter', color: '#ffffff'}}};
+  players[socket.id] = {
+    x: 0,
+    y: 0,
+    data: {
+      name: { text: 'Hunter', color: '#ffffff' },
+      power: { source: 0, auraLevel: 1 }
+    }
+  };
 
   socket.emit('existingPlayers',
-     Object.entries(players).map(([id, player]) => ({id, ...player}))
-    );
+    Object.entries(players).map(([id, player]) => ({ id, ...player }))
+  );
 
-  socket.broadcast.emit('playerJoined', {id: socket.id, ...players[socket.id]});
+  socket.broadcast.emit('playerJoined', { id: socket.id, ...players[socket.id] });
 
-  socket.on('playerSync', ({ x, y, source, auraLevel }) => {
+  socket.on('playerSync', ({ x, y, data }) => {
     if (players[socket.id]) {
       players[socket.id].x = x;
       players[socket.id].y = y;
+      players[socket.id].data = data;
 
-      socket.broadcast.emit('playerSynced', {id: socket.id, x, y, source, auraLevel});
+      socket.broadcast.emit('playerSynced', { id: socket.id, x, y, data });
     }
   })
 
-  socket.on('playerMove', ({x, y}) => {
-    if (players[socket.id]){
+  socket.on('playerMove', ({ x, y }) => {
+    if (players[socket.id]) {
       players[socket.id].x = x;
       players[socket.id].y = y;
 
@@ -56,25 +64,25 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('playerName', ({text, color}) => {
-    if (players[socket.id]){
+  socket.on('playerName', ({ text, color }) => {
+    if (players[socket.id]) {
 
-    socket.broadcast.emit('playerNamed', { id: socket.id, text, color });
+      socket.broadcast.emit('playerNamed', { id: socket.id, text, color });
     }
   });
 
-  socket.on('playerLevel', ({source, auraLevel}) => {
-    if (players[socket.id]){
-    players[socket.id].source = source;
+  socket.on('playerLevel', ({ source, auraLevel }) => {
+    if (players[socket.id]) {
+      players[socket.id].source = source;
 
-    socket.broadcast.emit('playerLeveled', { id: socket.id, source, auraLevel });
+      socket.broadcast.emit('playerLeveled', { id: socket.id, source, auraLevel });
     }
   });
 
-  socket.on('shurikanthrow', ({x, y, d}) => {
-    if (players[socket.id]){
+  socket.on('shurikanthrow', ({ x, y, d }) => {
+    if (players[socket.id]) {
 
-      socket.broadcast.emit('shurikanthrown', { id: socket.id, x, y, d});
+      socket.broadcast.emit('shurikanthrown', { id: socket.id, x, y, d });
     }
   });
 

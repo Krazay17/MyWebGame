@@ -1,5 +1,6 @@
 import io from 'https://cdn.socket.io/4.7.2/socket.io.esm.min.js';
 import GhostPlayer from './GhostPlayer.js';
+import GameManager from './GameManager.js';
 
 export default class NetworkManager {
   static instance;
@@ -22,6 +23,10 @@ export default class NetworkManager {
     // Handle connection
     this.socket.on('connect', () => {
       console.log('Connected to server:', this.socket.id);
+
+      const data = GameManager.getNetworkData();
+
+      this.socket.emit('playerSync', {x: 0, y:0, data: data});
     });
 
     // Add existing players
@@ -49,10 +54,10 @@ export default class NetworkManager {
       }
     });
 
-    this.socket.on('playerSynced', ({ id, x, y, source, auraLevel }) => {
+    this.socket.on('playerSynced', ({ id, x, y, data }) => {
       const player = this.otherPlayers[id];
       if (player) {
-        player.syncAll({ x, y, source, auraLevel });
+        player.syncAll( x, y, data );
       }
     });
 
@@ -74,7 +79,7 @@ export default class NetworkManager {
     this.socket.on('playerLeveled', ({ id, source, auraLevel }) => {
       const player = this.otherPlayers[id];
       if (player) {
-        player.updateSource(source, auraLevel);
+        player.updatePower(source, auraLevel);
       }
     });
 

@@ -4,7 +4,7 @@ const CURRENT_VERSION = 1.3;
 export default {
     version: CURRENT_VERSION,
     name: { text: 'Hunter', color: '#FFFFFF' },
-    level: 1,
+    location: {x: 0, y: 0},
     area: 'Home',
     power: { source: 0, auraLevel: 1},
     source: 0,
@@ -25,7 +25,7 @@ export default {
         const data = {
             version: this.version,
             name: this.name,
-            level: this.level,
+            location: this.location,
             area: this.area,
             power: this.power,
             source: this.source,
@@ -64,7 +64,7 @@ export default {
 
             // Normal loading path
             this.version = parsed.version ?? CURRENT_VERSION;
-            this.level = Math.floor(parsed.level) ?? 1;
+            this.location = parsed.location ?? {x: 0, y: 0};
             this.name = parsed.name ?? { text: 'Hunter', color: '#FFFFFF' };
             this.area = parsed.area ?? 'Home';
             this.power = parsed.power ?? { source: 0, auraLevel: 1};
@@ -82,7 +82,7 @@ export default {
         // Merge preserved values first
         this.version = CURRENT_VERSION;
         this.name = keep.name ?? { text: 'Hunter', color: '#FFFFFF' };
-        this.level = keep.level ?? 1;
+        this.location = {x: 0, y: 0};
         this.area = keep.area ?? 'Home';
         this.power = keep.power ?? { source: 0, auraLevel: 1};
         this.source = keep.source ?? 0;
@@ -101,6 +101,10 @@ export default {
     clear() {
         localStorage.removeItem('webConduitSave');
         this.reset();
+    },
+
+    getNetworkData() {
+        return {name: this.name, power: this.power}
     }
 
 }

@@ -27,6 +27,7 @@ export default class RankSystem {
   }
 
   getRank(source) {
+    console.log(source);
       return this.ranks.find(rank => source >= rank.min && source <= rank.max).title;
   }
 

@@ -81,7 +81,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         };
         this.myPointer = new Phaser.Input.Pointer(this.scene.input.manager, 1)
 
-        this.scoreText = this.scene.add.text(10, 150, 'Source: ' + GameManager.source + '\n' + this.rankSystem.getRank(GameManager.source), {
+        this.scoreText = this.scene.add.text(10, 150, 'Source: ' + GameManager.power.source + '\n' + this.rankSystem.getRank(GameManager.power.source), {
             fontSize: '32px',
             color: '#4fffff'
         });
@@ -164,7 +164,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         if (this.alive == false) return;
         this.alive = false;
 
-        this.deathPenalty = Math.floor(-GameManager.source / 3);
+        this.deathPenalty = Math.floor(-GameManager.power.source / 3);
         this.updateSource(this.deathPenalty);
 
         this.leftSpam = 0;
@@ -376,12 +376,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     updateSource(source) {
         const intSource = Math.floor(source);
-        const prevSource = GameManager.source;
-        GameManager.source += intSource;
-        GameManager.source = Math.max(0, GameManager.source);
+        const prevSource = GameManager.power.source;
+        GameManager.power.source += intSource;
+        GameManager.power.source = Math.max(0, GameManager.power.source);
         GameManager.save();
-        this.scoreText.text = 'Source: ' + GameManager.source + '\n' + this.rankSystem.getRank(GameManager.source);
-        this.network.socket.emit('playerLevel', GameManager.source);
+        this.scoreText.text = 'Source: ' + GameManager.power.source + '\n' + this.rankSystem.getRank(GameManager.power.source);
+        this.network.socket.emit('playerLevel', GameManager.power.source);
     }
 
     setupAnimation() {
@@ -397,7 +397,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     syncNetwork() {
-        //this.network.socket.emit('playerSyncRequest', { x: this.x, y: this.y, source: GameManager.source, auraLevel: GameManager.auraLevel });
+        //this.network.socket.emit('playerSyncRequest', { x: this.x, y: this.y, source: GameManager.power.source, auraLevel: GameManager.auraLevel });
     }
 
     equipWeapon(name = 'Shurikan', slot = 0,) {
@@ -432,7 +432,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
         const cost = this.aura.getCost();
 
-        if (GameManager.source >= cost) {
+        if (GameManager.power.source >= cost) {
             this.updateSource(-cost);
             GameManager.power.auraLevel++;
             GameManager.save();

@@ -104,7 +104,7 @@ export default {
     },
 
     getNetworkData() {
-        return {name: this.name, power: this.power}
+        return { name: this.name, power: this.power }
     }
 
 }

@@ -25,8 +25,9 @@ export default class NetworkManager {
       console.log('Connected to server:', this.socket.id);
 
       const data = GameManager.getNetworkData();
+      console.log(data);
 
-      this.socket.emit('playerSyncRequest', {x: 0, y:0, data: data});
+      this.socket.emit('playerSyncRequest', { x: 0, y: 0, data: data });
     });
 
     // Add existing players
@@ -37,6 +38,13 @@ export default class NetworkManager {
           this.addOtherPlayer(player.id, player.x, player.y, player.data);
         }
       });
+    });
+
+    this.socket.on('playerSynceUpdate', ({ id, x, y, data }) => {
+      const player = this.otherPlayers[id];
+      if (player) {
+        player.syncAll(x, y, data);
+      }
     });
 
     // Handle new player
@@ -54,12 +62,6 @@ export default class NetworkManager {
       }
     });
 
-    this.socket.on('playerSynceUpdate', ({ id, x, y, data }) => {
-      const player = this.otherPlayers[id];
-      if (player) {
-        player.syncAll( x, y, data );
-      }
-    });
 
     this.socket.on('playerNamed', ({ id, text, color }) => {
       const player = this.otherPlayers[id];
@@ -92,7 +94,11 @@ export default class NetworkManager {
 
   }
 
-  addOtherPlayer(id, x = -1100, y = 400, data) {
+  addOtherPlayer(id, x = -1100, y = 400, 
+    data = {
+    name: { text: 'Hunter', color: '#ffffff' },
+    power: { source: 0, auraLevel: 1 },
+  }) {
     if (this.otherPlayers[id]) {
       this.otherPlayers[id].destroy()
     }

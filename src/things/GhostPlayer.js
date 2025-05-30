@@ -2,18 +2,19 @@ import AuraSprite from "../weapons/auraSprite.js";
 import RankSystem from "./RankSystem.js";
 
 export default class GhostPlayer {
-  constructor(scene, id, x = 400, y = 300,
+  constructor(scene, id, x = 0, y = 0,
     data = {
+      name: { text: 'Hunter', color: '#ffffff' },
       power: { source: 0, auraLevel: 1 },
-      name: { text: 'Hunter', color: '#ffffff' }
     }) {
     this.scene = scene;
     this.id = id;
-    const power = data?.power ?? { source: 0, auraLevel: 1 };
     const name = data?.name ?? { text: 'Hunter', color: '#ffffff' };
+    const power = data?.power ?? { source: 0, auraLevel: 1 };
     this.x = x;
     this.y = y;
     this.source = power.source;
+    console.log('data object', data)
     this.auraLevel = power.auraLevel;
     this.nameText = name.text;
     this.nameColor = name.color;

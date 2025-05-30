@@ -23,13 +23,6 @@ const players = {};
 
 io.on('connection', (socket) => {
   console.log('New client connected:', socket.id);
-
-  socket.on('disconnect', () => {
-    console.log('Client disconnected:', socket.id);
-    delete players[socket.id];
-    socket.broadcast.emit('playerLeft', { id: socket.id });
-  });
-
   players[socket.id] = {
     x: 0,
     y: 0,
@@ -38,12 +31,10 @@ io.on('connection', (socket) => {
       power: { source: 0, auraLevel: 1 }
     }
   };
-
   socket.emit('existingPlayers',
     Object.entries(players).map(([id, player]) => ({ id, ...player }))
   );
-
-  socket.broadcast.emit('playerJoined', { id: socket.id, ...players[socket.id] });
+  
 
   socket.on('playerSyncRequest', ({ x, y, data }) => {
     if (players[socket.id]) {
@@ -51,9 +42,17 @@ io.on('connection', (socket) => {
       players[socket.id].y = y;
       players[socket.id].data = data;
 
+      socket.broadcast.emit('playerJoined', { id: socket.id, x, y, data });
+
       socket.broadcast.emit('playerSynceUpdate', { id: socket.id, x, y, data });
     }
   })
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected:', socket.id);
+    delete players[socket.id];
+    socket.broadcast.emit('playerLeft', { id: socket.id });
+  });
 
   socket.on('playerMove', ({ x, y }) => {
     if (players[socket.id]) {

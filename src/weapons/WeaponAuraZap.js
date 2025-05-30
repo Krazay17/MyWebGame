@@ -27,7 +27,6 @@ export default class AuraZap extends WeaponBase {
     update(delta) {
         super.update(delta);
         this.auraSprite.setPosition(this.player.x, this.player.y);
-        console.log('auratick');
     }
 
     getCost() {

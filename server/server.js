@@ -19,13 +19,12 @@ const io = new Server(server, {
   }
 });
 
-const players = {};       // Store player states
-const hasSynced = {};     // Track who sent playerSyncRequest
+const players = {};
 
 io.on('connection', (socket) => {
   console.log('Client connected:', socket.id);
 
-  // Initialize with default placeholder
+  // Add default player entry
   players[socket.id] = {
     x: 0,
     y: 0,
@@ -35,58 +34,65 @@ io.on('connection', (socket) => {
     }
   };
 
-  // Wait for playerSyncRequest before revealing to others
-  socket.on('playerSyncRequest', ({ x, y, data }) => {
-    if (!players[socket.id]) return;
+  // Send list of already connected players to the new player
+  socket.emit('existingPlayers',
+    Object.entries(players)
+      .filter(([id]) => id !== socket.id)
+      .map(([id, player]) => ({ id, ...player }))
+  );
 
-    players[socket.id] = { x, y, data };
-    hasSynced[socket.id] = true;
-
-    // Send this player all existing synced players
-    const syncedPlayers = Object.entries(players)
-      .filter(([id]) => id !== socket.id && hasSynced[id])
-      .map(([id, player]) => ({ id, ...player }));
-
-    socket.emit('existingPlayers', syncedPlayers);
-
-    // Now tell others this player joined
-    socket.broadcast.emit('playerJoined', { id: socket.id, x, y, data });
+  // Tell other players about this new one
+  socket.broadcast.emit('playerJoined', {
+    id: socket.id,
+    ...players[socket.id]
   });
 
-  socket.on('playerMove', ({ x, y }) => {
-    if (!players[socket.id]) return;
-
-    players[socket.id].x = x;
-    players[socket.id].y = y;
-
-    socket.broadcast.emit('playerMoved', { id: socket.id, x, y });
-  });
-
-  socket.on('playerName', ({ text, color }) => {
-    if (!players[socket.id]) return;
-
-    players[socket.id].data.name = { text, color };
-    socket.broadcast.emit('playerNamed', { id: socket.id, text, color });
-  });
-
-  socket.on('playerLevel', ({ source, auraLevel }) => {
-    if (!players[socket.id]) return;
-
-    players[socket.id].data.power = { source, auraLevel };
-    socket.broadcast.emit('playerLeveled', { id: socket.id, source, auraLevel });
-  });
-
-  socket.on('shurikanthrow', ({ x, y, d }) => {
-    if (!players[socket.id]) return;
-
-    socket.broadcast.emit('shurikanthrown', { id: socket.id, x, y, d });
-  });
-
+  // When the player disconnects
   socket.on('disconnect', () => {
     console.log('Client disconnected:', socket.id);
     delete players[socket.id];
-    delete hasSynced[socket.id];
     socket.broadcast.emit('playerLeft', { id: socket.id });
+  });
+
+  // Handle full sync heartbeat from client
+  socket.on('playerSyncRequest', ({ x, y, data }) => {
+    if (players[socket.id]) {
+      players[socket.id].x = x;
+      players[socket.id].y = y;
+      players[socket.id].data = data;
+
+      socket.broadcast.emit('playerSyncUpdate', { id: socket.id, x, y, data });
+    }
+  });
+
+  // Optional partial updates (position only, etc.)
+  socket.on('playerMove', ({ x, y }) => {
+    if (players[socket.id]) {
+      players[socket.id].x = x;
+      players[socket.id].y = y;
+      socket.broadcast.emit('playerMoved', { id: socket.id, x, y });
+    }
+  });
+
+  socket.on('playerName', ({ text, color }) => {
+    if (players[socket.id]) {
+      // Store name only if needed later
+      players[socket.id].data.name = { text, color };
+      socket.broadcast.emit('playerNamed', { id: socket.id, text, color });
+    }
+  });
+
+  socket.on('playerLevel', ({ source, auraLevel }) => {
+    if (players[socket.id]) {
+      players[socket.id].data.power = { source, auraLevel };
+      socket.broadcast.emit('playerLeveled', { id: socket.id, source, auraLevel });
+    }
+  });
+
+  socket.on('shurikanthrow', ({ x, y, d }) => {
+    if (players[socket.id]) {
+      socket.broadcast.emit('shurikanthrown', { id: socket.id, x, y, d });
+    }
   });
 });
 

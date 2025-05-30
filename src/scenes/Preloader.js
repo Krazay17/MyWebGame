@@ -58,13 +58,8 @@ export default class Preloader extends Phaser.Scene {
 
     create() {
         GameManager.load();
-
-        window.secretTeleport = () => {
-            GameManager.debug.canTeleport = !GameManager.debug.canTeleport;
-        };
-
         window.secretDevMode = () => {
-            GameManager.devMode = !GameManager.devMode;
+            GameManager.flags.devMode = !GameManager.devMode;
         };
 
         this.scene.start(GameManager.area);

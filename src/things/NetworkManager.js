@@ -44,6 +44,14 @@ export default class NetworkManager {
         this.addOtherPlayer(id, x, y, data);
       }
     });
+    // Player left
+    this.socket.on('playerLeft', ({ id }) => {
+      const player = this.otherPlayers[id];
+      if (player) {
+        player.destroy();
+        delete this.otherPlayers[id];
+      }
+    });
 
     // General sync update
     this.socket.on('playerSyncUpdate', ({ id, x, y, data }) => {
@@ -53,14 +61,6 @@ export default class NetworkManager {
       }
     });
 
-    // Player left
-    this.socket.on('playerLeft', ({ id }) => {
-      const player = this.otherPlayers[id];
-      if (player) {
-        player.destroy();
-        delete this.otherPlayers[id];
-      }
-    });
 
     // Name update
     this.socket.on('playerNamed', ({ id, text, color }) => {

@@ -1,4 +1,3 @@
-
 const CURRENT_VERSION = 1.3;
 
 export default {
@@ -9,16 +8,12 @@ export default {
     power: { source: 0, auraLevel: 1},
     source: 0,
     weapons: { left: 'shurikan', right: 'sword', aura: 'zap' },
-    auraLevel: 1,
     playerHealth: 5,
     volume: 1,
     collectedItems: [],
     flags: {
         seenIntro: false,
-    },
-    devMode: false,
-    debug: {
-        canTeleport: false,
+        devmode: false,
     },
 
     save() {
@@ -30,7 +25,6 @@ export default {
             power: this.power,
             source: this.source,
             weapons: this.weapons,
-            auraLevel: this.auraLevel,
             playerHealth: this.playerHealth,
             volume: this.volume,
             collectedItems: this.collectedItems,
@@ -54,7 +48,6 @@ export default {
                         collectedItems: parsed.collectedItems,
                         flags: parsed.flags,
                         weapons: parsed.weapons,
-                        auraLevel: parsed.auraLevel,
                         power: parsed.power,
                     }
                 });
@@ -70,7 +63,6 @@ export default {
             this.power = parsed.power ?? { source: 0, auraLevel: 1};
             this.source = typeof parsed.source === 'number' ? Math.floor(parsed.source) : 0;
             this.weapons = parsed.weapons ?? { left: 'shurikan', right: 'sword', aura: 'zap' };
-            this.auraLevel = parsed.auraLevel ?? 1;
             this.playerHealth = parsed.playerHealth ?? 5;
             this.volume = parsed.volume ?? 1;
             this.collectedItems = parsed.collectedItems ?? [];
@@ -87,12 +79,12 @@ export default {
         this.power = keep.power ?? { source: 0, auraLevel: 1};
         this.source = keep.source ?? 0;
         this.weapons = keep.weapons ?? { left: 'shurikan', right: 'sword', aura: 'zap' };
-        this.auraLevel = keep.auraLevel ?? 1;
         this.playerHealth = 5;
         this.volume = keep.volume ?? 1;
         this.collectedItems = keep.collectedItems ?? [];
         this.flags = keep.flags ?? {
             seenIntro: false,
+            devmode: false,
         };
 
         this.save();
@@ -100,7 +92,6 @@ export default {
 
     clear() {
         localStorage.removeItem('webConduitSave');
-        this.reset();
     },
 
 getNetworkData() {

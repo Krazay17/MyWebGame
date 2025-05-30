@@ -88,8 +88,18 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.scoreText.setScrollFactor(0);
 
         this.scene.input.on('pointerdown', (pointer) => {
-            if (pointer.middleButtonDown())
+            if (GameManager.flags.devMode && pointer.middleButtonDown())
                 this.Teleport(pointer);
+        });
+        this.scene.input.keyboard.on('keydown-F', () => {
+            if (GameManager.flags.devMode) {
+                this.updateSource(500);
+            }
+        });
+        this.scene.input.keyboard.on('keydown-G', () => {
+            if (GameManager.flags.devMode) {
+                this.tryIncreaseAura(true)
+            }
         });
 
         this.scene.input.on('pointerup', (pointer) => {
@@ -97,19 +107,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 this.leftWeapon.release();
             } else if (pointer.rightButtonReleased()) {
                 this.rightWeapon.release();
-            }
-        });
-
-        this.scene.input.keyboard.on('keydown-F', () => {
-            if (GameManager.devMode) {
-                console.log('devmodeon')
-                this.updateSource(500);
-            }
-        });
-        this.scene.input.keyboard.on('keydown-G', () => {
-            if (GameManager.devMode) {
-                console.log('devmodeon')
-                this.tryIncreaseAura(true)
             }
         });
 
@@ -290,7 +287,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         if (isDown && !this.isCrouch) {
             this.isCrouch = true;
             this.stop();
-            this.setTexture('dudecrouch');
+            this.setFrame(0);
+            this.setTexture('dudecrouch', false);
             this.setSize(105, 140);
             this.setOffset(55, 105);
         } else if (!isDown && this.isCrouch) {

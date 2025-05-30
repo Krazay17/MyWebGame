@@ -8,16 +8,17 @@ export default class Home extends BaseGame {
 
     preload() {
         super.preload();
-        this.load.image('platformwide', 'assets/platformwide.png')
-        this.load.image('portal0', 'assets/Portal1.png')
-        this.load.image('portal1', 'assets/Portal2.png')
-        this.load.image('duck', 'assets/DuckFloaty.png')
+        this.load.image('platformwide', 'assets/platformwide.png');
+        this.load.image('portal0', 'assets/Portal1.png');
+        this.load.image('portal1', 'assets/Portal2.png');
+        this.load.image('duck', 'assets/DuckFloaty.png');
+        this.load.image('largeplatform', 'assets/LargePlatform.webp');
     }
 
     create() {
         this.setupSave();
         this.setupSky();
-        this.setupWorld();
+        this.setupWorld(-2000, 0, 4000, 2000);
         this.setupFPS();
         this.setupPlayer();
         this.setupMusic('homemusic');
@@ -30,9 +31,11 @@ export default class Home extends BaseGame {
         this.setupCollisions();
 
         const widePlatformPos = [
-            [-1000, 500], [-800, 600], [-400, 700], [0, 800], [400, 700], [800, 600], [1000, 500]
+            [-1000, 350], [-800, 500], [-400, 650], [0, 800], [400, 650], [800, 500], [1000, 350], [400, 1000],[-400, 1000],[-700, 1200],[700, 1200],
         ];
         widePlatformPos.forEach(pos => this.walkableGroup.create(pos[0], pos[1], 'platformwide'));
+
+        const largePlatform = this.walkableGroup.create(0, 1450, 'largeplatform').setScale(5, 1.5);
 
         this.setupPortals();
 

@@ -23,7 +23,7 @@ export default class WeaponDarkOrb extends WeaponBase {
         if (!this.canFire()) return;
         this.cooldown = true;
 
-        const { start, vector } = this.calculateShot(pointer, 275);
+        const { start, vector } = this.calculateShot(pointer, 265);
 
         this.projectile = new DarkOrbProjectile(this.scene, start.x, start.y, this.player);
         this.scene.weaponGroup.add(this.projectile);
@@ -31,14 +31,6 @@ export default class WeaponDarkOrb extends WeaponBase {
         this.projectile.setScale(.35);
         this.projectile.setVelocity(vector.x, vector.y);
 
-        // Spin tween
-        this.scene.tweens.add({
-            targets: this.projectile,
-            angle: 360,
-            duration: 2000,
-            repeat: -1,
-            ease: 'Linear',
-        });
         this.playThrowSound();
 
         this.player.on('playerstunned', () => this.release());

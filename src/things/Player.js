@@ -88,8 +88,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.scoreText.setScrollFactor(0);
 
         this.scene.input.on('pointerdown', (pointer) => {
-            if (GameManager.flags.devMode && pointer.middleButtonDown())
-                this.Teleport(pointer);
+            if (GameManager.flags.devMode && pointer.middleButtonDown()){
+            const worldPos = pointer.positionToCamera(this.scene.cameras.main);
+            this.setPosition(worldPos.x, worldPos.y);
+            this.setVelocity(0);
+            }
         });
         this.scene.input.keyboard.on('keydown-F', () => {
             if (GameManager.flags.devMode) {
@@ -161,7 +164,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         if (this.alive == false) return;
         this.alive = false;
 
-        this.deathPenalty = Math.floor(-GameManager.power.source / 3);
+        this.deathPenalty = Math.floor(-GameManager.power.source / 2);
         this.updateSource(this.deathPenalty);
 
         this.leftSpam = 0;
@@ -188,13 +191,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         GameManager.save();
     }
 
-    Teleport(pointer) {
-        if (GameManager.devMode || GameManager.debug.canTeleport) {
-            const worldPos = pointer.positionToCamera(this.scene.cameras.main);
-            this.setPosition(worldPos.x, worldPos.y);
-            this.setVelocity(0);
-        }
-    }
 
     TouchPlatform(player, platform) {
         if (this.body.touching.down) {

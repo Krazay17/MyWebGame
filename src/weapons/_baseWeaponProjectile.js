@@ -31,8 +31,8 @@ export default class WeaponProjectile extends Phaser.Physics.Arcade.Sprite {
         if (this.canHit(enemy)) {
             if (enemy.TakeDamage(this.player, this.baseDamage, velocity)) {
                 this.playHitSound();
-                if (this.destroyOnHit) this.destroy();
-                return;
+                // if (this.destroyOnHit) this.destroy();
+                // return;
             }
         }
     }

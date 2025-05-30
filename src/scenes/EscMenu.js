@@ -27,7 +27,14 @@ export default class EscMenu extends Phaser.Scene {
         this.slider = { track, handle };
 
         // Background
-        this.bg = this.add.rectangle(400, 300, 800, 600, 0x000000, 0.5);
+        this.bg = this.add.rectangle(0, 0, 800, 600, 0x000000, 0.8).setOrigin(0,0);
+
+        const instructions = this.add.text(0, 0,
+            'WASD - Move\nShift - dash\nL/R Click - Attack\nC -Inventory\nR - Reset', {
+            fontSize: '32px',
+            color: '#4fffff',
+        });
+        instructions.setScrollFactor(0);
 
         // Name display
         this.nameDisplay = this.add.text(400, 250, GameManager.name.text || 'Hunter', {
@@ -37,7 +44,7 @@ export default class EscMenu extends Phaser.Scene {
         }).setOrigin(0.5);
 
         // Store all UI elements for visibility toggling
-        this.uiElements.push(this.bg, this.nameDisplay, track, handle);
+        this.uiElements.push(this.bg, this.nameDisplay, track, handle, instructions);
 
         // Hide initially
         this.setUIVisible(false);
@@ -109,7 +116,7 @@ export default class EscMenu extends Phaser.Scene {
                 this.nameDisplay.setText(name);
                 GameManager.save();
 
-                this.network.socket.emit('playerName', {text: GameManager.name.text, color: GameManager.name.color});
+                this.network.socket.emit('playerName', { text: GameManager.name.text, color: GameManager.name.color });
 
                 domElement.blur();
                 this.playerUI.inputFocused = false;
@@ -138,7 +145,7 @@ export default class EscMenu extends Phaser.Scene {
             this.nameDisplay.setColor(color);
             GameManager.save();
 
-            this.network.socket.emit('playerName', {text: GameManager.name.text, color: GameManager.name.color});
+            this.network.socket.emit('playerName', { text: GameManager.name.text, color: GameManager.name.color });
         });
     }
 

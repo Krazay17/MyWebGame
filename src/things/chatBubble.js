@@ -12,7 +12,7 @@ export default class ChatBubble extends Phaser.GameObjects.Container {
         this.text = scene.add.text(0, 0, message, {
             fontSize: '14px',
             fill: '#FFFFFF',
-            wordWrap: { width: 50, useAdvancedWrap: true }
+            wordWrap: { width: 200, useAdvancedWrap: true }
         });
         this.text.setOrigin(.5, 1)
         this.add(this.text);

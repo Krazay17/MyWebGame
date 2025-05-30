@@ -97,8 +97,10 @@ export default class GhostPlayer {
   }
 
   syncAll(x, y, data) {
-    const power = data.power || { source: 0, auraLevel: 1 }
+    const power = data.power || { source: 0, auraLevel: 1 };
+    const name = data.name || {text: 'Hunter', color: '#FFFFFF'};
     this.updatePosition(x, y);
+    this.updateName(name.text, name.color);
     this.updatePower(power.source, power.auraLevel);
   }
 

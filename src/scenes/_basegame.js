@@ -88,12 +88,6 @@ export default class BaseGame extends Phaser.Scene {
         this.fpsText.setText(`FPS: ${Math.floor(this.game.loop.actualFps)}`);
       }
     });
-
-    const instructions = this.add.text(16, 48, 'Shift - dash \nR - Reset', {
-      fontSize: '32px',
-      color: '#4fffff',
-    });
-    instructions.setScrollFactor(0);
   }
 
   setupGroups() {

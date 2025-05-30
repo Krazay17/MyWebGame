@@ -3,6 +3,7 @@ import NetworkManager from "./NetworkManager.js";
 import RankSystem from "./RankSystem.js";
 import { createWeapon } from "../weapons/WeaponManager.js"
 import ChatBubble from "./chatBubble.js";
+import PlayerContainer from "./playerContainer.js";
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y) {
@@ -55,6 +56,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         // this.scene.scene.launch('PlayerUI', { player: this });
         // }
 
+        // this.playerContainer = new PlayerContainer(scene, this.x, this.y);
         this.equipWeapon(GameManager.weapons.left, 0);
         this.equipWeapon(GameManager.weapons.right, 1);
         this.equipWeapon('zap', 2)
@@ -82,7 +84,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         };
         this.myPointer = new Phaser.Input.Pointer(this.scene.input.manager, 1)
 
-        this.scoreText = this.scene.add.text(10, 150, 'Source: ' + GameManager.power.source + '\n' + this.rankSystem.getRank(GameManager.power.source), {
+        this.scoreText = this.scene.add.text(10, 50, 'Source: ' + GameManager.power.source + '\n' + this.rankSystem.getRank(GameManager.power.source), {
             fontSize: '32px',
             color: '#4fffff'
         });
@@ -142,6 +144,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         super.preUpdate(time, delta);
         if(this.aura) this.aura.update?.(delta);
         if(this.chatBubble) this.chatBubble.setPosition(this.x, this.y -100);
+        if(this.playerContainer) this.playerContainer.setPosition(this.x, this.y);
 
         if (this.alive && !this.stunned && this.leftWeapon && this.rightWeapon) {
             this.leftWeapon.update?.(delta);
@@ -392,7 +395,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     syncNetwork() {
-        //this.network.socket.emit('playerSyncRequest', { x: this.x, y: this.y, source: GameManager.power.source, auraLevel: GameManager.auraLevel });
+        this.network.socket.emit('playerSyncRequest', { x: this.x, y: this.y, data: {name: GameManager.name, power: GameManager.power }});
     }
 
     equipWeapon(name = 'Shurikan', slot = 0,) {
@@ -445,7 +448,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     makeChatBubble(message) {
         if (!this.chatBubble) {
-            this.chatBubble = new ChatBubble(this.scene, this.x, this.y, message);
+            this.chatBubble = new ChatBubble(this.scene, this.x, this.y - 100, message);
         } else {
             this.chatBubble.updateMessage(message);
         }

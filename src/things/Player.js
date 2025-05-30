@@ -397,7 +397,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     syncNetwork() {
-        //this.network.socket.emit('playerSync', { x: this.x, y: this.y, source: GameManager.source, auraLevel: GameManager.auraLevel });
+        //this.network.socket.emit('playerSyncRequest', { x: this.x, y: this.y, source: GameManager.source, auraLevel: GameManager.auraLevel });
     }
 
     equipWeapon(name = 'Shurikan', slot = 0,) {

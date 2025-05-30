@@ -45,13 +45,13 @@ io.on('connection', (socket) => {
 
   socket.broadcast.emit('playerJoined', { id: socket.id, ...players[socket.id] });
 
-  socket.on('playerSync', ({ x, y, data }) => {
+  socket.on('playerSyncRequest', ({ x, y, data }) => {
     if (players[socket.id]) {
       players[socket.id].x = x;
       players[socket.id].y = y;
       players[socket.id].data = data;
 
-      socket.broadcast.emit('playerSynced', { id: socket.id, x, y, data });
+      socket.broadcast.emit('playerSynceUpdate', { id: socket.id, x, y, data });
     }
   })
 
@@ -73,7 +73,8 @@ io.on('connection', (socket) => {
 
   socket.on('playerLevel', ({ source, auraLevel }) => {
     if (players[socket.id]) {
-      players[socket.id].source = source;
+      players[socket.id].data.power.source = source;
+      players[socket.id].data.power.auraLevel = auraLevel;
 
       socket.broadcast.emit('playerLeveled', { id: socket.id, source, auraLevel });
     }

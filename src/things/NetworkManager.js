@@ -26,7 +26,7 @@ export default class NetworkManager {
 
       const data = GameManager.getNetworkData();
 
-      this.socket.emit('playerSync', {x: 0, y:0, data: data});
+      this.socket.emit('playerSyncRequest', {x: 0, y:0, data: data});
     });
 
     // Add existing players
@@ -54,7 +54,7 @@ export default class NetworkManager {
       }
     });
 
-    this.socket.on('playerSynced', ({ id, x, y, data }) => {
+    this.socket.on('playerSynceUpdate', ({ id, x, y, data }) => {
       const player = this.otherPlayers[id];
       if (player) {
         player.syncAll( x, y, data );

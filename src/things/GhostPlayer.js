@@ -9,13 +9,14 @@ export default class GhostPlayer {
     }) {
     this.scene = scene;
     this.id = id;
-
+    const power = data?.power ?? { source: 0, auraLevel: 1 };
+    const name = data?.name ?? { text: 'Hunter', color: '#ffffff' };
     this.x = x;
     this.y = y;
-    this.source = data.power.source;
-    this.auraLevel = data.power.auraLevel;
-    this.nameText = data.name.text;
-    this.nameColor = data.name.color;
+    this.source = power.source;
+    this.auraLevel = power.auraLevel;
+    this.nameText = name.text;
+    this.nameColor = name.color;
 
     this.ranks = new RankSystem();
     this.createVisuals();

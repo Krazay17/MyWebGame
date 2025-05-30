@@ -21,8 +21,6 @@ export default class WeaponShurikan extends WeaponBase {
         projectile.setScale(.15);
         projectile.setVelocity(vector.x, vector.y);
 
-        // Cleanup
-        this.scene.time.delayedCall(700, () => projectile.destroy());
 
         this.playThrowSound();
     }

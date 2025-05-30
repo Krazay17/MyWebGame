@@ -1,3 +1,4 @@
+import GameManager from "../things/GameManager.js";
 import NetworkManager from "../things/NetworkManager.js";
 
 export default class PlayerUI extends Phaser.Scene {
@@ -25,6 +26,22 @@ export default class PlayerUI extends Phaser.Scene {
         this.leftWeaponBox = this.add.graphics().setDepth(1);
         this.rightWeaponBox = this.add.graphics().setDepth(1);
 
+    this.fpsText = this.add.text(0, 0, '', { font: '24px Courier' });
+    this.fpsText.setScrollFactor(0);
+    this.time.addEvent({
+      delay: 500,
+      loop: true,
+      callback: () => {
+        this.fpsText.setText(`FPS: ${Math.floor(this.game.loop.actualFps)}`);
+      }
+    });
+
+        this.scoreText = this.add.text(10, 50, 'Source: ' + GameManager.power.source + '\n' + this.player.rankSystem.getRank(GameManager.power.source), {
+            fontSize: '32px',
+            color: '#4fffff'
+        });
+        this.scoreText.setScrollFactor(0);
+    
         this.textBoxX = this.scale.width / 2
         this.textBoxY = this.scale.height / 2 + 100;
 

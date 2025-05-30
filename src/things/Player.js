@@ -84,11 +84,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         };
         this.myPointer = new Phaser.Input.Pointer(this.scene.input.manager, 1)
 
-        this.scoreText = this.scene.add.text(10, 50, 'Source: ' + GameManager.power.source + '\n' + this.rankSystem.getRank(GameManager.power.source), {
-            fontSize: '32px',
-            color: '#4fffff'
-        });
-        this.scoreText.setScrollFactor(0);
 
         this.scene.input.on('pointerdown', (pointer) => {
             if (GameManager.flags.devMode && pointer.middleButtonDown()){
@@ -381,7 +376,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         GameManager.power.source += intSource;
         GameManager.power.source = Math.max(0, GameManager.power.source);
         GameManager.save();
-        this.scoreText.text = 'Source: ' + GameManager.power.source + '\n' + this.rankSystem.getRank(GameManager.power.source);
+        this.playerUI.scoreText.text = 'Source: ' + GameManager.power.source + '\n' + this.rankSystem.getRank(GameManager.power.source);
         this.network.socket.emit('playerLevel', GameManager.power);
     }
 

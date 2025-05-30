@@ -19,6 +19,9 @@ export default class EscMenu extends Phaser.Scene {
         this.network = NetworkManager.instance;
 
         window.addEventListener('beforeunload', () => GameManager.save());
+        
+        // Background
+        this.bg = this.add.rectangle(0, 0, 800, 600, 0x000000, 0.8).setOrigin(0,0);
 
         // Slider track and handle
         const track = this.add.rectangle(400, 400, 200, 10, 0xffffff).setOrigin(0.5);
@@ -26,8 +29,6 @@ export default class EscMenu extends Phaser.Scene {
         this.input.setDraggable(handle);
         this.slider = { track, handle };
 
-        // Background
-        this.bg = this.add.rectangle(0, 0, 800, 600, 0x000000, 0.8).setOrigin(0,0);
 
         const instructions = this.add.text(0, 0,
             'WASD - Move\nShift - dash\nL/R Click - Attack\nC -Inventory\nR - Reset', {

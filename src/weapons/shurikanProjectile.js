@@ -17,6 +17,9 @@ export default class ShurikanProjectile extends WeaponProjectile {
             ease: 'Linear',
         });
 
+        // Cleanup
+        scene.time.delayedCall(700, () => this.destroy());
+
     }
 
     enemyHit(enemy) {

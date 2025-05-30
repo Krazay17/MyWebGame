@@ -6,40 +6,46 @@ export default class NetworkManager {
   static instance;
 
   constructor(scene) {
-    this.scene = scene;
-
-    if (NetworkManager.instance) {
-      return NetworkManager.instance;
-    }
+    if (NetworkManager.instance) return NetworkManager.instance;
     NetworkManager.instance = this;
 
-    const serverURL = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
-      ? 'http://localhost:3000'
-      : 'wss://webconduit.onrender.com'
-    this.socket = io(serverURL);
-
+    this.scene = scene;
     this.otherPlayers = {};
 
-    // Handle connection
+    const serverURL =
+      location.hostname === 'localhost' || location.hostname === '127.0.0.1'
+        ? 'http://localhost:3000'
+        : 'wss://webconduit.onrender.com';
+
+    this.socket = io(serverURL);
+
+    // On connection
     this.socket.on('connect', () => {
       console.log('Connected to server:', this.socket.id);
 
+      // Initial sync request after gathering local player data
       const data = GameManager.getNetworkData();
-      console.log(data);
-
-      this.socket.emit('playerSyncRequest', { x: 0, y: 0, data: data });
+      this.socket.emit('playerSyncRequest', { x: 0, y: 0, data });
     });
 
-    // Add existing players
+    // Add already-connected players
     this.socket.on('existingPlayers', (players) => {
-      console.log('existing players recieved', players);
-      players.forEach(player => {
-        if (player.id !== this.socket.id) {
-          this.addOtherPlayer(player.id, player.x, player.y, player.data);
+      console.log('Existing players received:', players);
+      players.forEach(({ id, x, y, data }) => {
+        if (id !== this.socket.id) {
+          this.addOtherPlayer(id, x, y, data);
         }
       });
     });
 
+    // New player joined
+    this.socket.on('playerJoined', ({ id, x, y, data }) => {
+      if (!this.otherPlayers[id] && id !== this.socket.id) {
+        this.addOtherPlayer(id, x, y, data);
+      }
+    });
+
+    // General sync update
     this.socket.on('playerSynceUpdate', ({ id, x, y, data }) => {
       const player = this.otherPlayers[id];
       if (player) {
@@ -47,30 +53,24 @@ export default class NetworkManager {
       }
     });
 
-    // Handle new player
-    this.socket.on('playerJoined', ({ id, x, y, data }) => {
-      if (id !== this.socket.id) {
-        this.addOtherPlayer(id, x, y, data);
-      }
-    });
-
-    // Handle player leaving
+    // Player left
     this.socket.on('playerLeft', ({ id }) => {
-      if (this.otherPlayers[id]) {
-        this.otherPlayers[id].destroy();
+      const player = this.otherPlayers[id];
+      if (player) {
+        player.destroy();
         delete this.otherPlayers[id];
       }
     });
 
-
+    // Name update
     this.socket.on('playerNamed', ({ id, text, color }) => {
       const player = this.otherPlayers[id];
       if (player) {
-
         player.updateName(text, color);
       }
     });
 
+    // Position update
     this.socket.on('playerMoved', ({ id, x, y }) => {
       const player = this.otherPlayers[id];
       if (player) {
@@ -78,6 +78,7 @@ export default class NetworkManager {
       }
     });
 
+    // Level update
     this.socket.on('playerLeveled', ({ id, source, auraLevel }) => {
       const player = this.otherPlayers[id];
       if (player) {
@@ -85,24 +86,24 @@ export default class NetworkManager {
       }
     });
 
+    // Shurikan throw
     this.socket.on('shurikanthrown', ({ id, x, y, d }) => {
       const player = this.otherPlayers[id];
       if (player) {
         player.ghostShurikan(x, y, d);
       }
-    })
-
+    });
   }
 
-  addOtherPlayer(id, x = -1100, y = 400, 
-    data = {
+  addOtherPlayer(id, x = -1100, y = 400, data = {
     name: { text: 'Hunter', color: '#ffffff' },
     power: { source: 0, auraLevel: 1 },
   }) {
     if (this.otherPlayers[id]) {
-      this.otherPlayers[id].destroy()
+      this.otherPlayers[id].destroy();
     }
-    const ghostPlayer = new GhostPlayer(this.scene, id, x, y, data);
-    this.otherPlayers[id] = ghostPlayer;
+
+    const ghost = new GhostPlayer(this.scene, id, x, y, data);
+    this.otherPlayers[id] = ghost;
   }
 }

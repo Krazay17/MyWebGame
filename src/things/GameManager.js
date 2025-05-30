@@ -68,7 +68,7 @@ export default {
             this.name = parsed.name ?? { text: 'Hunter', color: '#FFFFFF' };
             this.area = parsed.area ?? 'Home';
             this.power = parsed.power ?? { source: 0, auraLevel: 1};
-            this.source = Math.floor(parsed.source) ?? 0;
+            this.source = typeof parsed.source === 'number' ? Math.floor(parsed.source) : 0;
             this.weapons = parsed.weapons ?? { left: 'shurikan', right: 'sword', aura: 'zap' };
             this.auraLevel = parsed.auraLevel ?? 1;
             this.playerHealth = parsed.playerHealth ?? 5;

@@ -46,7 +46,7 @@ export default class NetworkManager {
     });
 
     // General sync update
-    this.socket.on('playerSynceUpdate', ({ id, x, y, data }) => {
+    this.socket.on('playerSyncUpdate', ({ id, x, y, data }) => {
       const player = this.otherPlayers[id];
       if (player) {
         player.syncAll(x, y, data);

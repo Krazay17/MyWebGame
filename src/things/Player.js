@@ -287,7 +287,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         if (isDown && !this.isCrouch) {
             this.isCrouch = true;
             this.stop();
-            this.setFrame(0);
             this.setTexture('dudecrouch', false);
             this.setSize(105, 140);
             this.setOffset(55, 105);

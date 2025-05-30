@@ -7,9 +7,9 @@ export default class Level1 extends BaseGame {
 
   preload() {
     super.preload();
-    this.load.image('sky', 'assets/RedGalaxy2.png');
-    this.load.image('skylayer1', 'assets/SkyLayer1.png');
-    this.load.image('skylayer2', 'assets/SkyLayer2.png');
+    this.load.image('redsky0', 'assets/RedSky0.webp');
+    this.load.image('redsky1', 'assets/RedSky1.webp');
+    this.load.image('redsky2', 'assets/RedSky2.webp');
     this.load.image('bullet', 'assets/bullet.png');
     this.load.spritesheet('sunsheet', 'assets/SunSheet.png', {
       frameWidth: 256,
@@ -26,7 +26,7 @@ export default class Level1 extends BaseGame {
 
   create() {
     this.setupSave();
-    this.setupSky('sky', { x: 0, y: 0 }, 'skylayer2', { x: 600, y: 0 }, 'skylayer1', { x: 600, y: 0 });
+    this.setupSky('redsky0', { x: 0, y: 0 }, 'redsky1', { x: 600, y: 400 }, 'redsky2', { x: 600, y: 400 });
     this.setupWorld();
     this.setupMusic('music');
     this.setupFPS();

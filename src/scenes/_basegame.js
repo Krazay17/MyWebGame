@@ -41,11 +41,11 @@ export default class BaseGame extends Phaser.Scene {
     });
   }
 
-  setupSky(a = 'sky2', ao = { x: 0, y: 0 }, b = 'sky2layer1', bo = { x: 800, y: 600 }, c = 'sky2layer2', co = { x: 600, y: 500 }) {
+  setupSky(a = 'purplesky0', ao = { x: 0, y: 0 }, b = 'purplesky1', bo = { x: 800, y: 600 }, c = 'purplesky2', co = { x: 600, y: 500 }) {
     this.sky1 = this.add.image(ao.x, ao.y, a).setOrigin(0)
       .setDisplaySize(this.scale.width, this.scale.height).setScrollFactor(0);
-    this.sky2 = this.add.image(bo.x, bo.y, b).setScale(.5).setScrollFactor(.2);
-    this.sky3 = this.add.image(co.x, co.y, c).setScale(.5).setScrollFactor(.6);
+    this.sky2 = this.add.image(bo.x, bo.y, b).setScale(1).setScrollFactor(.2);
+    this.sky3 = this.add.image(co.x, co.y, c).setScale(1).setScrollFactor(.6);
     this.scale.on('resize', this.resizeSky, this);
   }
 

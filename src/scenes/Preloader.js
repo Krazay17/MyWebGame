@@ -8,9 +8,9 @@ export default class Preloader extends Phaser.Scene {
     preload() {
         this.loadingBar();
         
-        this.load.image('sky2', 'assets/Sky2.png');
-        this.load.image('sky2layer1', 'assets/Sky2Layer1.png');
-        this.load.image('sky2layer2', 'assets/Sky2Layer2.png');
+        this.load.image('purplesky0', 'assets/PurpleSky0.webp');
+        this.load.image('purplesky1', 'assets/PurpleSky1.webp');
+        this.load.image('purplesky2', 'assets/PurpleSky2.webp');
         this.load.audio('playerHit', 'assets/PlayerGotHit.wav');
         this.load.audio('shurikanthrow', 'assets/Whip1.wav');
         this.load.audio('shurikanhit', 'assets/shurikan.wav');

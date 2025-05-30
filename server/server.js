@@ -20,6 +20,7 @@ const io = new Server(server, {
 });
 
 const players = {};
+const hasJoined = {};
 
 io.on('connection', (socket) => {
   console.log('New client connected:', socket.id);
@@ -42,7 +43,11 @@ io.on('connection', (socket) => {
       players[socket.id].y = y;
       players[socket.id].data = data;
 
+      if (!hasJoined[socket.id]) {
+        hasJoined[socket.id] = true;
       socket.broadcast.emit('playerJoined', { id: socket.id, x, y, data });
+      }
+
 
       socket.broadcast.emit('playerSynceUpdate', { id: socket.id, x, y, data });
     }
@@ -51,6 +56,7 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log('Client disconnected:', socket.id);
     delete players[socket.id];
+    delete hasJoined[socket.id];
     socket.broadcast.emit('playerLeft', { id: socket.id });
   });
 

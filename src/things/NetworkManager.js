@@ -11,6 +11,7 @@ export default class NetworkManager {
 
     this.scene = scene;
     this.otherPlayers = {};
+    this.savedOtherPlayers = [];
 
     const serverURL =
       location.hostname === 'localhost' || location.hostname === '127.0.0.1'
@@ -34,6 +35,7 @@ export default class NetworkManager {
       console.log('Existing players received:', players);
       players.forEach(({ id, x, y, data }) => {
         if (id !== this.socket.id) {
+          //this.savedOtherPlayers = players;
           this.addOtherPlayer(id, x, y, data);
         }
       });
@@ -115,5 +117,10 @@ export default class NetworkManager {
 
     const ghost = new GhostPlayer(this.scene, id, x, y, data);
     this.otherPlayers[id] = ghost;
+    this.savedOtherPlayers.push(ghost);
+  }
+
+  updatePlayerList() {
+
   }
 }

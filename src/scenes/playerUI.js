@@ -1,3 +1,5 @@
+import NetworkManager from "../things/NetworkManager.js";
+
 export default class PlayerUI extends Phaser.Scene {
     constructor() {
         super('PlayerUI');
@@ -13,6 +15,9 @@ export default class PlayerUI extends Phaser.Scene {
     create() {
         this.visible = true;
         this.Chatting = false;
+        this.playerList = [];
+        this.network = NetworkManager.instance;
+        this.playerTextMap = {}; // Object to hold playerId => textObject
 
         this.setWeaponIcon(this.player.leftWeapon.name, 0);
         this.setWeaponIcon(this.player.rightWeapon.name, 1);
@@ -48,6 +53,12 @@ export default class PlayerUI extends Phaser.Scene {
             if (this.Chatting) {
                 this.closeTextChat('');
             }
+        });
+
+        this.time.addEvent({
+            delay: 1000,
+            loop: true,
+            callback: () => this.updatePlayerList()
         });
     }
 
@@ -146,7 +157,7 @@ export default class PlayerUI extends Phaser.Scene {
         console.log('Player typed:', message);
 
         this.player.makeChatBubble(message);
-        
+
 
         this.Chatting = false;
 
@@ -157,4 +168,39 @@ export default class PlayerUI extends Phaser.Scene {
         }
     }
 
+    updatePlayerList() {
+        if (!this.network.savedOtherPlayers) return;
+
+        const activeIds = new Set();
+
+        this.network.savedOtherPlayers.forEach((player, index) => {
+            const yloc = index * 50 + 200;
+            const playerId = player.id || player.source; // use a stable unique ID
+            activeIds.add(playerId);
+
+            if (this.playerTextMap[playerId]) {
+                // Update existing text
+                const textObj = this.playerTextMap[playerId];
+                textObj.setText(player.nameText + ' - ' + player.source);
+                textObj.setY(yloc);
+                textObj.setColor(player.nameColor);
+            } else {
+                // Create new text and store it
+                const textObj = this.add.text(0, yloc, player.nameText + ' - ' + player.source, {
+                    fontSize: '24px',
+                    fill: '#FFFFFF',
+                });
+                this.playerTextMap[playerId] = textObj;
+            }
+        });
+
+        // Clean up texts for players no longer in the list
+        for (const id in this.playerTextMap) {
+            if (!activeIds.has(id)) {
+                this.playerTextMap[id].destroy();
+                delete this.playerTextMap[id];
+            }
+        }
+    }
 }
+

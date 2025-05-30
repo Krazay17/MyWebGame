@@ -25,30 +25,30 @@ export default class PlayerUI extends Phaser.Scene {
 
         this.scale.on('resize', this.resizeUI, this);
 
-this.input.keyboard.on('keydown-ENTER', () => {
-    if (this.Chatting) {
-        const input = this.textBox?.node?.querySelector('#textchat');
-        if (input) {
-            this.closeTextChat(input.value);
-        }
-        return;
-    }
+        this.input.keyboard.on('keydown-ENTER', () => {
+            if (this.Chatting) {
+                const input = this.textBox?.node?.querySelector('#textchat');
+                if (input) {
+                    this.closeTextChat(input.value);
+                }
+                return;
+            }
 
-    if (this.inputFocused) {
-        // You're typing in a different input (e.g. name field), do nothing
-        return;
-    }
+            if (this.inputFocused) {
+                // You're typing in a different input (e.g. name field), do nothing
+                return;
+            }
 
-    // Open chat if none of the above is true
-    this.openTextChat();
-});
+            // Open chat if none of the above is true
+            this.openTextChat();
+        });
 
 
-this.input.keyboard.on('keydown-ESC', () => {
-    if (this.Chatting) {
-        this.closeTextChat('');
-    }
-});
+        this.input.keyboard.on('keydown-ESC', () => {
+            if (this.Chatting) {
+                this.closeTextChat('');
+            }
+        });
     }
 
     update() {
@@ -116,45 +116,45 @@ this.input.keyboard.on('keydown-ESC', () => {
         }
     }
 
-openTextChat() {
-    if (this.Chatting) return;
+    openTextChat() {
+        if (this.Chatting) return;
 
-    this.Chatting = true;
+        this.Chatting = true;
 
-    if (!this.cache.html.exists('textchat')) {
-        this.textBox = this.add.dom(this.textBoxX, this.textBoxY).createFromHTML(`
+        if (!this.cache.html.exists('textchat')) {
+            this.textBox = this.add.dom(this.textBoxX, this.textBoxY).createFromHTML(`
             <input type="text" id="textchat" name="textchat" placeholder="Chat.." 
                    style="font-size: 20px; width: 300px; padding: 5px;" />
         `);
-    } else {
-        this.textBox = this.add.dom(this.textBoxX, this.textBoxY).createFromCache('textchat');
+        } else {
+            this.textBox = this.add.dom(this.textBoxX, this.textBoxY).createFromCache('textchat');
+        }
+
+        const input = this.textBox.node?.querySelector('#textchat');
+        if (!input) {
+            console.error('Input element not found!');
+            this.Chatting = false;
+            return;
+        }
+
+        input.focus();
+        this.inputFocused = true;
     }
 
-    const input = this.textBox.node?.querySelector('#textchat');
-    if (!input) {
-        console.error('Input element not found!');
+
+    closeTextChat(message) {
+        console.log('Player typed:', message);
+
+        this.player.makeChatBubble(message);
+        
+
         this.Chatting = false;
-        return;
+
+        if (this.textBox) {
+            this.textBox.destroy();
+            this.textBox = null;
+            this.inputFocused = false;
+        }
     }
-
-    input.focus();
-    this.inputFocused = true;
-}
-
-
-closeTextChat(message) {
-    console.log('Player typed:', message);
-
-    this.Chatting = false;
-
-    if (this.textBox) {
-        this.textBox.destroy();
-        this.textBox = null;
-    this.inputFocused = false;
-    }
-}
-
-
-
 
 }

@@ -51,6 +51,7 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log('Client disconnected:', socket.id);
     delete players[socket.id];
+
     socket.broadcast.emit('playerLeft', { id: socket.id });
   });
 
@@ -70,6 +71,7 @@ io.on('connection', (socket) => {
     if (players[socket.id]) {
       players[socket.id].x = x;
       players[socket.id].y = y;
+
       socket.broadcast.emit('playerMoved', { id: socket.id, x, y });
     }
   });
@@ -78,6 +80,7 @@ io.on('connection', (socket) => {
     if (players[socket.id]) {
       // Store name only if needed later
       players[socket.id].data.name = { text, color };
+
       socket.broadcast.emit('playerNamed', { id: socket.id, text, color });
     }
   });
@@ -85,12 +88,21 @@ io.on('connection', (socket) => {
   socket.on('playerLevel', ({ source, auraLevel }) => {
     if (players[socket.id]) {
       players[socket.id].data.power = { source, auraLevel };
+
       socket.broadcast.emit('playerLeveled', { id: socket.id, source, auraLevel });
     }
   });
 
+  socket.on('playerchatRequest', (message) => {
+    if (players[socket.id]) {
+
+      socket.broadcast.emit('playerchatUpdate', {id: socket.id, message: message});
+    }
+  })
+
   socket.on('shurikanthrow', ({ x, y, d }) => {
     if (players[socket.id]) {
+
       socket.broadcast.emit('shurikanthrown', { id: socket.id, x, y, d });
     }
   });

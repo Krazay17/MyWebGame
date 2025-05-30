@@ -25,6 +25,7 @@ export default class NetworkManager {
 
       // Initial sync request after gathering local player data
       const data = GameManager.getNetworkData();
+      
       this.socket.emit('playerSyncRequest', { x: 0, y: 0, data });
     });
 
@@ -93,6 +94,15 @@ export default class NetworkManager {
         player.ghostShurikan(x, y, d);
       }
     });
+
+    this.socket.on('playerchatUpdate', ({ id, message }) => {
+      const player = this.otherPlayers[id];
+      if (player) {
+        player.makeChatBubble(message);
+      }
+    })
+
+
   }
 
   addOtherPlayer(id, x = -1100, y = 400, data = {

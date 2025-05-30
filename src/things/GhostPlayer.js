@@ -1,5 +1,6 @@
 import AuraSprite from "../weapons/auraSprite.js";
 import RankSystem from "./RankSystem.js";
+import ChatBubble from "./chatBubble.js";
 
 export default class GhostPlayer {
   constructor(scene, id, x = 0, y = 0,
@@ -53,6 +54,7 @@ export default class GhostPlayer {
   }
 
   updatePosition(x, y) {
+    if(this.chatBubble) this.chatBubble.setPosition(this.x, this.y -100);
     const sameX = Math.abs(this.x - x) < 0.05;
     const sameY = Math.abs(this.y - y) < 0.05;
 
@@ -166,5 +168,15 @@ export default class GhostPlayer {
     this.scene.time.delayedCall(1000, () => {
       shurikan.destroy();
     });
+
+
+  }
+  makeChatBubble(message) {
+    console.log('ghost chat: ' + message)
+    if (!this.chatBubble) {
+      this.chatBubble = new ChatBubble(this.scene, this.x, this.y - 100, message);
+    } else {
+      this.chatBubble.updateMessage(message);
+    }
   }
 }

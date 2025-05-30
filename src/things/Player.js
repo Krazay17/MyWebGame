@@ -2,6 +2,7 @@ import GameManager from "./GameManager.js";
 import NetworkManager from "./NetworkManager.js";
 import RankSystem from "./RankSystem.js";
 import { createWeapon } from "../weapons/WeaponManager.js"
+import ChatBubble from "./chatBubble.js";
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y) {
@@ -140,6 +141,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     preUpdate(time, delta) {
         super.preUpdate(time, delta);
         if(this.aura) this.aura.update?.(delta);
+        if(this.chatBubble) this.chatBubble.setPosition(this.x, this.y -100);
 
         if (this.alive && !this.stunned && this.leftWeapon && this.rightWeapon) {
             this.leftWeapon.update?.(delta);
@@ -263,7 +265,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
 
 
-        if (isUp && this.canJump) {
+        if (isUp && this.canJump && !this.playerUI.Chatting) {
             this.setVelocityY(-this.jumpPower);
             this.jumpPower += delta * 1.8;
             this.stop();
@@ -280,7 +282,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             this.wallJump = false;
         }
 
-        if (isDown && !this.isCrouch) {
+        if (isDown && !this.isCrouch && !this.playerUI.Chatting) {
             this.isCrouch = true;
             this.stop();
             this.setTexture('dudecrouch', false);
@@ -439,5 +441,14 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     getCurrentPos() {
         return new Phaser.Math.Vector2(this.x, this.y);
+    }
+
+    makeChatBubble(message) {
+        if (!this.chatBubble) {
+            this.chatBubble = new ChatBubble(this.scene, this.x, this.y, message);
+        } else {
+            this.chatBubble.updateMessage(message);
+        }
+        this.network.socket.emit('playerchatRequest', message)
     }
 }

@@ -18,7 +18,6 @@ export default class WeaponProjectile extends Phaser.Physics.Arcade.Sprite {
         if (!this.canHit(bullet)) return;
         this.playHitSound();
         bullet.destroy();
-        if (this.destroyOnHit) this.destroy();
     }
 
     platformHit(plat) {
@@ -26,24 +25,23 @@ export default class WeaponProjectile extends Phaser.Physics.Arcade.Sprite {
     }
 
     enemyHit(enemy) {
+        if (!this.canHit(enemy)) return;
+
         const velocity = this.body.velocity;
 
-        if (this.canHit(enemy)) {
-            if (enemy.TakeDamage(this.player, this.baseDamage, velocity)) {
-                this.playHitSound();
-                // if (this.destroyOnHit) this.destroy();
-                // return;
-            }
+        if (enemy.TakeDamage(this.player, this.baseDamage, velocity)) {
+            this.playHitSound();
+            return;
         }
     }
 
     itemHit(target) {
+        if (!this.canHit(target)) return;
+
         const velocity = this.body.velocity;
 
-        if (!this.canHit(target)) return;
         this.playHitSound();
         target.hit?.(this.player, this.baseDamage, velocity);
-        if (this.destroyOnHit) this.destroy();
     }
 
     canHit(target) {

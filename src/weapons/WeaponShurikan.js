@@ -5,8 +5,8 @@ export default class WeaponShurikan extends WeaponBase {
     constructor(scene, player) {
         super(scene, player);
         this.name = 'shurikan';
-        this.baseCooldown = 40;
-        this.spamAdd = 35;
+        this.baseCooldown = 50;
+        this.spamAdd = 90;
     }
 
     fire(pointer) {
@@ -15,7 +15,7 @@ export default class WeaponShurikan extends WeaponBase {
 
         const {start, vector} = this.calculateShot(pointer, 1000);
 
-        const projectile = new ShurikanProjectile(this.scene, start.x, start.y, this.player, true);
+        const projectile = new ShurikanProjectile(this.scene, start.x, start.y, this.player, 2);
         this.scene.weaponGroup.add(projectile);
         projectile.allowGravity = false;
         projectile.setScale(.15);

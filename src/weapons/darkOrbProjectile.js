@@ -1,7 +1,7 @@
 import WeaponProjectile from "./_baseWeaponProjectile.js";
 
 export default class DarkOrbProjectile extends WeaponProjectile {
-    constructor(scene, x, y, player) {
+    constructor(scene, x, y, player, weapon) {
         super(scene, x, y, 'darkorb', player, 1)
         this.play('darkorb');
         this.destroyOnHit = false;
@@ -20,6 +20,8 @@ export default class DarkOrbProjectile extends WeaponProjectile {
             repeat: -1,
             ease: 'Linear',
         });
+
+        scene.time.delayedCall(2500, () => weapon.release(), null, this);
 
     }
 

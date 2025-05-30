@@ -4,6 +4,8 @@ export default class ShurikanProjectile extends WeaponProjectile {
     constructor(scene, x, y, player, chainCount = 0) {
         super(scene, x, y, 'shurikan', player, 1);
 
+        this.setBounce(.8);
+
         this.maxTargets = 2;
         this.chainCount = chainCount;
         this.destroyOnHit = false;

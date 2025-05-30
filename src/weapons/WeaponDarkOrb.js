@@ -25,11 +25,12 @@ export default class WeaponDarkOrb extends WeaponBase {
 
         const { start, vector } = this.calculateShot(pointer, 265);
 
-        this.projectile = new DarkOrbProjectile(this.scene, start.x, start.y, this.player);
+        this.projectile = new DarkOrbProjectile(this.scene, start.x, start.y, this.player, this);
         this.scene.weaponGroup.add(this.projectile);
         this.projectile.allowGravity = false;
         this.projectile.setScale(.35);
         this.projectile.setVelocity(vector.x, vector.y);
+        this.projectile.setBounce(2)
 
         this.playThrowSound();
 

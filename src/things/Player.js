@@ -86,10 +86,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
 
         this.scene.input.on('pointerdown', (pointer) => {
-            if (GameManager.flags.devMode && pointer.middleButtonDown()){
-            const worldPos = pointer.positionToCamera(this.scene.cameras.main);
-            this.setPosition(worldPos.x, worldPos.y);
-            this.setVelocity(0);
+            if (GameManager.flags.devMode && pointer.middleButtonDown()) {
+                const worldPos = pointer.positionToCamera(this.scene.cameras.main);
+                this.setPosition(worldPos.x, worldPos.y);
+                this.setVelocity(0);
             } else {
                 // const distance = new Phaser.Math.Vector2(pointer)
                 // scene.cameras.main.setOffset
@@ -140,9 +140,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     preUpdate(time, delta) {
         super.preUpdate(time, delta);
-        if(this.aura) this.aura.update?.(delta);
-        if(this.chatBubble) this.chatBubble.setPosition(this.x, this.y -100);
-        if(this.playerContainer) this.playerContainer.setPosition(this.x, this.y);
+        if (this.aura) this.aura.update?.(delta);
+        if (this.chatBubble) this.chatBubble.setPosition(this.x, this.y - 100);
+        if (this.playerContainer) this.playerContainer.setPosition(this.x, this.y);
 
         if (this.alive && !this.stunned && this.leftWeapon && this.rightWeapon) {
             this.leftWeapon.update?.(delta);
@@ -232,10 +232,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             modify = Phaser.Math.Clamp(modify * (delta / 16.666), 0, 1);
             return Phaser.Math.Linear(this.body.velocity.x, a, modify);
         };
-
-        if((isLeft || isRight) && (!this.network.socket.connected && !this.network.socket.reconnecting)) {
-            this.syncNetwork();
-        }
+        if ((isLeft || isRight) && (!this.network.socket.connected && !this.network.socket.reconnecting)) this.syncNetwork();
 
         if (isLeft && !isDown && !this.playerUI.Chatting) {
             this.setVelocityX(WalkLerp(-this.speed));
@@ -396,8 +393,18 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     syncNetwork() {
+        if (this.tryingToSync) return;
+        this.tryingToSync = true;
+        setTimeout(() => this.tryingToSync = false, 500);
+
+        if (!this.network.socket.connected && !this.network.socket.reconnecting) 
+            {
+                this.network.socket.connect();
+            }
+
         console.log('syncreq')
-        this.network.socket.emit('playerSyncRequest', { x: this.x, y: this.y, data: {name: GameManager.name, power: GameManager.power }});
+        //this.network.socket.emit('playerSyncRequest', { x: this.x, y: this.y, data: { name: GameManager.name, power: GameManager.power } });
+
     }
 
     equipWeapon(name = 'Shurikan', slot = 0,) {

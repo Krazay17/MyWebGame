@@ -55,6 +55,14 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('playerLeft', { id: socket.id });
   });
 
+  socket.on('reconnect', () => {
+    socket.emit('existingPlayers',
+      Object.entries(players)
+        .filter(([id]) => id !== socket.id)
+        .map(([id, player]) => ({ id, ...player }))
+    );
+  })
+
   // Handle full sync heartbeat from client
   socket.on('playerSyncRequest', ({ x, y, data }) => {
     if (players[socket.id]) {
@@ -137,17 +145,48 @@ setInterval(() => {
   const now = Date.now();
   for (const [id, player] of Object.entries(players)) {
     if (now - (player.lastPing || 0) > 10000) {
-      // Remove player data
-      delete players[id];
-
-      io.emit('playerLeft', { id });
 
       // Get the actual socket and disconnect
       const targetSocket = io.sockets.sockets.get(id);
       if (targetSocket) {
-        socket.emit('droppedDueToInactivity');
+        targetSocket.emit('droppedDueToInactivity');
       }
+
+      // Remove player data
+      delete players[id];
+      
+
+      io.emit('playerLeft', { id });
+
     }
   }
 }, 5000);
+
+const repl = require('repl');
+
+// Start a REPL session after server has started
+const r = repl.start('> ');
+
+r.context.io = io; // now you can type io.emit(...) etc
+r.context.forceDrop = (id) => {
+  const sock = io.sockets.sockets.get(id);
+  if (sock) {
+    sock.emit('droppedDueToInactivity');
+    sock.disconnect(true);
+  }
+};
+
+
+// Make things accessible from the REPL
+r.context.connectedSockets = players;
+r.context.disconnectSocket = (id) => {
+  const socket = io.sockets.sockets.get(id);
+  if (socket) {
+    console.log(`Force disconnecting ${id}`);
+    socket.disconnect(true);
+  } else {
+    console.log(`Socket ${id} not found`);
+  }
+};
+
 

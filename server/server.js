@@ -67,8 +67,26 @@ io.on('connection', (socket) => {
   });
 
   socket.on('pingCheck', () => {
-  players[socket.id].lastPing = Date.now();
-});
+    // If player doesn't exist (was dropped), re-add them
+    if (!players[socket.id]) {
+      players[socket.id] = {
+        x: 0,
+        y: 0,
+        data: {
+          name: { text: 'Hunter', color: '#ffffff' },
+          power: { source: 0, auraLevel: 1 }
+        },
+        lastPing: Date.now()
+      };
+
+      socket.broadcast.emit('playerJoined', {
+        id: socket.id,
+        ...players[socket.id]
+      });
+    } else {
+      players[socket.id].lastPing = Date.now();
+    }
+  });
 
   // Optional partial updates (position only, etc.)
   socket.on('playerMove', ({ x, y }) => {
@@ -100,7 +118,7 @@ io.on('connection', (socket) => {
   socket.on('playerchatRequest', (message) => {
     if (players[socket.id]) {
 
-      socket.broadcast.emit('playerchatUpdate', {id: socket.id, message: message});
+      socket.broadcast.emit('playerchatUpdate', { id: socket.id, message: message });
     }
   })
 
@@ -122,10 +140,12 @@ setInterval(() => {
       // Remove player data
       delete players[id];
 
+      io.emit('playerLeft', { id });
+
       // Get the actual socket and disconnect
       const targetSocket = io.sockets.sockets.get(id);
       if (targetSocket) {
-        io.emit('playerLeft', {id});
+        socket.emit('droppedDueToInactivity');
       }
     }
   }

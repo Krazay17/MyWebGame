@@ -77,6 +77,14 @@ this.socket.on('reconnect', (attemptNumber) => {
         delete this.otherPlayers[id];
       }
     });
+    
+    this.socket.on('droppedDueToInactivity', () => {
+  console.warn('You were dropped due to inactivity. Resyncing...');
+  
+  // Resend current state
+  const data = GameManager.getNetworkData();
+  this.socket.emit('playerSyncRequest', { x: 0, y: 0, data });
+});
 
     // General sync update
     this.socket.on('playerSyncUpdate', ({ id, x, y, data }) => {

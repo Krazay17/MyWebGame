@@ -151,8 +151,13 @@ export default class PlayerUI extends Phaser.Scene {
 
         if (!this.cache.html.exists('textchat')) {
             this.textBox = this.add.dom(this.textBoxX, this.textBoxY).createFromHTML(`
-            <input type="text" id="textchat" name="textchat" placeholder="Chat.." 
-                   style="font-size: 20px; width: 300px; padding: 5px;" />
+            <input 
+            type="text" 
+            id="textchat" 
+            name="textchat" 
+            placeholder="Chat.."
+            maxlength="200"
+            style="font-size: 20px; width: 300px; padding: 5px;" />
         `);
         } else {
             this.textBox = this.add.dom(this.textBoxX, this.textBoxY).createFromCache('textchat');

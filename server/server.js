@@ -66,6 +66,11 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('pingCheck', () => {
+  players[socket.id].lastPing = Date.now();
+  console.log('ping')
+});
+
   // Optional partial updates (position only, etc.)
   socket.on('playerMove', ({ x, y }) => {
     if (players[socket.id]) {
@@ -110,3 +115,23 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+setInterval(() => {
+  const now = Date.now();
+  for (const [id, player] of Object.entries(players)) {
+    if (now - (player.lastPing || 0) > 10000) {
+      // Remove player data
+      delete players[id];
+
+      // Get the actual socket and disconnect
+      const targetSocket = io.sockets.sockets.get(id);
+      if (targetSocket) {
+        targetSocket.disconnect(true);
+      }
+
+      // Notify all clients
+      io.emit('playerLeft', { id });
+    }
+  }
+}, 5000);
+

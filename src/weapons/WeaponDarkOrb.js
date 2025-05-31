@@ -30,7 +30,8 @@ export default class WeaponDarkOrb extends WeaponBase {
         this.projectile.allowGravity = false;
         this.projectile.setScale(.35);
         this.projectile.setVelocity(vector.x, vector.y);
-        this.projectile.setBounce(2)
+        this.projectile.setBounce(1)
+        this.projectile.on('bounce')
 
         this.playThrowSound();
 

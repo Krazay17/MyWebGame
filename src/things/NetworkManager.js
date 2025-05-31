@@ -22,6 +22,10 @@ export default class NetworkManager {
     // On connection
     this.socket.on('connect', () => {
       console.log('Connected to server:', this.socket.id);
+        this.socket.emit('pingCheck');
+      setInterval(() => {
+        this.socket.emit('pingCheck');
+      }, 5000);
 
       // Initial sync request after gathering local player data
       const data = GameManager.getNetworkData();

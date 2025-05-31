@@ -17,6 +17,7 @@ export default class WeaponShurikan extends WeaponBase {
 
         const projectile = new ShurikanProjectile(this.scene, start.x, start.y, this.player, 2);
         this.scene.weaponGroup.add(projectile);
+        projectile.setBounce(.8);
         projectile.allowGravity = false;
         projectile.setScale(.15);
         projectile.setVelocity(vector.x, vector.y);

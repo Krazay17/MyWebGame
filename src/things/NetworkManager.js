@@ -42,7 +42,7 @@ export default class NetworkManager {
     this.socket.on('disconnect', (reason) => {
       console.warn('Disconnected from server:', reason);
       // You could show a "Reconnecting..." message here if needed
-      
+
         // Destroy all ghost players
   for (const id in this.otherPlayers) {
     this.otherPlayers[id].destroy();
@@ -55,7 +55,8 @@ export default class NetworkManager {
 
       // Re-send player data to re-register this client
       const data = GameManager.getNetworkData();
-      this.socket.emit('playerSyncRequest', { x: 0, y: 0, data });
+      const location = GameManager.getLastLocation();
+      this.socket.emit('playerSyncRequest', { x: location.x, y: location.y, data });
     });
 
 

@@ -105,6 +105,10 @@ getNetworkData() {
       auraLevel: typeof this.power?.auraLevel === 'number' ? this.power.auraLevel : 1
     }
   };
+},
+
+getLastLocation() {
+    return this.location ?? {x:0, y:0};
 }
 
 

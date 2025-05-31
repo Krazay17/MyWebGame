@@ -68,7 +68,6 @@ io.on('connection', (socket) => {
 
   socket.on('pingCheck', () => {
   players[socket.id].lastPing = Date.now();
-  console.log('ping')
 });
 
   // Optional partial updates (position only, etc.)

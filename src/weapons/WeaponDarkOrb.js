@@ -36,7 +36,7 @@ export default class WeaponDarkOrb extends WeaponBase {
 
         this.player.on('playerstunned', () => this.release());
         this.scene.time.removeEvent(this.orbTimer);
-        this.orbTimer = this.scene.time.delayedCall(2500, () => weapon.release(), null, this);
+        this.orbTimer = this.scene.time.delayedCall(2500, () => this.release(), null, this);
     }
 
     release() {

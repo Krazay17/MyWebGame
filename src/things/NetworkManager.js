@@ -33,6 +33,20 @@ export default class NetworkManager {
       this.socket.emit('playerSyncRequest', { x: 0, y: 0, data });
     });
 
+    this.socket.on('disconnect', (reason) => {
+  console.warn('Disconnected from server:', reason);
+  // You could show a "Reconnecting..." message here if needed
+});
+
+this.socket.on('reconnect', (attemptNumber) => {
+  console.log('Reconnected to server after', attemptNumber, 'tries');
+
+  // Re-send player data to re-register this client
+  const data = GameManager.getNetworkData();
+  this.socket.emit('playerSyncRequest', { x: 0, y: 0, data });
+});
+
+
     // Add already-connected players
     this.socket.on('existingPlayers', (players) => {
       console.log('Existing players received:', players);

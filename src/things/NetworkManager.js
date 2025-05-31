@@ -42,6 +42,12 @@ export default class NetworkManager {
     this.socket.on('disconnect', (reason) => {
       console.warn('Disconnected from server:', reason);
       // You could show a "Reconnecting..." message here if needed
+      
+        // Destroy all ghost players
+  for (const id in this.otherPlayers) {
+    this.otherPlayers[id].destroy();
+    delete this.otherPlayers[id];
+  }
     });
 
     this.socket.on('reconnect', (attemptNumber) => {

@@ -25,14 +25,14 @@ io.on('connection', (socket) => {
   console.log('Client connected:', socket.id);
 
   // Add default player entry
-  players[socket.id] = {
-    x: 0,
-    y: 0,
-    data: {
-      name: { text: 'Hunter', color: '#ffffff' },
-      power: { source: 0, auraLevel: 1 }
-    }
-  };
+  // players[socket.id] = {
+  //   x: 0,
+  //   y: 0,
+  //   data: {
+  //     name: { text: 'Hunter', color: '#ffffff' },
+  //     power: { source: 0, auraLevel: 1 }
+  //   }
+  // };
 
   // Send list of already connected players to the new player
   socket.emit('existingPlayers',
@@ -41,11 +41,13 @@ io.on('connection', (socket) => {
       .map(([id, player]) => ({ id, ...player }))
   );
 
-  // Tell other players about this new one
-  socket.broadcast.emit('playerJoined', {
-    id: socket.id,
-    ...players[socket.id]
-  });
+  players[socket.id] = null;
+
+  // // Tell other players about this new one
+  // socket.broadcast.emit('playerJoined', {
+  //   id: socket.id,
+  //   ...players[socket.id]
+  // });
 
   // When the player disconnects
   socket.on('disconnect', () => {
@@ -63,16 +65,27 @@ io.on('connection', (socket) => {
     );
   })
 
-  // Handle full sync heartbeat from client
-  socket.on('playerSyncRequest', ({ x, y, data }) => {
-    if (players[socket.id]) {
-      players[socket.id].x = x;
-      players[socket.id].y = y;
-      players[socket.id].data = data;
+socket.on('playerSyncRequest', ({ x, y, data }) => {
+  const isNew = !players[socket.id];
 
-      socket.broadcast.emit('playerSyncUpdate', { id: socket.id, x, y, data });
-    }
-  });
+  players[socket.id] = { x, y, data };
+
+  if (isNew) {
+    socket.broadcast.emit('playerJoined', {
+      id: socket.id,
+      x,
+      y,
+      data
+    });
+  } else {
+    socket.broadcast.emit('playerSyncUpdate', {
+      id: socket.id,
+      x,
+      y,
+      data
+    });
+  }
+});
 
   socket.on('pingCheck', () => {
     // If player doesn't exist (was dropped), re-add them

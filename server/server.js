@@ -125,11 +125,8 @@ setInterval(() => {
       // Get the actual socket and disconnect
       const targetSocket = io.sockets.sockets.get(id);
       if (targetSocket) {
-        targetSocket.disconnect(true);
+        io.emit('playerLeft', {id});
       }
-
-      // Notify all clients
-      io.emit('playerLeft', { id });
     }
   }
 }, 5000);

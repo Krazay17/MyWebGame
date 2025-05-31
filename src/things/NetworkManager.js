@@ -17,7 +17,12 @@ export default class NetworkManager {
         ? 'http://localhost:3000'
         : 'wss://webconduit.onrender.com';
 
-    this.socket = io(serverURL);
+    this.socket = io(serverURL, {
+      reconnection: true,
+      reconnectionAttempts: 10,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+    });
 
     // On connection
     this.socket.on('connect', () => {

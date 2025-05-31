@@ -36,7 +36,7 @@ export default class PlayerUI extends Phaser.Scene {
       }
     });
 
-        this.scoreText = this.add.text(10, 50, 'Source: ' + GameManager.power.source + '\n' + this.player.rankSystem.getRank(GameManager.power.source), {
+        this.scoreText = this.add.text(10, 50, 'PRESS ESC CLICK RESET IF BUGGED\n' + 'Source: ' + GameManager.power.source + '\n' + this.player.rankSystem.getRank(GameManager.power.source), {
             fontSize: '32px',
             color: '#4fffff'
         });

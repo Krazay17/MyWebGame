@@ -19,9 +19,21 @@ export default class EscMenu extends Phaser.Scene {
         this.network = NetworkManager.instance;
 
         window.addEventListener('beforeunload', () => GameManager.save());
-        
+
         // Background
-        this.bg = this.add.rectangle(0, 0, 800, 600, 0x000000, 0.8).setOrigin(0,0);
+        this.bg = this.add.rectangle(0, 0, 800, 600, 0x000000, 0.8).setOrigin(0, 0);
+
+        this.resetButton = this.add.rectangle(0, 0, 225, 75, 0xFFFFFF, 1)
+            .setInteractive()
+            .on('pointerdown', () => {
+                console.log('click reset button')
+                this.scene.stop(this.gameScene);
+                this.scene.start('Home');
+            });
+        const resetText = this.add.text(0, 0, 'RESET', {
+            font: '32px',
+            fill: '#FF0000',
+        })
 
         // Slider track and handle
         const track = this.add.rectangle(400, 400, 200, 10, 0xffffff).setOrigin(0.5);
@@ -30,7 +42,7 @@ export default class EscMenu extends Phaser.Scene {
         this.slider = { track, handle };
 
 
-        const instructions = this.add.text(0, 0,
+        const instructions = this.add.text(0, 50,
             'WASD - Move\nShift - dash\nL/R Click - Attack\nC -Inventory\nR - Reset', {
             fontSize: '32px',
             color: '#4fffff',
@@ -45,7 +57,7 @@ export default class EscMenu extends Phaser.Scene {
         }).setOrigin(0.5);
 
         // Store all UI elements for visibility toggling
-        this.uiElements.push(this.bg, this.nameDisplay, track, handle, instructions);
+        this.uiElements.push(this.bg, this.nameDisplay, track, handle, instructions, this.resetButton, resetText);
 
         // Hide initially
         this.setUIVisible(false);

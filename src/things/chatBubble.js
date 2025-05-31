@@ -48,7 +48,7 @@ export default class ChatBubble extends Phaser.GameObjects.Container {
         this.setAlpha(1);
         this.scene.time.removeEvent(this.fadeOutTimer);
         this.scene.time.removeEvent(this.fadeOutLoop);
-        this.fadeOutTimer = this.scene.time.delayedCall(4000, this.fadeOut, null, this)
+        this.fadeOutTimer = this.scene.time.delayedCall(10000, this.fadeOut, null, this)
 
     }
     fadeOut() {

@@ -69,6 +69,33 @@ export default class GhostPlayer {
     if (this.headName) this.headName.setPosition(x, y - 65);
     if (this.auraSprite) this.auraSprite.setPosition(x, y);
   }
+  
+  ghostVelocity(x, y) {
+    this.xv = this.x - x;
+    this.yv = this.y - y;
+    const epsilon = .4;
+
+    if (Math.abs(this.xv) < epsilon) this.xv = 0;
+    if (Math.abs(this.yv) < epsilon) this.yv = 0;
+
+    if ((this.yv === 0 && this.xv > 0) || this.xv < 0) {
+      this.sprite.play('dudewalk', true);
+    } else if (this.yv == 0 && this.xv == 0) {
+      this.sprite.stop();
+      this.sprite.setFrame(0);
+    }
+
+    if (this.xv > 0) {
+      this.sprite.flipX = true;
+    } else if (this.xv < 0) {
+      this.sprite.flipX = false;
+    }
+
+    if (this.yv > 0 || this.yv < 0) {
+      this.sprite.stop();
+      this.sprite.setFrame(5);
+    }
+  }
 
   updateScene(newScene) {
     this.scene = newScene;
@@ -111,32 +138,6 @@ export default class GhostPlayer {
     if (this.auraSprite) this.auraSprite.destroy();
   }
 
-  ghostVelocity(x, y) {
-    this.xv = this.x - x;
-    this.yv = this.y - y;
-    const epsilon = 1;
-
-    if (Math.abs(this.xv) < epsilon) this.xv = 0;
-    if (Math.abs(this.yv) < epsilon) this.yv = 0;
-
-    if ((this.yv === 0 && this.xv > 0) || this.xv < 0) {
-      this.sprite.play('dudewalk', true);
-    } else if (this.yv == 0 && this.xv == 0) {
-      this.sprite.stop();
-      this.sprite.setFrame(0);
-    }
-
-    if (this.xv > 0) {
-      this.sprite.flipX = true;
-    } else if (this.xv < 0) {
-      this.sprite.flipX = false;
-    }
-
-    if (this.yv > 0 || this.yv < 0) {
-      this.sprite.stop();
-      this.sprite.setFrame(5);
-    }
-  }
 
   ghostShurikan(x, y, d) {
     const speed = 1000;

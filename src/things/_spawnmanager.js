@@ -29,12 +29,12 @@ export default class SpawnManager {
     }
 
     spawnSunMans(x, y) {
-        const sunMan = new SunMan(this.scene, x, y, 'sunsheet', 3);
+        const sunMan = new SunMan(this.scene, x, y, 'sunsheet', 10);
         this.scene.softEnemyGroup.add(sunMan);
+        sunMan.allowGravity = false;
         sunMan.setBounce(1);
         sunMan.setScale(.4);
         sunMan.scaleCollision(170, 170);
-        sunMan.setBounce(1);
         sunMan.setCollideWorldBounds(true);
         sunMan.setVelocityX(-200);
         sunMan.body.setMaxSpeed(1400);

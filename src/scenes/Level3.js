@@ -16,7 +16,7 @@ export default class Level3 extends BaseGame {
     create() {
         this.setupSave();
         this.setupSky();
-        this.setupWorld(-1200, 0, 2400, 6000)
+        this.setupWorld(-1200, 0, 2400, 7000)
         this.setupGroups();
         this.setupPlayer(0, 5500);
         this.setupMusic('farted', .4);
@@ -36,7 +36,7 @@ export default class Level3 extends BaseGame {
 
     makeClimbingPlatforms() {
         const length = 45;
-        for (let i = 0; i < length; i++) {
+        for (let i = 4; i < length; i++) {
             const yloc = i * 125;
             const xloc1 = Phaser.Math.Between(-1000, -250);
             const xloc2 = Phaser.Math.Between(-250, 250);
@@ -86,7 +86,9 @@ export default class Level3 extends BaseGame {
                 this.checkPlayerY();
             },
             loop: true
-        })
+        });
+
+
     }
 
     spawnEnemies() {

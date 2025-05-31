@@ -21,7 +21,6 @@ export default class DarkOrbProjectile extends WeaponProjectile {
             ease: 'Linear',
         });
 
-        scene.time.delayedCall(2500, () => weapon.release(), null, this);
 
     }
 

@@ -338,8 +338,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.setVelocityX(x);
         this.setVelocityY(y);
 
-        this.health -= damage;
-        this.updateSource(-1);
+        this.updateSource(-damage);
 
         return true;
     }

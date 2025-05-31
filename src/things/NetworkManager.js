@@ -27,29 +27,30 @@ export default class NetworkManager {
     // On connection
     this.socket.on('connect', () => {
       console.log('Connected to server:', this.socket.id);
-        this.socket.emit('pingCheck');
+      
+      this.socket.emit('pingCheck');
       setInterval(() => {
         this.socket.emit('pingCheck');
       }, 5000);
 
       // Initial sync request after gathering local player data
       const data = GameManager.getNetworkData();
-      
+
       this.socket.emit('playerSyncRequest', { x: 0, y: 0, data });
     });
 
     this.socket.on('disconnect', (reason) => {
-  console.warn('Disconnected from server:', reason);
-  // You could show a "Reconnecting..." message here if needed
-});
+      console.warn('Disconnected from server:', reason);
+      // You could show a "Reconnecting..." message here if needed
+    });
 
-this.socket.on('reconnect', (attemptNumber) => {
-  console.log('Reconnected to server after', attemptNumber, 'tries');
+    this.socket.on('reconnect', (attemptNumber) => {
+      console.log('Reconnected to server after', attemptNumber, 'tries');
 
-  // Re-send player data to re-register this client
-  const data = GameManager.getNetworkData();
-  this.socket.emit('playerSyncRequest', { x: 0, y: 0, data });
-});
+      // Re-send player data to re-register this client
+      const data = GameManager.getNetworkData();
+      this.socket.emit('playerSyncRequest', { x: 0, y: 0, data });
+    });
 
 
     // Add already-connected players
@@ -77,14 +78,14 @@ this.socket.on('reconnect', (attemptNumber) => {
         delete this.otherPlayers[id];
       }
     });
-    
+
     this.socket.on('droppedDueToInactivity', () => {
-  console.warn('You were dropped due to inactivity. Resyncing...');
-  
-  // Resend current state
-  const data = GameManager.getNetworkData();
-  this.socket.emit('playerSyncRequest', { x: 0, y: 0, data });
-});
+      console.warn('You were dropped due to inactivity. Resyncing...');
+
+      // Resend current state
+      const data = GameManager.getNetworkData();
+      this.socket.emit('playerSyncRequest', { x: 0, y: 0, data });
+    });
 
     // General sync update
     this.socket.on('playerSyncUpdate', ({ id, x, y, data }) => {

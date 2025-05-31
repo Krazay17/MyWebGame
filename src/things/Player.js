@@ -134,7 +134,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             callback: () => {
                 this.syncNetwork();
             }
-        })
+        }, null, this)
 
     }
 
@@ -232,6 +232,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             modify = Phaser.Math.Clamp(modify * (delta / 16.666), 0, 1);
             return Phaser.Math.Linear(this.body.velocity.x, a, modify);
         };
+
+        if((isLeft || isRight) && (!this.network.socket.connected && !this.network.socket.reconnecting)) {
+            this.syncNetwork();
+        }
 
         if (isLeft && !isDown && !this.playerUI.Chatting) {
             this.setVelocityX(WalkLerp(-this.speed));
@@ -392,6 +396,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     syncNetwork() {
+        console.log('syncreq')
         this.network.socket.emit('playerSyncRequest', { x: this.x, y: this.y, data: {name: GameManager.name, power: GameManager.power }});
     }
 

@@ -7,7 +7,7 @@ export default class AuraSprite extends Phaser.Physics.Arcade.Sprite {
         if (!scene.anims.get('weakaura')) {
             scene.anims.create({
                 key: 'weakaura',
-                frames: this.anims.generateFrameNumbers('aura', { start: 0, end: 1 }),
+                frames: this.anims.generateFrameNumbers('aura', { start: 0, end: 2 }),
                 frameRate: 6,
                 repeat: -1,
             });
@@ -16,7 +16,7 @@ export default class AuraSprite extends Phaser.Physics.Arcade.Sprite {
         if (!scene.anims.get('midaura')) {
             scene.anims.create({
                 key: 'midaura',
-                frames: this.anims.generateFrameNumbers('aura', { start: 0, end: 2 }),
+                frames: this.anims.generateFrameNumbers('aura', { start: 0, end: 3 }),
                 frameRate: 4,
                 repeat: -1,
             });
@@ -24,7 +24,7 @@ export default class AuraSprite extends Phaser.Physics.Arcade.Sprite {
         if (!scene.anims.get('strongaura')) {
             scene.anims.create({
                 key: 'strongaura',
-                frames: this.anims.generateFrameNumbers('aura', { start: 1, end: 3 }),
+                frames: this.anims.generateFrameNumbers('aura', { start: 3, end: 5 }),
                 frameRate: 4,
                 repeat: -1,
                 yoyo: true,

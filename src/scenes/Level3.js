@@ -94,6 +94,7 @@ export default class Level3 extends BaseGame {
     spawnEnemies() {
         const { x, y, spawnLeft } = this.getSpawnPos();
         const bat = this.spawnManager.spawnBat(x, y);
+        const spawnSunman = this.spawnManager.spawnSunMans(x, y);
     }
 
     getSpawnPos() {

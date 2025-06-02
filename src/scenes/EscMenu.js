@@ -46,7 +46,7 @@ export default class EscMenu extends Phaser.Scene {
         const handle1 = this.add.circle(400, 450, 10, 0xff0000).setInteractive();
         this.input.setDraggable(handle1);
         handle1.name = 'music';
-        this.slider1 = { track, handle };
+        this.slider1 = { track1, handle1 };
 
 
         const instructions = this.add.text(0, 50,
@@ -97,11 +97,12 @@ export default class EscMenu extends Phaser.Scene {
 
             if (gameObject.name === 'music') {
                 globalThis.currentMusic.volume = percent;
-                console.log(gameObject.name)
+                GameManager.volume.music = percent
+                GameManager.save();
             } else {
             this.sound.volume = percent;
 
-            GameManager.volume = this.sound.volume;
+            GameManager.volume.master = percent;
             GameManager.save();
             }
         });
@@ -118,8 +119,14 @@ export default class EscMenu extends Phaser.Scene {
     setInitialVolume(volume) {
         const minX = this.slider.track.x - this.slider.track.width / 2;
         const maxX = this.slider.track.x + this.slider.track.width / 2;
-        this.slider.handle.x = Phaser.Math.Linear(minX, maxX, volume);
-        this.sound.volume = volume;
+        this.slider.handle.x = Phaser.Math.Linear(minX, maxX, volume.master);
+        this.sound.volume = volume.master;
+
+        
+        const minX1 = this.slider1.track1.x - this.slider1.track1.width / 2;
+        const maxX1 = this.slider1.track1.x + this.slider1.track1.width / 2;
+        this.slider1.handle1.x = Phaser.Math.Linear(minX1, maxX1, volume.music);
+        globalThis.currentMusic.volume? volume.music : 1;
     }
 
     openNameInput() {

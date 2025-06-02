@@ -170,7 +170,7 @@ export default class BaseGame extends Phaser.Scene {
 
       // Start new track
       globalThis.currentMusic = this.sound.add(key, { loop: true });
-      globalThis.currentMusic.volume = volume;
+      globalThis.currentMusic.volume = GameManager.volume.music;
       globalThis.currentMusic.play();
     }
   }

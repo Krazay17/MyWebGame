@@ -1,3 +1,5 @@
+import GameManager from "../things/GameManager";
+
 export default class Inventory extends Phaser.Scene {
     constructor() {
         super('Inventory');
@@ -26,7 +28,7 @@ export default class Inventory extends Phaser.Scene {
 
         this.buttons.push(this.setupButton(1200, 550, true, 'zap', 'auraicon', 1, 0));
 
-        this.auraText = this.add.text(1200, 500, 'Aura level: ' + this.aura.level, {
+        this.auraText = this.add.text(1200, 500, 'Aura level: ' + GameManager.power.auraLevel, {
             fontSize: '24px',
             fontStyle: 'bold',
         }).setOrigin(0.5).setVisible(false);
@@ -88,7 +90,7 @@ export default class Inventory extends Phaser.Scene {
             this.player.equipWeapon(button.weapon, slot)
         } else {
             if (this.player.tryIncreaseAura()) {
-                this.auraText.setText('Aura level: ' + this.aura.level);
+                this.auraText.setText('Aura level: ' + GameManager.power.auraLevel);
                 this.auraCostText.setText('Cost: ' + this.aura.getCost());
             }
         }

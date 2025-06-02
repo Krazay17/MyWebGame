@@ -21,7 +21,7 @@ export default class Home extends BaseGame {
         this.setupWorld(-2000, 0, 4000, 2000);
         this.setupFPS();
         this.setupPlayer();
-        this.setupMusic('homemusic');
+        this.setupMusic('music1');
 
         this.setupGroups();
 

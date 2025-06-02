@@ -21,7 +21,7 @@ export default class Level1 extends BaseGame {
       frameWidth: 66,
       frameHeight: 26
     });
-    this.load.audio('music', 'assets/Music.wav');
+    this.load.audio('music', 'assets/music0.mp3');
   }
 
   create() {

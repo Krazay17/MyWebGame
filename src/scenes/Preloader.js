@@ -15,7 +15,7 @@ export default class Preloader extends Phaser.Scene {
         this.load.audio('shurikanthrow', 'assets/Whip1.wav');
         this.load.audio('shurikanhit', 'assets/shurikan.wav');
         this.load.audio('pickup', 'assets/SuccessBeep.wav');
-        this.load.audio('homemusic', 'assets/HomeMusic.wav');
+        this.load.audio('music1', 'assets/music1.mp3');
         this.load.image('dudecrouch', 'assets/DudeCrouch.png');
         this.load.image('shurikan', 'assets/shurikan.png');
         this.load.image('shurikanicon', 'assets/shurikan.png');

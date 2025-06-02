@@ -7,10 +7,9 @@ export default class AuraZap extends WeaponBase {
     constructor(scene, player) {
         super(scene, player, 1);
         this.maxTargets = 1;
-        this.level = GameManager.power.auraLevel;
         this.baseZapCd = 5000;
 
-        this.auraSprite = new AuraSprite(scene, player.x, player.y, this.level);
+        this.auraSprite = new AuraSprite(scene, player.x, player.y, GameManager.power.auraLevel);
 
         this.zapTimer = this.scene.time.addEvent({
             delay: 5000,
@@ -21,7 +20,6 @@ export default class AuraZap extends WeaponBase {
         }, this);
 
         this.setStats();
-        this.setLevel(this.level)
     }
 
     update(delta) {
@@ -30,30 +28,30 @@ export default class AuraZap extends WeaponBase {
     }
 
     getCost() {
-        return this.level * 50;
+        return 50 * (GameManager.power.auraLevel ** 2);
     }
 
     setLevel(level) {
         if (level) {
-        this.level = level;
-        this.auraSprite.setAuraLevel(this.level);
+        GameManager.power.auraLevel = level;
+        this.auraSprite.setAuraLevel(GameManager.power.auraLevel);
         this.setStats();
-        return this.level;
+        return GameManager.power.auraLevel;
         }
-        this.level++;
-        this.auraSprite.setAuraLevel(this.level);
+        GameManager.power.auraLevel++;
+        this.auraSprite.setAuraLevel(GameManager.power.auraLevel);
         this.setStats();
     }
 
     setStats() {
         if (this.zapTimer.delay) {
-            this.zapTimer.delay = this.baseZapCd / this.level;
+            this.zapTimer.delay = this.baseZapCd / GameManager.power.auraLevel;
         }
     }
 
 fire() {
     const groups = this.scene.attackableGroups;
-    const range = Phaser.Math.Clamp(this.level * 50, 200, 800);
+    const range = Phaser.Math.Clamp(GameManager.power.auraLevel * 50, 200, 800);
     const playerPos = this.player.getCurrentPos();
     const validTargets = [];
 
@@ -83,9 +81,8 @@ fire() {
     // Hit up to this.maxTargets
     for (let i = 0; i < Math.min(validTargets.length, this.maxTargets); i++) {
         const { target, handler, pos } = validTargets[i];
-        this[handler]?.(target, pos);
+        this[handler]?.(target);
         this.zapVisual(target.x, target.y, target);
-        this.hitTargets.push(target);
     }
 }
 

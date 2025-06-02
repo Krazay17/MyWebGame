@@ -120,7 +120,7 @@ export default class WeaponBase {
                     hitRec = Phaser.Geom.Rectangle.Intersection(bounds, RectRay);
                     var hit = {x: hitRec.centerX, y: hitRec.centerY};
                     hits.push(target);
-                    this[handler]?.(target, hit);
+                    this[handler]?.(target, true);
                     // this.scene.graphics.fillStyle(0x00ff00, 0.5);
                     // this.scene.graphics.fillRectShape(target.getBounds());
                 }
@@ -157,10 +157,10 @@ export default class WeaponBase {
     platformHit(plat) {
     }
 
-    enemyHit(target) {
+    enemyHit(target, stagger) {
         if (!this.canHit(target)) return;
 
-        if (target.TakeDamage(this.player, this.baseDamage, this.getKnockBack(target))) {
+        if (target.TakeDamage(this.player, this.baseDamage, stagger? this.getKnockBack(target) : null)) {
             this.playHitSound();
         }
     }
@@ -211,13 +211,21 @@ export default class WeaponBase {
 
 
     playHitSound() {
+    const now = this.scene.time.now;
+
+    if (!this.lastPlayTime || now - this.lastPlayTime > 10) {
+        this.lastPlayTime = now;
+
         if (!this.hitSound) {
             this.hitSound = this.scene.sound.add(this.hitSoundId);
-        };
+        }
+
         if (this.hitSound.isPlaying) {
             this.hitSound.stop();
         }
+
         this.hitSound.play();
+    }
     }
 
     mapRangeClamped(value, inMin, inMax, outMin, outMax) {

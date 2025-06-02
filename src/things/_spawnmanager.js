@@ -28,15 +28,14 @@ export default class SpawnManager {
         return coin;
     }
 
-    spawnSunMans(x, y) {
-        const sunMan = new SunMan(this.scene, x, y, 'sunsheet', 10);
+    spawnSunMans(x, y, heatlh) {
+        const sunMan = new SunMan(this.scene, x, y, heatlh);
         this.scene.softEnemyGroup.add(sunMan);
-        sunMan.allowGravity = false;
+        sunMan.body.allowGravity = false;
         sunMan.setBounce(1);
         sunMan.setScale(.4);
         sunMan.scaleCollision(170, 170);
         sunMan.setCollideWorldBounds(true);
-        sunMan.setVelocityX(-200);
         sunMan.body.setMaxSpeed(1400);
         return sunMan;
     }
@@ -102,4 +101,5 @@ export default class SpawnManager {
         bat.setScale(1);
         return bat;
     }
+
 }

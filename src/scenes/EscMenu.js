@@ -41,6 +41,13 @@ export default class EscMenu extends Phaser.Scene {
         this.input.setDraggable(handle);
         this.slider = { track, handle };
 
+                // Slider track and handle
+        const track1 = this.add.rectangle(400, 450, 200, 10, 0xffffff).setOrigin(0.5);
+        const handle1 = this.add.circle(400, 450, 10, 0xff0000).setInteractive();
+        this.input.setDraggable(handle1);
+        handle1.name = 'music';
+        this.slider1 = { track, handle };
+
 
         const instructions = this.add.text(0, 50,
             'WASD - Move\nShift - dash\nL/R Click - Attack\nC -Inventory\nR - Reset', {
@@ -57,7 +64,7 @@ export default class EscMenu extends Phaser.Scene {
         }).setOrigin(0.5);
 
         // Store all UI elements for visibility toggling
-        this.uiElements.push(this.bg, this.nameDisplay, track, handle, instructions, this.resetButton, resetText);
+        this.uiElements.push(this.bg, this.nameDisplay, track, handle, track1, handle1, instructions, this.resetButton, resetText);
 
         // Hide initially
         this.setUIVisible(false);
@@ -87,10 +94,16 @@ export default class EscMenu extends Phaser.Scene {
             gameObject.x = dragX;
 
             const percent = (dragX - minX) / (maxX - minX);
+
+            if (gameObject.name === 'music') {
+                globalThis.currentMusic.volume = percent;
+                console.log(gameObject.name)
+            } else {
             this.sound.volume = percent;
 
             GameManager.volume = this.sound.volume;
             GameManager.save();
+            }
         });
 
         this.setInitialVolume(GameManager.volume);

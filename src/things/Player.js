@@ -97,7 +97,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         });
         this.scene.input.keyboard.on('keydown-F', () => {
             if (GameManager.flags.devMode) {
-                this.updateSource(500);
+                this.updateSource(500000);
             }
         });
         this.scene.input.keyboard.on('keydown-G', () => {

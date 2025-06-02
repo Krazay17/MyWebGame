@@ -24,12 +24,12 @@ export default class WeaponProjectile extends Phaser.Physics.Arcade.Sprite {
         if (this.destroyOnHit) this.destroy();
     }
 
-    enemyHit(enemy) {
+    enemyHit(enemy, stagger) {
         if (!this.canHit(enemy)) return;
 
         const velocity = this.body.velocity;
 
-        if (enemy.TakeDamage(this.player, this.baseDamage, velocity)) {
+        if (enemy.TakeDamage(this.player, this.baseDamage, stagger? velocity : null)) {
             this.playHitSound();
             return;
         }
@@ -51,12 +51,20 @@ export default class WeaponProjectile extends Phaser.Physics.Arcade.Sprite {
     }
 
     playHitSound() {
+    const now = this.scene.time.now;
+
+    if (!this.lastPlayTime || now - this.lastPlayTime > 100) {
+        this.lastPlayTime = now;
+
         if (!this.hitSound) {
             this.hitSound = this.scene.sound.add(this.hitSoundId);
-        };
+        }
+
         if (this.hitSound.isPlaying) {
             this.hitSound.stop();
         }
+
         this.hitSound.play();
+    }
     }
 }

@@ -5,6 +5,8 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
         scene.add.existing(this);
         scene.physics.add.existing(this);
 
+        this.player = scene.player;
+
         this.setImmovable(true);
         this.doesWalk = false;
         this.maxHealth = health;
@@ -15,6 +17,8 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
         this.hitRecover = undefined;
         this.velocityKnock = false;
         this.knockPower = 500;
+        this.damage = 1;
+        this.maxaccell = 300;
 
         // Behavior config
         this.speed = 150;
@@ -29,16 +33,14 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
 
         this.scene.events.on('update', this.currentSpeed, this)
 
-        if (this.anims.get(id))
-            this.play(id);
     }
 
     preUpdate(time, delta) {
         super.preUpdate(time, delta);
         if (!this.alive) return;
         this.updateHealthBar();
-        this.currentSpeed();
         this.locoAnims();
+        if(this.accelToPlayerSpeed) this.scene.physics.accelerateToObject(this, this.player, this.accelToPlayerSpeed, this.maxaccell, this.maxaccell);
     }
 
     createHealthBar() {
@@ -63,29 +65,32 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
         this.healthBarBg.y = this.y - this.displayHeight / 2 - 6;
     }
 
-    TakeDamage(player, amount, velocity) {
+    TakeDamage(player, damage, stagger) {
         if (!this.canDamage) return false;
         if (!this.createdHealthBar) this.createHealthBar();
 
-        this.health -= amount;
+        this.health -= damage;
         this.updateHealthBar();
 
         if (this.health <= 0) {
             this.alive = false;
             this.scene.time.removeEvent(this.hitRecover);
             this.die(player);
-        } else {
+        } else if (stagger){
             this.stunned = true;
-            this.scene.time.removeEvent(this.hitRecover);
-            const prevVelocity = this.body.velocity.clone();
-            this.setVelocity(velocity.x / 3, velocity.y / 3)
+            if (!this.prevVelocity) {
+                this.prevVelocity = this.body.velocity.clone();
+            }
+            this.setVelocity(stagger.x / 3, stagger.y / 3)
             this.setTint(0xff0000);
+            this.scene.time.removeEvent(this.hitRecover);
             this.hitRecover = this.scene.time.addEvent({
                 delay: 200,
                 callback: () => {
                     if (this.alive) {
                         this.stunned = false;
-                        this.setVelocity(prevVelocity.x, prevVelocity.y);
+                        this.setVelocity(this.prevVelocity.x, this.prevVelocity.y);
+                        delete this.prevVelocity
                         this.setTint();
                     }
                 }
@@ -98,6 +103,8 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
         player.updateSource(this.maxHealth);
         if (this.healthBar) this.healthBar.destroy();
         if (this.healthBarBg) this.healthBarBg.destroy();
+        this.emit('die', player);
+
         this.destroy();
     }
 
@@ -106,7 +113,7 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
         const direction = new Phaser.Math.Vector2(player.x - enemy.x, player.y - enemy.y);
         const knockback = direction.normalize().scale(this.knockPower);
 
-        player.TakeDamage(knockback.x, knockback.y, 1);
+        player.TakeDamage(knockback.x, knockback.y, this.damage);
     }
 
     scaleCollision(x, y) {
@@ -211,6 +218,18 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
 
     getCurrentPos() {
         return new Phaser.Math.Vector2(this.x, this.y);
+    }
+
+    accelToPlayer(min, max) {
+        if (!this.accelToPlayerTimer) {
+            this.accelToPlayerTimer = this.scene.time.addEvent({
+                delay: 1000,
+                loop: true,
+                callcback: () => this.accelToPlayer()
+            })
+        }
+        const direction = new Phaser.Math.Vector2(this.player.x - this.x, this.player.y - this.y).normalize();
+        this.accelToPlayerSpeed = Phaser.Math.Between(min, max);
     }
 
 }

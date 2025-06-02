@@ -9,8 +9,12 @@ export default class Level3 extends BaseGame {
 
     preload() {
         super.preload()
-        this.load.audio ('farted', 'assets/Farted4.wav');
-        this.load.image ('bat', 'assets/BatEnemy.png')
+        this.load.audio('music2', 'assets/music2.mp3');
+        this.load.image('bat', 'assets/BatEnemy.png')
+        this.load.spritesheet('sunsheet', 'assets/SunSheet.png', {
+            frameHeight: 256,
+            frameWidth: 256
+        })
     }
 
     create() {
@@ -19,18 +23,20 @@ export default class Level3 extends BaseGame {
         this.setupWorld(-1200, 0, 2400, 7000)
         this.setupGroups();
         this.setupPlayer(0, 5500);
-        this.setupMusic('farted', .4);
+        this.setupMusic('music2');
         this.setupFPS();
         this.setupCollisions();
         this.makeClimbingPlatforms();
 
         this.walkableGroup.create(0, 5600, 'platform');
 
+        this.sunManHealth = 3;
+
         this.spawnSpeed = 2500;
         this.enemyTimers();
     }
-    
-    update(time, delta){
+
+    update(time, delta) {
         super.update(time, delta);
     }
 
@@ -49,7 +55,7 @@ export default class Level3 extends BaseGame {
     }
 
     checkPlayerY() {
-        if (!this.player) return ;
+        if (!this.player) return;
         const y = this.player.y;
 
         if (y > 5000) {
@@ -58,22 +64,27 @@ export default class Level3 extends BaseGame {
         }
         if (y > 4000) {
             this.batTimer.delay = 2000;
+            this.sunManHealth = 5;
             return;
         }
         if (y > 3000) {
             this.batTimer.delay = 1600;
+            this.sunManHealth = 25;
             return;
         }
         if (y > 2000) {
             this.batTimer.delay = 1000;
+            this.sunManHealth = 50;
             return;
         }
         if (y > 1000) {
             this.batTimer.delay = 500;
+            this.sunManHealth = 100;
             return;
         }
         if (y > 0) {
             this.batTimer.delay = 100;
+            this.sunManHealth = 500;
             return;
         }
     }
@@ -82,19 +93,15 @@ export default class Level3 extends BaseGame {
         this.batTimer = this.time.addEvent({
             delay: 2500,
             callback: () => {
-                this.spawnEnemies();
+                const { x, y } = this.getSpawnPos();
+                const bat = this.spawnManager.spawnBat(x, y);
+
                 this.checkPlayerY();
             },
             loop: true
         });
 
-
-    }
-
-    spawnEnemies() {
-        const { x, y, spawnLeft } = this.getSpawnPos();
-        const bat = this.spawnManager.spawnBat(x, y);
-        const spawnSunman = this.spawnManager.spawnSunMans(x, y);
+        this.time.delayedCall(5000, () => this.sunMan());
     }
 
     getSpawnPos() {
@@ -104,11 +111,20 @@ export default class Level3 extends BaseGame {
         const spawnLeft = Phaser.Math.Between(0, 1) === 0;
 
         const x = spawnLeft
-        ? left - Phaser.Math.Between(50, 150)
-        : right + Phaser.Math.Between(50, 150);
+            ? left - Phaser.Math.Between(50, 150)
+            : right + Phaser.Math.Between(50, 150);
 
         const y = this.player.y + Phaser.Math.Between(-150, 150)
 
-        return {x, y, spawnLeft};
+        return { x, y, spawnLeft };
+    }
+
+    sunMan() {
+                const { x, y } = this.getSpawnPos();
+                const sunMan = this.spawnManager.spawnSunMans(x, y, this.sunManHealth);
+                sunMan.once('die', () => {
+                    this.time.delayedCall(5000, () => this.sunMan())
+                })
+
     }
 }

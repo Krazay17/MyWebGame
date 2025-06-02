@@ -9,7 +9,7 @@ export default {
     source: 0,
     weapons: { left: 'shurikan', right: 'sword', aura: 'zap' },
     playerHealth: 5,
-    volume: 1,
+    volume: {master: 1, music: 1},
     collectedItems: [],
     flags: {
         seenIntro: false,
@@ -64,7 +64,7 @@ export default {
             this.source = typeof parsed.source === 'number' ? Math.floor(parsed.source) : 0;
             this.weapons = parsed.weapons ?? { left: 'shurikan', right: 'sword', aura: 'zap' };
             this.playerHealth = parsed.playerHealth ?? 5;
-            this.volume = parsed.volume ?? 1;
+            this.volume = parsed.volume ?? {master: 1, music: 1};
             this.collectedItems = parsed.collectedItems ?? [];
             this.flags = parsed.flags ?? {};
         }
@@ -80,7 +80,7 @@ export default {
         this.source = keep.source ?? 0;
         this.weapons = keep.weapons ?? { left: 'shurikan', right: 'sword', aura: 'zap' };
         this.playerHealth = 5;
-        this.volume = keep.volume ?? 1;
+        this.volume = keep.volume ?? {master: 1, music: 1};
         this.collectedItems = keep.collectedItems ?? [];
         this.flags = keep.flags ?? {
             seenIntro: false,

@@ -136,7 +136,7 @@ export default class WeaponWhip extends WeaponBase {
         }
     }
 
-    platformHit(plat, hitLocation) {
+    platformHit(plat, stagger, hitLocation) {
         if (this.whipConnect && hitLocation) return;
         this.hitLocation = hitLocation;
         this.whipConnect = true;
@@ -146,7 +146,7 @@ export default class WeaponWhip extends WeaponBase {
         }
     }
 
-    itemHit(item, hitLocation) {
+    itemHit(item, stagger, hitLocation) {
         if (this.whipConnect && hitLocation) return;
         this.hitLocation = hitLocation;
         this.whipConnect = true;

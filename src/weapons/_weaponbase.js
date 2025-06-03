@@ -120,7 +120,7 @@ export default class WeaponBase {
                     hitRec = Phaser.Geom.Rectangle.Intersection(bounds, RectRay);
                     var hit = {x: hitRec.centerX, y: hitRec.centerY};
                     hits.push(target);
-                    this[handler]?.(target, true);
+                    this[handler]?.(target, true, hit);
                     // this.scene.graphics.fillStyle(0x00ff00, 0.5);
                     // this.scene.graphics.fillRectShape(target.getBounds());
                 }
@@ -157,7 +157,7 @@ export default class WeaponBase {
     platformHit(plat) {
     }
 
-    enemyHit(target, stagger) {
+    enemyHit(target, stagger, location) {
         if (!this.canHit(target)) return;
 
         if (target.TakeDamage(this.player, this.baseDamage, stagger? this.getKnockBack(target) : null)) {

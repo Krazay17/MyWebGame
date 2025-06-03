@@ -4,7 +4,7 @@ export default class ShurikanProjectile extends WeaponProjectile {
     constructor(scene, x, y, player, chainCount = 0) {
         super(scene, x, y, 'shurikan', player, 1);
 
-        this.maxTargets = 2;
+        this.maxTargets = 1;
         this.chainCount = chainCount;
         this.destroyOnHit = false;
 
@@ -36,8 +36,12 @@ export default class ShurikanProjectile extends WeaponProjectile {
     bulletHit(target) {
         super.bulletHit(target);
 
-        this.chainAttack(target);
-        this.destroy();
+        if (this.chainCount > 0) {
+            this.chainAttack(target);
+            this.destroy();
+        } else {
+            this.destroy();
+        }
     }
 
     itemHit(item) {
@@ -79,9 +83,9 @@ export default class ShurikanProjectile extends WeaponProjectile {
             const { target, handler, pos } = validTargets[i];
             this.chainCount--;
             const chainShurikan = new ShurikanProjectile(this.scene, thisPos.x, thisPos.y, this.player, this.chainCount)
+            this.scene.weaponGroup.add(chainShurikan);
             chainShurikan.hitTargets.push(enemy);
             const direction = pos.subtract(thisPos).normalize().scale(1000);
-            this.scene.weaponGroup.add(chainShurikan);
             chainShurikan.allowGravity = false;
             chainShurikan.setVelocity(direction.x, direction.y)
             chainShurikan.setScale(.11)

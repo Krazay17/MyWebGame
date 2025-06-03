@@ -1,7 +1,7 @@
 import BaseEnemy from "./_baseEnemy.js";
 
 export default class SunMan extends BaseEnemy {
-    constructor(scene, x, y, health) {
+    constructor(scene, x, y, health = 3) {
         super(scene, x, y, 'sunsheet', health)
 
         this.maxaccell = 600;

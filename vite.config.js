@@ -1,5 +1,6 @@
 // vite.config.js
 export default {
+	base: /conduit/,
 	root: '.',               // Project root
 	publicDir: 'public',     // Static files
 	build: {

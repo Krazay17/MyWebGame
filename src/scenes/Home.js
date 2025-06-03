@@ -13,7 +13,6 @@ export default class Home extends BaseGame {
         this.load.image('portal1', 'assets/Portal2.png');
         this.load.image('duck', 'assets/DuckFloaty.png');
         this.load.image('largeplatform', 'assets/LargePlatform.webp');
-        this.load.image('door0', 'assets/door0.webp');
     }
 
     create() {
@@ -21,7 +20,7 @@ export default class Home extends BaseGame {
         this.setupSky();
         this.setupWorld(-2000, 0, 4000, 2000);
         this.setupFPS();
-        this.setupPlayer();
+        this.setupPlayer(0, 740);
         this.setupMusic('music1');
 
         this.setupGroups();
@@ -32,7 +31,7 @@ export default class Home extends BaseGame {
         this.setupCollisions();
 
         const widePlatformPos = [
-            [-1000, 350], [-800, 500], [-400, 650], [0, 800], [400, 650], [800, 500], [1000, 350], [400, 1000],[-400, 1000],[-700, 1200],[700, 1200],
+            [-1200, 350], [-800, 500], [-400, 650], [0, 800], [400, 650], [800, 500], [1200, 350], [400, 1000],[-400, 1000],[-700, 1200],[700, 1200],
         ];
         widePlatformPos.forEach(pos => this.walkableGroup.create(pos[0], pos[1], 'platformwide'));
 
@@ -58,7 +57,7 @@ export default class Home extends BaseGame {
         const portal02 = this.add.image(800, 400, 'portal0');
         portal02.flipX = true;
         const portal1 = this.portals.create(-800, 400, 'portal1');
-        const portal2 = this.portals.create(-600, 900, 'door0').setScale(.5);
+        const portal2 = this.portals.create(-600, 900, 'door0').setScale(.3);
 
         this.shrinkCollision(portal0, 150, 150);
         this.shrinkCollision(portal1, 150, 150);
@@ -108,7 +107,7 @@ export default class Home extends BaseGame {
     }
 
     spawnEnemies() {
-        this.spawnManager.spawnDuck(400,1000);
+        this.spawnManager.spawnDuck(400, 1000);
         this.spawnManager.SpawnCoin(100, 300);
     }
 }

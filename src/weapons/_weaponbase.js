@@ -61,7 +61,7 @@ export default class WeaponBase {
     }
 
     calculateShot(pointer, scale = 1, rayThickness = 26) {
-        const headOffset = 15;
+        const headOffset = 10;
         const x = this.player.x;
         const y = this.player.y - headOffset;
         const pxy = new Phaser.Math.Vector2(x, y);

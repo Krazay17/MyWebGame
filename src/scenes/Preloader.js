@@ -9,6 +9,7 @@ export default class Preloader extends Phaser.Scene {
         this.loadingBar();
         
         this.load.image('purplesky0', 'assets/PurpleSky0.webp');
+        this.load.image('door0', 'assets/door0.webp');
         this.load.image('purplesky1', 'assets/PurpleSky1.webp');
         this.load.image('purplesky2', 'assets/PurpleSky2.webp');
         this.load.audio('playerHit', 'assets/PlayerGotHit.wav');
@@ -16,7 +17,6 @@ export default class Preloader extends Phaser.Scene {
         this.load.audio('shurikanhit', 'assets/shurikan.wav');
         this.load.audio('pickup', 'assets/SuccessBeep.wav');
         this.load.audio('music1', 'assets/music1.mp3');
-        this.load.image('dudecrouch', 'assets/DudeCrouch.png');
         this.load.image('shurikan', 'assets/shurikan.png');
         this.load.image('shurikanicon', 'assets/shurikan.png');
         this.load.audio('energysound', 'assets/EnergySound.wav');

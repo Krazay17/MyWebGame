@@ -29,7 +29,7 @@ export default class PlayerUI extends Phaser.Scene {
     this.fpsText = this.add.text(0, 0, '', { font: '24px Courier' });
     this.fpsText.setScrollFactor(0);
     this.time.addEvent({
-      delay: 500,
+      delay: 200,
       loop: true,
       callback: () => {
         this.fpsText.setText(`FPS: ${Math.floor(this.game.loop.actualFps)}` 

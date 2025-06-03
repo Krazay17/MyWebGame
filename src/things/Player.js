@@ -21,7 +21,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
         this.damageSound = this.scene.sound.add('playerHit');
 
-        this.setScale(0.3);
+        this.setScale(0.35);
         this.setDepth(100);
         this.setSize(105, 240);
         this.setOffset(55, 5);
@@ -38,6 +38,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.jumpMax = 400;
         this.canJump = true;
         this.canDash = true;
+        this.canResetDash = true;
+        this.crouchBoost = true;
+        this.crouchCD = 0;
         this.wallJump = false;
         this.wallJumpX = 0;
         this.stunned = false;
@@ -127,7 +130,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             }
         });
 
-        this.resetJump(true);
+        this.resetJump();
+        this.resetDash();
 
     }
 
@@ -190,7 +194,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     TouchPlatform(player, platform) {
         if (this.body.blocked.down) {
-            this.resetJump(true);
+            this.resetJump();
+            this.resetDash();
         }
 
         if (this.body.blocked.left) {
@@ -231,7 +236,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             this.setVelocityX(WalkLerp(-this.speed));
             this.flipX = true;
             if (this.body.blocked.down) {
-                this.anims.play('dudewalk', true);
+                this.play('dudewalk', true);
             } else {
                 this.setFrame(5);
             }
@@ -242,7 +247,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             this.setVelocityX(WalkLerp(this.speed));
             this.flipX = false;
             if (this.body.blocked.down) {
-                this.anims.play('dudewalk', true);
+                this.play('dudewalk', true);
             } else {
                 this.setFrame(5);
             }
@@ -250,12 +255,51 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 this.Dash(600);
             }
         } else if (isDown && !this.playerUI.Chatting) {
-            this.setVelocityX(WalkLerp(0, 0.01));
+            var crouchSpeed;
+
+            const crouchBooster = (speed) => {
+
+                this.crouchBoost = false;
+                this.slideAnim = true;
+                this.scene.time.delayedCall(1000, () => this.slideAnim = false);
+                this.setVelocityX(WalkLerp(speed, 1))
+                console.log(speed)
+            }
+
+            if (isRight && this.body.blocked.down) {
+                crouchSpeed = this.speed * .30;
+                if (!this.slideAnim) this.play('dudecrouch', true);
+                this.flipX = false;
+            } else if (isLeft && this.body.blocked.down) {
+                crouchSpeed = -this.speed * .30;
+                if (!this.slideAnim) this.play('dudecrouch', true);
+                this.flipX = true;
+            } else {
+                this.setFrame(6);
+                crouchSpeed = 0;
+            }
+            if (this.crouchBoost && this.body.blocked.down) {
+                this.stop();
+                this.setFrame(9)
+                crouchBooster(crouchSpeed * 14);
+            }
+
+            this.setVelocityX(WalkLerp(crouchSpeed, .025));
         } else {
+            // not moving or crouching
             this.setVelocityX(WalkLerp(0));
-            this.stop();
             if (this.body.blocked.down) this.setFrame(0);
             else this.setFrame(2);
+        }
+
+        if (!isDown && !this.crouchBoost) {
+            if (this.crouchCD < 1000) {
+                this.crouchCD += delta;
+                console.log(this.crouchCD);
+            } else {
+                this.crouchCD = 0;
+                this.crouchBoost = true;
+            }
         }
 
 
@@ -279,26 +323,19 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
         if (isDown && !this.isCrouch && !this.playerUI.Chatting) {
             this.isCrouch = true;
-            this.stop();
-            this.setTexture('dudecrouch', false);
             this.setSize(105, 140);
             this.setOffset(55, 105);
         } else if (!isDown && this.isCrouch) {
             this.isCrouch = false;
-            this.setTexture('dudesheet');
             this.setSize(105, 240);
             this.setOffset(55, 5);
         }
     }
 
-    resetJump(floor) {
+    resetJump() {
         this.jumpPower = this.baseJumpPower;
         this.canJump = true;
-        if (floor) {
-            this.canDash = true;
-            this.jumpMax = 400;
-            this.setTint(0x66ff33);
-        }
+
     }
 
     TakeDamage(x, y, damage) {
@@ -337,18 +374,37 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         return true;
     }
 
+    resetDash() {
+        if (this.canResetDash) {
+            this.queResetDash = false;
+            this.canDash = true;
+            this.jumpMax = 400;
+            this.setTint(0x66ff33);
+        } else {
+            this.queResetDash = true;
+        }
+    }
+
     Dash(x) {
         this.iFrame = true;
+        this.canDash = false;
+        this.canResetDash = false;
 
         this.setVelocityX(x);
         this.setVelocityY(-50);
-        this.canDash = false;
         this.clearTint();
 
         this.scene.time.addEvent({
             delay: 350,
             callback: () => {
                 this.iFrame = false;
+            }
+        });
+                this.scene.time.addEvent({
+            delay: 650,
+            callback: () => {
+                this.canResetDash = true;
+                if(this.queResetDash) this.resetDash();
             }
         });
     }
@@ -383,6 +439,15 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             });
         }
 
+        if (!this.scene.anims.get('dudecrouch')) {
+            this.scene.anims.create({
+                key: 'dudecrouch',
+                frames: this.anims.generateFrameNumbers('dudesheet', { start: 6, end: 8 }),
+                frameRate: 8,
+                repeat: -1,
+            });
+        }
+
     }
 
     syncNetwork() {
@@ -390,10 +455,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.tryingToSync = true;
         setTimeout(() => this.tryingToSync = false, 500);
 
-        if (!this.network.socket.connected && !this.network.socket.reconnecting) 
-            {
-                this.network.socket.connect();
-            }
+        if (!this.network.socket.connected && !this.network.socket.reconnecting) {
+            this.network.socket.connect();
+        }
 
         //this.network.socket.emit('playerSyncRequest', { x: this.x, y: this.y, data: { name: GameManager.name, power: GameManager.power } });
 

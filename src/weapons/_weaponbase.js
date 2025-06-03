@@ -213,7 +213,7 @@ export default class WeaponBase {
     playHitSound() {
     const now = this.scene.time.now;
 
-    if (!this.lastPlayTime || now - this.lastPlayTime > 10) {
+    if (!this.lastPlayTime || now - this.lastPlayTime > 33) {
         this.lastPlayTime = now;
 
         if (!this.hitSound) {

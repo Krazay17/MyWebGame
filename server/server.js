@@ -41,8 +41,6 @@ io.on('connection', (socket) => {
       .map(([id, player]) => ({ id, ...player }))
   );
 
-  players[socket.id] = null;
-
   // // Tell other players about this new one
   // socket.broadcast.emit('playerJoined', {
   //   id: socket.id,

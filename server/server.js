@@ -34,7 +34,7 @@ io.on('connection', (socket) => {
   //   },
   //   lastPing: Date.now()
   // };
-    if (players[socket.id]) {
+  if (players[socket.id]) {
     console.log(`Stale player data found for ${socket.id}, deleting`);
     delete players[socket.id];
   }
@@ -68,33 +68,33 @@ io.on('connection', (socket) => {
     );
   })
 
-socket.on('playerSyncRequest', ({ x, y, data }) => {
-  const isNew = !players[socket.id];
+  socket.on('playerSyncRequest', ({ x, y, data }) => {
+    const isNew = !players[socket.id];
 
-  players[socket.id] = { x, y, data };
+    players[socket.id] = { x, y, data };
 
-  if (isNew) {
-    socket.broadcast.emit('playerJoined', {
-      id: socket.id,
-      x,
-      y,
-      data
-    });
-  } else {
-    socket.broadcast.emit('playerSyncUpdate', {
-      id: socket.id,
-      x,
-      y,
-      data
-    });
-  }
-});
-
-  socket.on('pingCheck', () => {
-    if(players[socket.id]) {
-      players[socket.id].lastPing = Date.now();
+    if (isNew) {
+      socket.broadcast.emit('playerJoined', {
+        id: socket.id,
+        x,
+        y,
+        data
+      });
+    } else {
+      socket.broadcast.emit('playerSyncUpdate', {
+        id: socket.id,
+        x,
+        y,
+        data
+      });
     }
   });
+
+  // socket.on('pingCheck', () => {
+  //   if(players[socket.id]) {
+  //     players[socket.id].lastPing = Date.now();
+  //   }
+  // });
 
   // Optional partial updates (position only, etc.)
   socket.on('playerMove', ({ x, y }) => {
@@ -154,7 +154,7 @@ server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 //       // Remove player data
 //       delete players[id];
-      
+
 
 //       io.emit('playerLeft', { id });
 

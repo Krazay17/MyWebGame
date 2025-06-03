@@ -27,11 +27,11 @@ export default class NetworkManager {
     // On connection
     this.socket.on('connect', () => {
       console.log('Connected to server:', this.socket.id);
-      
-      this.socket.emit('pingCheck');
-      setInterval(() => {
-        this.socket.emit('pingCheck');
-      }, 5000);
+
+      // this.socket.emit('pingCheck');
+      // setInterval(() => {
+      //   this.socket.emit('pingCheck');
+      // }, 5000);
 
       // Initial sync request after gathering local player data
       const data = GameManager.getNetworkData();
@@ -43,11 +43,11 @@ export default class NetworkManager {
       console.warn('Disconnected from server:', reason);
       // You could show a "Reconnecting..." message here if needed
 
-        // Destroy all ghost players
-  for (const id in this.otherPlayers) {
-    this.otherPlayers[id].destroy();
-    delete this.otherPlayers[id];
-  }
+      // Destroy all ghost players
+      for (const id in this.otherPlayers) {
+        this.otherPlayers[id].destroy();
+        delete this.otherPlayers[id];
+      }
     });
 
     this.socket.on('reconnect', (attemptNumber) => {

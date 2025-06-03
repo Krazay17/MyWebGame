@@ -71,7 +71,7 @@ io.on('connection', (socket) => {
   socket.on('playerSyncRequest', ({ x, y, data }) => {
     const isNew = !players[socket.id];
 
-    players[socket.id] = { x, y, data };
+    players[socket.id] = { x, y, data, lastPing: Date.now() };
 
     if (isNew) {
       socket.broadcast.emit('playerJoined', {
@@ -90,11 +90,11 @@ io.on('connection', (socket) => {
     }
   });
 
-  // socket.on('pingCheck', () => {
-  //   if(players[socket.id]) {
-  //     players[socket.id].lastPing = Date.now();
-  //   }
-  // });
+  socket.on('pingCheck', () => {
+    if(players[socket.id]) {
+      players[socket.id].lastPing = Date.now();
+    }
+  });
 
   // Optional partial updates (position only, etc.)
   socket.on('playerMove', ({ x, y }) => {
@@ -141,26 +141,27 @@ io.on('connection', (socket) => {
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-// setInterval(() => {
-//   const now = Date.now();
-//   for (const [id, player] of Object.entries(players)) {
-//     if (now - (player.lastPing || 0) > 10000) {
+setInterval(() => {
+  const now = Date.now();
+  for (const [id, player] of Object.entries(players)) {
+    if (now - (player.lastPing || 0) > 10000) {
 
-//       // Get the actual socket and disconnect
-//       const targetSocket = io.sockets.sockets.get(id);
-//       if (targetSocket) {
-//         targetSocket.emit('droppedDueToInactivity');
-//       }
+      // Get the actual socket and disconnect
+      const targetSocket = io.sockets.sockets.get(id);
+      if (targetSocket) {
+        targetSocket.emit('droppedDueToInactivity');
+        console.log('timeout: ', player);
+      }
 
-//       // Remove player data
-//       delete players[id];
+      // Remove player data
+      delete players[id];
 
 
-//       io.emit('playerLeft', { id });
+      io.emit('playerLeft', { id });
 
-//     }
-//   }
-// }, 5000);
+    }
+  }
+}, 5000);
 
 const repl = require('repl');
 

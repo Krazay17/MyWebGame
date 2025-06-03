@@ -31,7 +31,8 @@ io.on('connection', (socket) => {
   //   data: {
   //     name: { text: 'Hunter', color: '#ffffff' },
   //     power: { source: 0, auraLevel: 1 }
-  //   }
+  //   },
+  //   lastPing: Date.now()
   // };
 
   // Send list of already connected players to the new player
@@ -86,23 +87,7 @@ socket.on('playerSyncRequest', ({ x, y, data }) => {
 });
 
   socket.on('pingCheck', () => {
-    // If player doesn't exist (was dropped), re-add them
-    if (!players[socket.id]) {
-      players[socket.id] = {
-        x: 0,
-        y: 0,
-        data: {
-          name: { text: 'Hunter', color: '#ffffff' },
-          power: { source: 0, auraLevel: 1 }
-        },
-        lastPing: Date.now()
-      };
-
-      socket.broadcast.emit('playerJoined', {
-        id: socket.id,
-        ...players[socket.id]
-      });
-    } else {
+    if(players[socket.id]) {
       players[socket.id].lastPing = Date.now();
     }
   });
@@ -152,26 +137,26 @@ socket.on('playerSyncRequest', ({ x, y, data }) => {
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-setInterval(() => {
-  const now = Date.now();
-  for (const [id, player] of Object.entries(players)) {
-    if (now - (player.lastPing || 0) > 10000) {
+// setInterval(() => {
+//   const now = Date.now();
+//   for (const [id, player] of Object.entries(players)) {
+//     if (now - (player.lastPing || 0) > 10000) {
 
-      // Get the actual socket and disconnect
-      const targetSocket = io.sockets.sockets.get(id);
-      if (targetSocket) {
-        targetSocket.emit('droppedDueToInactivity');
-      }
+//       // Get the actual socket and disconnect
+//       const targetSocket = io.sockets.sockets.get(id);
+//       if (targetSocket) {
+//         targetSocket.emit('droppedDueToInactivity');
+//       }
 
-      // Remove player data
-      delete players[id];
+//       // Remove player data
+//       delete players[id];
       
 
-      io.emit('playerLeft', { id });
+//       io.emit('playerLeft', { id });
 
-    }
-  }
-}, 5000);
+//     }
+//   }
+// }, 5000);
 
 const repl = require('repl');
 

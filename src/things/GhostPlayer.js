@@ -15,7 +15,6 @@ export default class GhostPlayer {
     this.x = x;
     this.y = y;
     this.source = power.source;
-    console.log('data object', data)
     this.auraLevel = power.auraLevel;
     this.nameText = name.text;
     this.nameColor = name.color;

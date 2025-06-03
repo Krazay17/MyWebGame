@@ -128,14 +128,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
         this.resetJump(true);
 
-        this.scene.time.addEvent({
-            delay: 5000,
-            loop: true,
-            callback: () => {
-                this.syncNetwork();
-            }
-        }, null, this)
-
     }
 
     preUpdate(time, delta) {
@@ -402,7 +394,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 this.network.socket.connect();
             }
 
-        console.log('syncreq')
         //this.network.socket.emit('playerSyncRequest', { x: this.x, y: this.y, data: { name: GameManager.name, power: GameManager.power } });
 
     }

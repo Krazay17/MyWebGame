@@ -90,8 +90,8 @@ export default class NetworkManager {
       console.warn('You were dropped due to inactivity. Resyncing...');
 
       // Resend current state
-      const data = GameManager.getNetworkData();
-      this.socket.emit('playerSyncRequest', { x: 0, y: 0, data });
+      // const data = GameManager.getNetworkData();
+      // this.socket.emit('playerSyncRequest', { x: 0, y: 0, data });
     });
 
     // General sync update

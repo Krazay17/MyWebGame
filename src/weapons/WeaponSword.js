@@ -49,7 +49,10 @@ export default class WeaponSword extends WeaponBase {
 
         this.swordOffset = data.vector;
 
-        this.sword = this.scene.add.sprite(data.start.x + data.vector.x, data.start.y + data.vector.y, 'sword').setScale(0.24).setAngle(angleDeg);
+        this.sword = this.scene.add.sprite(data.start.x + data.vector.x, data.start.y + data.vector.y, 'sword')
+        .setScale(0.24)
+        .setAngle(angleDeg)
+        .setDepth(101);
         this.sword.play('sword');
         this.sword.setFlipY(angleDeg > 90 || angleDeg < -90);
 

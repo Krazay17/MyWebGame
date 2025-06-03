@@ -105,7 +105,8 @@ export default class WeaponWhip extends WeaponBase {
         this.weaponSprite = this.scene.add.sprite(data.start.x + data.vector.x, data.start.y + data.vector.y, 'whip')
             .setScale(0.48)
             .setOrigin(0, .5)
-            .setAngle(angleDeg);
+            .setAngle(angleDeg)
+            .setDepth(101);
         this.weaponSprite.play('whip');
         this.weaponSprite.setFlipY(angleDeg > 90 || angleDeg < -90);
 

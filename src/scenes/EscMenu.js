@@ -126,7 +126,7 @@ export default class EscMenu extends Phaser.Scene {
         const minX1 = this.slider1.track1.x - this.slider1.track1.width / 2;
         const maxX1 = this.slider1.track1.x + this.slider1.track1.width / 2;
         this.slider1.handle1.x = Phaser.Math.Linear(minX1, maxX1, volume.music);
-        globalThis.currentMusic.volume? volume.music : 1;
+        globalThis.currentMusic.volume? volume?.music : 1;
     }
 
     openNameInput() {

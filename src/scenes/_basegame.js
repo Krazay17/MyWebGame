@@ -61,7 +61,7 @@ export default class BaseGame extends Phaser.Scene {
       this.invMenu = this.scene.get('Inventory');
       this.invMenu.init({ player: this.player });
     }
-    
+
     if (!this.scene.isActive('PlayerUI')) {
       this.scene.launch('PlayerUI', { player: this.player, gameScene: this });
       this.playerUI = this.scene.get('PlayerUI');
@@ -116,6 +116,20 @@ export default class BaseGame extends Phaser.Scene {
         this
       ));
 
+    // Explicitly add wall collisions
+    if (this.tilemapColliders?.length) {
+      this.tilemapColliders.forEach(walls => {
+        this.physics.add.collider(this.weaponGroup, walls, (weapon, wall) => {
+          weapon.platformHit(wall)
+        }, null, this);
+        this.physics.add.collider(this.player, walls, (player, wall) => {
+          player.TouchPlatform(wall);
+        }, null, this);
+        this.physics.add.collider(this.enemyGroup, walls);
+        this.physics.add.collider(this.itemGroup, walls);
+      });
+    }
+
     this.physics.add.collider(this.player, this.walkableGroup, (player, walkable) => {
       player.TouchPlatform(walkable);
     }, null, this);
@@ -157,7 +171,7 @@ export default class BaseGame extends Phaser.Scene {
     }, null, this);
   }
 
-  setupMusic(key = 'homemusic', volume = 1) {
+  setupMusic(key = 'music1', volume = 1) {
     // If music is already playing and it's the same track, do nothing
     // Use globalThis to store music reference
 
@@ -181,14 +195,14 @@ export default class BaseGame extends Phaser.Scene {
   }
 
   setupQuick(x = 0, y = 0) {
-    this.setupSave();
     this.setupSky();
+    this.setupSave();
     this.setupWorld();
-    this.setupMusic();
-    this.setupFPS();
     this.setupPlayer(x, y);
     this.setupGroups();
     this.setupCollisions();
+    this.setupMusic();
+    this.setupFPS();
   }
 
   shrinkCollision(object, x, y) {

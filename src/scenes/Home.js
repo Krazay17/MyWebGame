@@ -13,6 +13,7 @@ export default class Home extends BaseGame {
         this.load.image('portal1', 'assets/Portal2.png');
         this.load.image('duck', 'assets/DuckFloaty.png');
         this.load.image('largeplatform', 'assets/LargePlatform.webp');
+        this.load.image('door0', 'assets/door0.webp');
     }
 
     create() {
@@ -53,13 +54,15 @@ export default class Home extends BaseGame {
 
         this.portals = this.physics.add.staticGroup();
 
-        const portal0 = this.portals.create(800, 300, 'portal0');
-        const portal02 = this.add.image(800, 300, 'portal0');
+        const portal0 = this.portals.create(800, 400, 'portal0');
+        const portal02 = this.add.image(800, 400, 'portal0');
         portal02.flipX = true;
-        const portal1 = this.portals.create(-800, 300, 'portal1');
+        const portal1 = this.portals.create(-800, 400, 'portal1');
+        const portal2 = this.portals.create(-600, 900, 'door0').setScale(.5);
 
-        this.shrinkCollision(portal0, 100, 100);
-        this.shrinkCollision(portal1, 100, 100);
+        this.shrinkCollision(portal0, 150, 150);
+        this.shrinkCollision(portal1, 150, 150);
+        this.shrinkCollision(portal2, 150, 150);
 
         const portalsToSpin = [
             { sprite: portal0, angle: -360, duration: 1500 },
@@ -92,6 +95,7 @@ export default class Home extends BaseGame {
 
         portal0.targetScene = 'Level1';
         portal1.targetScene = 'Level3';
+        portal2.targetScene = 'level2';
 
         this.portalList.push(portal0, portal1);
 

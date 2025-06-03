@@ -3,6 +3,7 @@ export default class AuraSprite extends Phaser.Physics.Arcade.Sprite {
         super(scene, x, y, 'aura', 0);
         scene.add.existing(this);
         this.setAlpha(.4);
+        this.setDepth(99);
 
         if (!scene.anims.get('weakaura')) {
             scene.anims.create({

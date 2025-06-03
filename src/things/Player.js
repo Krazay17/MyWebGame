@@ -22,6 +22,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.damageSound = this.scene.sound.add('playerHit');
 
         this.setScale(0.3);
+        this.setDepth(100);
         this.setSize(105, 240);
         this.setOffset(55, 5);
         this.alive = true;
@@ -115,7 +116,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         });
 
         this.scene.input.keyboard.on('keydown-T', () => {
-            if (this.scene.scene.key !== 'Home' && this.body.touching.down && !this.playerUI.Chatting) {
+            if (this.scene.scene.key !== 'Home' && this.body.blocked.down && !this.playerUI.Chatting) {
                 this.scene.scene.start('Home')
             }
         });
@@ -188,16 +189,16 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
 
     TouchPlatform(player, platform) {
-        if (this.body.touching.down) {
+        if (this.body.blocked.down) {
             this.resetJump(true);
         }
 
-        if (this.body.touching.left) {
+        if (this.body.blocked.left) {
             this.resetJump();
             this.wallJump = true;
             this.wallJumpX = 400;
         }
-        if (this.body.touching.right) {
+        if (this.body.blocked.right) {
             this.resetJump();
             this.wallJump = true;
             this.wallJumpX = -400;
@@ -219,7 +220,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         const isUp = up.some(key => key.isDown);
 
         const WalkLerp = (a, modify) => {
-            if (!modify) modify = this.body.touching.down ? .5 : .09;
+            if (!modify) modify = this.body.blocked.down ? .5 : .09;
 
             modify = Phaser.Math.Clamp(modify * (delta / 16.666), 0, 1);
             return Phaser.Math.Linear(this.body.velocity.x, a, modify);
@@ -229,7 +230,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         if (isLeft && !isDown && !this.playerUI.Chatting) {
             this.setVelocityX(WalkLerp(-this.speed));
             this.flipX = true;
-            if (this.body.touching.down) {
+            if (this.body.blocked.down) {
                 this.anims.play('dudewalk', true);
             } else {
                 this.setFrame(5);
@@ -240,7 +241,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         } else if (isRight && !isDown && !this.playerUI.Chatting) {
             this.setVelocityX(WalkLerp(this.speed));
             this.flipX = false;
-            if (this.body.touching.down) {
+            if (this.body.blocked.down) {
                 this.anims.play('dudewalk', true);
             } else {
                 this.setFrame(5);
@@ -253,7 +254,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         } else {
             this.setVelocityX(WalkLerp(0));
             this.stop();
-            if (this.body.touching.down) this.setFrame(0);
+            if (this.body.blocked.down) this.setFrame(0);
             else this.setFrame(2);
         }
 

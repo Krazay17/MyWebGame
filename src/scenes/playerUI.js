@@ -32,7 +32,8 @@ export default class PlayerUI extends Phaser.Scene {
       delay: 500,
       loop: true,
       callback: () => {
-        this.fpsText.setText(`FPS: ${Math.floor(this.game.loop.actualFps)}`);
+        this.fpsText.setText(`FPS: ${Math.floor(this.game.loop.actualFps)}` 
+        + '\nLoc: ' + Math.round(this.player.x) + ', ' + Math.round(this.player.y));
       }
     });
 

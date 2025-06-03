@@ -151,6 +151,7 @@ setInterval(() => {
       if (targetSocket) {
         targetSocket.emit('droppedDueToInactivity');
         console.log('timeout: ', player);
+        targetSocket.disconnect(true);
       }
 
       // Remove player data

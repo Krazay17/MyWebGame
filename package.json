@@ -10,15 +10,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Krazay17/WebConduit.git"
+    "url": "git+https://github.com/Krazay17/conduit.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Krazay17/WebConduit/issues"
+    "url": "https://github.com/Krazay17/conduit/issues"
   },
-  "homepage": "https://github.com/Krazay17/WebConduit#readme",
+  "homepage": "https://github.com/Krazay17/conduit#readme",
   "dependencies": {
     "express": "^5.1.0",
     "phaser": "^3.90.0",

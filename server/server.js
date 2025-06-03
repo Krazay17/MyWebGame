@@ -34,6 +34,10 @@ io.on('connection', (socket) => {
   //   },
   //   lastPing: Date.now()
   // };
+    if (players[socket.id]) {
+    console.log(`Stale player data found for ${socket.id}, deleting`);
+    delete players[socket.id];
+  }
 
   // Send list of already connected players to the new player
   socket.emit('existingPlayers',

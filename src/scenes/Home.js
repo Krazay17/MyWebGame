@@ -11,7 +11,6 @@ export default class Home extends BaseGame {
         this.load.image('platformwide', 'assets/platformwide.png');
         this.load.image('portal0', 'assets/Portal1.png');
         this.load.image('portal1', 'assets/Portal2.png');
-        this.load.image('duck', 'assets/DuckFloaty.png');
         this.load.image('largeplatform', 'assets/LargePlatform.webp');
     }
 

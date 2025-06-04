@@ -7,6 +7,7 @@ export default class ShurikanProjectile extends WeaponProjectile {
         this.maxTargets = 1;
         this.chainCount = chainCount;
         this.destroyOnHit = false;
+        this.shrinkCollision(this, this.width/1.6, this.height/1.6)
 
         // Spin tween
         this.scene.tweens.add({
@@ -92,4 +93,12 @@ export default class ShurikanProjectile extends WeaponProjectile {
 
         }
     }
+
+      shrinkCollision(object, x, y) {
+    object.body.setSize(x, y); // Smaller than sprite size
+    object.body.setOffset(
+      (object.width - x) / 2,
+      (object.height - y) / 2
+    );
+  }
 }

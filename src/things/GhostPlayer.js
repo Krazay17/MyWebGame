@@ -26,11 +26,13 @@ export default class GhostPlayer {
   createVisuals() {
     this.auraSprite = new AuraSprite(this.scene, this.x, this.y, this.auraLevel)
       .setTint(0x00ffff);
+    this.sprite.setDepth(98);
 
     this.sprite = this.scene.add.sprite(this.x, this.y, 'dudesheet');
-    this.sprite.setScale(0.3);
+    this.sprite.setScale(0.35);
     this.sprite.setAlpha(0.6);
     this.sprite.setTint(0x00ffff);
+    this.sprite.setDepth(99);
 
 
     this.sourceText = this.scene.add.text(this.x, this.y - 45, this.ranks.getRank(this.source) + '\n' + this.source, {

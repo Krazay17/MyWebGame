@@ -7,7 +7,7 @@ export default class DarkOrbProjectile extends WeaponProjectile {
         this.destroyOnHit = false;
 
         scene.time.addEvent({
-            delay: 250,
+            delay: 200,
             callback: () => this.hitTargets = [],
             repeat: -1,
         });
@@ -31,7 +31,7 @@ export default class DarkOrbProjectile extends WeaponProjectile {
             this.setVelocity(0, 0);
             this.setScale(this.scale + .015);
             if (!this.detonated) {
-                this.scene.time.delayedCall(500, () => this.destroy())
+                this.scene.time.delayedCall(400, () => this.destroy())
             }
         }
     }

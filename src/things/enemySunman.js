@@ -4,8 +4,8 @@ export default class SunMan extends BaseEnemy {
     constructor(scene, x, y, health = 3) {
         super(scene, x, y, 'sunsheet', health)
 
-        this.maxaccell = 600;
-        this.damage = health;
+        this.maxaccell = 400;
+        this.damage = 5;
 
         if (!scene.anims.get('sunsheet')) {
             scene.anims.create({
@@ -17,6 +17,6 @@ export default class SunMan extends BaseEnemy {
         };
         this.play('sunsheet')
 
-        this.accelToPlayer(200, 1200);
+        this.accelToPlayer(200, 400);
     }
 }

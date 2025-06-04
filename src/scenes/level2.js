@@ -31,24 +31,16 @@ export default class level2 extends BaseGame {
 
         this.setupPortals();
 
-        // const objects = map.getObjectLayer('objects1');
-        // objects.objects.forEach(obj => {
-        //     const plat = this.physics.add.staticImage(obj.x, obj.y, null);
-        //     plat.displayWidth = obj.width;
-        //     plat.displayHeight = obj.height;
-        //     plat.setOrigin(0); // Important: match Tiled's origin
-        //     this.walkableGroup.add(plat);
-        // });
-
-
-
-        //     this.physics.add.collider(this.player, walls, (player, wall) => {
-        //   player.TouchPlatform();
-
-        //     }, null, this);
+        const objects = map.getObjectLayer('objects1');
+        objects.objects.forEach(obj => {
+            this[obj.name]?.(obj.x, obj.y);
+        });
     }
 
-    
+    spawnDuck(x, y) {
+        this.spawnManager.spawnDuck(x, y);
+    }
+
     setupPortals() {
         this.portalList = [];
 

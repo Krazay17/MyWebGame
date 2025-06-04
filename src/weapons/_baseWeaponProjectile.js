@@ -24,7 +24,7 @@ export default class WeaponProjectile extends Phaser.Physics.Arcade.Sprite {
         if (this.destroyOnHit) this.destroy();
     }
 
-    enemyHit(enemy, stagger) {
+    enemyHit(enemy, stagger = true) {
         if (!this.canHit(enemy)) return;
 
         const velocity = this.body.velocity;

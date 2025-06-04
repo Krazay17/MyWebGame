@@ -36,7 +36,7 @@ export default class SpawnManager {
         sunMan.setScale(.4);
         sunMan.scaleCollision(170, 170);
         sunMan.setCollideWorldBounds(true);
-        sunMan.body.setMaxSpeed(1400);
+        sunMan.body.setMaxSpeed(1000);
         return sunMan;
     }
 

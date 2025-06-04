@@ -9,6 +9,7 @@ export default class Preloader extends Phaser.Scene {
         this.loadingBar();
         
         this.load.image('purplesky0', 'assets/PurpleSky0.webp');
+        this.load.image('duck', 'assets/DuckFloaty.png');
         this.load.image('door0', 'assets/door0.webp');
         this.load.image('purplesky1', 'assets/PurpleSky1.webp');
         this.load.image('purplesky2', 'assets/PurpleSky2.webp');

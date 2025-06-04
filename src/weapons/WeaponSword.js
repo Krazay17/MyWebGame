@@ -2,7 +2,7 @@ import WeaponBase from './_weaponbase.js';
 
 export default class WeaponSword extends WeaponBase {
     constructor(scene, player) {
-        super(scene, player, 3)
+        super(scene, player, 6)
 
         this.name = 'sword'
         this.baseCooldown = 250;

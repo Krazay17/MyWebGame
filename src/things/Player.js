@@ -22,7 +22,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.damageSound = this.scene.sound.add('playerHit');
 
         this.setScale(0.35);
-        this.setDepth(100);
+        this.setDepth(10);
         this.setSize(110, 250);
         this.setOffset(70, 0);
         this.baseHitBoxSize = { y: 250, yo: 0 };
@@ -540,7 +540,7 @@ lerpHitBox(delta) {
         if (!this.chatBubble) {
             this.chatBubble = new ChatBubble(this.scene, this.x, this.y - 100, message);
         } else {
-            this.chatBubble.updateMessage(message);
+            this.chatBubble.updateMessage(message, this.scene);
         }
         this.network.socket.emit('playerchatRequest', message)
     }

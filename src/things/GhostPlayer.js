@@ -2,13 +2,13 @@ import AuraSprite from "../weapons/auraSprite.js";
 import RankSystem from "./RankSystem.js";
 import ChatBubble from "./chatBubble.js";
 
-export default class GhostPlayer {
+export default class GhostPlayer extends Phaser.GameObjects.Container {
   constructor(scene, id, x = 0, y = 0,
     data = {
       name: { text: 'Hunter', color: '#ffffff' },
       power: { source: 0, auraLevel: 1 },
     }) {
-    this.scene = scene;
+      super(scene, x, y);
     this.id = id;
     const name = data?.name ?? { text: 'Hunter', color: '#ffffff' };
     const power = data?.power ?? { source: 0, auraLevel: 1 };
@@ -26,26 +26,26 @@ export default class GhostPlayer {
   createVisuals() {
     this.auraSprite = new AuraSprite(this.scene, this.x, this.y, this.auraLevel)
       .setTint(0x00ffff);
-    this.auraSprite.setDepth(98);
+    this.auraSprite.setDepth(7);
 
     this.sprite = this.scene.add.sprite(this.x, this.y, 'dudesheet');
     this.sprite.setScale(0.35);
     this.sprite.setAlpha(0.6);
     this.sprite.setTint(0x00ffff);
-    this.sprite.setDepth(99);
+    this.sprite.setDepth(8);
 
 
     this.sourceText = this.scene.add.text(this.x, this.y - 45, this.ranks.getRank(this.source) + '\n' + this.source, {
       fontSize: '12px',
       align: 'center',
       fill: '#ffffff'
-    }).setOrigin(0.5);
+    }).setOrigin(0.5).setDepth(9);
 
     this.headName = this.scene.add.text(this.x, this.y - 65, this.nameText, {
       fontSize: '12px',
       align: 'center',
       fill: this.nameColor,
-    }).setOrigin(0.5);
+    }).setOrigin(0.5).setDepth(9);
 
     // this.nameText2 = this.scene.add.text(this.x, this.y - 40, this.source + '\n' + this.ranks.getRank(this.source), {
     //   fontSize: '12px',
@@ -55,7 +55,6 @@ export default class GhostPlayer {
   }
 
   updatePosition(x, y) {
-    if(this.chatBubble) this.chatBubble.setPosition(this.x, this.y -100);
     const sameX = Math.abs(this.x - x) < 0.05;
     const sameY = Math.abs(this.y - y) < 0.05;
 
@@ -69,6 +68,7 @@ export default class GhostPlayer {
     if (this.sourceText) this.sourceText.setPosition(x, y - 45);
     if (this.headName) this.headName.setPosition(x, y - 65);
     if (this.auraSprite) this.auraSprite.setPosition(x, y);
+    if (this.chatBubble) this.chatBubble.setPosition(x, y -100);
   }
   
   ghostVelocity(x, y) {
@@ -108,6 +108,13 @@ export default class GhostPlayer {
 
     // Restore position
     this.updatePosition(this.x, this.y);
+
+        // Recreate chat bubble if needed
+    if (this.chatBubble) {
+        const message = this.chatBubble?.text?.text || '';
+        this.chatBubble = null;
+        this.makeChatBubble(message);
+    }
   }
 
   updateName(text, color) {
@@ -137,6 +144,7 @@ export default class GhostPlayer {
     if (this.sourceText) this.sourceText.destroy();
     if (this.headName) this.headName.destroy();
     if (this.auraSprite) this.auraSprite.destroy();
+    if (this.chatBubble) this.chatBubble.destroy();
   }
 
 
@@ -180,7 +188,7 @@ export default class GhostPlayer {
     if (!this.chatBubble) {
       this.chatBubble = new ChatBubble(this.scene, this.x, this.y - 100, message);
     } else {
-      this.chatBubble.updateMessage(message);
+      this.chatBubble.updateMessage(message, this.scene);
     }
   }
 }

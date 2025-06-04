@@ -162,7 +162,6 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
         const directionY = Math.sign(player.y - this.y);
         const distance = { x: Math.abs(this.x - player.x), y: Math.abs(this.y - player.y) };
         const dist = distance.x + distance.y;
-        console.log(dist);
         if (dist > 800) return;
 
         const distanceScaled = this.mapRangeClamped(distance.x, 0, 100, 0, 1)

@@ -231,7 +231,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             modify = Phaser.Math.Clamp(modify * (delta / 16.666), 0, 1);
             return Phaser.Math.Linear(this.body.velocity.x, a, modify);
         };
-        if ((isLeft || isRight) && (!this.network.socket.connected && !this.network.socket.reconnecting)) this.syncNetwork();
+        if ((isLeft || isRight)) this.syncNetwork();
 
         if (isLeft && !isDown && !this.playerUI.Chatting) {
             this.setVelocityX(WalkLerp(-this.speed));
@@ -263,7 +263,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 this.crouchBoost = false;
                 this.slideAnim = true;
                 this.scene.time.delayedCall(1000, () => this.slideAnim = false);
-                this.setVelocityX(WalkLerp(speed, 1));
+                this.setVelocityX(speed);
             }
 
             if (isRight && this.body.blocked.down) {
@@ -281,7 +281,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             if (this.crouchBoost && this.body.blocked.down) {
                 this.stop();
                 this.setFrame(9)
-                crouchBooster(crouchSpeed * 14);
+                crouchBooster(crouchSpeed * 9);
             }
 
             this.setVelocityX(WalkLerp(crouchSpeed, .025));
@@ -484,7 +484,7 @@ lerpHitBox(delta) {
             this.network.socket.connect();
         }
 
-        //this.network.socket.emit('playerSyncRequest', { x: this.x, y: this.y, data: { name: GameManager.name, power: GameManager.power } });
+        this.network.socket.emit('playerSyncRequest', { x: this.x, y: this.y, data: { name: GameManager.name, power: GameManager.power } });
 
     }
 

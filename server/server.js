@@ -61,13 +61,13 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('playerLeft', { id: socket.id });
   });
 
-  socket.on('reconnect', () => {
-    socket.emit('existingPlayers',
-      Object.entries(players)
-        .filter(([id]) => id !== socket.id)
-        .map(([id, player]) => ({ id, ...player }))
-    );
-  })
+  // socket.on('reconnect', () => {
+  //   socket.emit('existingPlayers',
+  //     Object.entries(players)
+  //       .filter(([id]) => id !== socket.id)
+  //       .map(([id, player]) => ({ id, ...player }))
+  //   );
+  // })
 
   socket.on('playerSyncRequest', ({ x, y, data }) => {
     const isNew = !players[socket.id];

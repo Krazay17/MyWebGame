@@ -135,11 +135,13 @@ export default class EscMenu extends Phaser.Scene {
                    style="font-size: 20px; width: 200px; padding: 5px;" />
         `).setOrigin(0.5);
 
-        this.playerUI.inputFocused = true;
 
         const domElement = this.nameInput.getChildByName('name');
         domElement.value = GameManager.name.text || 'Hunter';
-        domElement.focus();
+
+        domElement.addEventListener('focus', () => {
+            this.playerUI.inputFocused = true;
+    });
 
         domElement.addEventListener('keydown', (event) => {
             if (event.key === 'Enter') {

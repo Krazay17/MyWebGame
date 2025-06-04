@@ -19,6 +19,8 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
     this.nameText = name.text;
     this.nameColor = name.color;
 
+    console.log('new ghost');
+
     this.ranks = new RankSystem();
     this.createVisuals();
   }
@@ -72,6 +74,7 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
   }
   
   ghostVelocity(x, y) {
+    if(!this.sprite) return;
     this.xv = this.x - x;
     this.yv = this.y - y;
     const epsilon = .4;
@@ -140,7 +143,10 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
   }
 
   destroy() {
-    if (this.sprite) this.sprite.destroy();
+    if (this.sprite) {
+      this.sprite.destroy();
+      this.sprite = null;
+    }
     if (this.sourceText) this.sourceText.destroy();
     if (this.headName) this.headName.destroy();
     if (this.auraSprite) this.auraSprite.destroy();

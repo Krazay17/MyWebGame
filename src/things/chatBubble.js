@@ -11,32 +11,41 @@ export default class ChatBubble extends Phaser.GameObjects.Container {
         // this.add(this.bg);
 
         this.text = scene.make.text({
-            x:0, 
-            y: 0, 
-            text: message, 
+            x: 0,
+            y: 0,
+            text: '',
             style: {
-            fontSize: '14px',
-            fill: '#FFFFFF',
-            wordWrap: { width: 200, useAdvancedWrap: true }
-        },
-        add: false
-    });
+                fontSize: '14px',
+                fill: '#FFFFFF',
+                wordWrap: { width: 200, useAdvancedWrap: true }
+            },
+            add: false
+        });
         this.text.setOrigin(.5, 1)
         this.add(this.text);
+
+        this.message = [];
+        this.updateMessage(message);
 
         //this.updateBubble();
         this.fadeOutTimers()
 
     }
 
-    updateMessage(message, scene) {
-        if (!this.scene) {
-            this.scene = scene;
+    updateMessage(message) {
+        if (!this.scene || !this.text) return;
+
+        clearTimeout(this.oldChatTimer);
+        const removeOldChat = () => {
+            if(!this.message.shift()) return;
+        this.oldChatTimer = setTimeout(() => removeOldChat(), 5000);
         }
-        if (!this.text) return;
+        this.oldChatTimer = setTimeout(() => removeOldChat(), 5000);
+
         this.fadeOutTimers()
-        this.text.setText(message);
-        //this.updateBubble();
+        this.message.push(message)
+        this.text.setText(this.message);
+
     }
 
     updateBubble() {
@@ -56,21 +65,28 @@ export default class ChatBubble extends Phaser.GameObjects.Container {
     }
 
     fadeOutTimers() {
-        this.setAlpha(1);
         if (!this.scene) return;
+
+        this.setAlpha(1);
         this.scene.time.removeEvent(this.fadeOutTimer);
         this.scene.time.removeEvent(this.fadeOutLoop);
-        this.fadeOutTimer = this.scene.time.delayedCall(20000, this.fadeOut, null, this)
+        this.fadeOutTimer = this.scene.time.delayedCall(15000, this.fadeOut, null, this)
 
     }
     fadeOut() {
+        if (!this.scene) return;
+
         this.fadeOutLoop = this.scene.time.addEvent({
             delay: 100,
             loop: true,
             callback: () => {
+                if (!this.scene) return;
+
                 if (this.alpha > 0) {
                     this.setAlpha(this.alpha - .05);
                 } else {
+                    clearTimeout(this.oldChatTimer);
+                    this.message = [];
                     this.scene.time.removeEvent(this.fadeOutLoop);
                 }
             }

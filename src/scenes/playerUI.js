@@ -177,18 +177,19 @@ export default class PlayerUI extends Phaser.Scene {
 
 
     closeTextChat(message) {
-        console.log('Player typed:', message);
-
-        this.player.makeChatBubble(message);
-
-
-        this.Chatting = false;
-
         if (this.textBox) {
             this.textBox.destroy();
             this.textBox = null;
             this.inputFocused = false;
         }
+        this.Chatting = false;
+
+        if (!message) return;
+        console.log('Player typed:', message);
+
+        this.player.makeChatBubble(message);
+
+
     }
 
     updatePlayerList() {

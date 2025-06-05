@@ -27,6 +27,7 @@ export default class Inventory extends Phaser.Scene {
         this.buttons.push(this.setupButton(1000, 400, false, 'whip', 'whipicon', .5));
 
         this.buttons.push(this.setupButton(1200, 550, true, 'zap', 'auraicon', 1, 0));
+        this.buttons.push(this.setupButton(1100, 600, true, 'zap', 'auraicon', 1, 0));
 
         this.auraText = this.add.text(1200, 500, 'Aura level: ' + GameManager.power.auraLevel, {
             fontSize: '24px',

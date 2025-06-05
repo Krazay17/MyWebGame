@@ -28,11 +28,8 @@ export default class Level3 extends BaseGame {
         this.setupPlayer(3200, 6200);
         this.setupTileMap('tilemap2');
         this.setupCollisions();
-        this.makeClimbingPlatforms();
         this.setupMusic('music2');
         this.setupFPS();
-
-        this.walkableGroup.create(0, 5600, 'platform');
 
         //this.sunManHealth = 3;
 
@@ -62,40 +59,47 @@ export default class Level3 extends BaseGame {
         if (!this.player) return;
         const y = this.player.y;
 
-        if (y > 5000) {
-            this.batTimer.delay = 2500;
+        if (y > 5500) {
+            this.batTimer.delay = 2000;
+            this.doSpawnSunMans = false;
             return;
         }
         if (y > 4000) {
-            this.batTimer.delay = 2000;
+            this.batTimer.delay = 1500;
+            this.doSpawnSunMans = true;
             this.sunManHealth = 5;
+            this.sunTimer.delay = 6000;
             return;
         }
         if (y > 3000) {
-            this.batTimer.delay = 1600;
+            this.batTimer.delay = 1000;
             this.sunManHealth = 10;
+            this.sunTimer.delay = 5500;
             return;
         }
         if (y > 2000) {
-            this.batTimer.delay = 1000;
+            this.batTimer.delay = 500;
             this.sunManHealth = 15;
+            this.sunTimer.delay = 5000;
             return;
         }
         if (y > 1000) {
-            this.batTimer.delay = 500;
+            this.batTimer.delay = 250;
             this.sunManHealth = 25;
+            this.sunTimer.delay = 4500;
             return;
         }
         if (y > 0) {
             this.batTimer.delay = 100;
             this.sunManHealth = 50;
+            this.sunTimer.delay = 2000;
             return;
         }
     }
 
     enemyTimers() {
         this.batTimer = this.time.addEvent({
-            delay: 2500,
+            delay: 2000,
             callback: () => {
                 const { x, y } = this.getSpawnPos();
                 const bat = this.spawnManager.spawnBat(x, y);
@@ -105,16 +109,17 @@ export default class Level3 extends BaseGame {
             loop: true
         });
 
-        // this.sunTimer = this.time.addEvent({
-        //     delay: 5000,
-        //     callback: () => {
-        //         const { x, y } = this.getSpawnPos();
-        //         const bat = this.spawnManager.spawnSunMans(x, y, this.sunManHealth);
-
-        //         this.checkPlayerY();
-        //     },
-        //     loop: true
-        // });
+        this.sunTimer = this.time.addEvent({
+            delay: 6000,
+            callback: () => {
+                if(!this.doSpawnSunMans) return;
+                const { x, y } = this.getSpawnPos();
+                const sunMan = this.spawnManager.spawnSunMans(x, y, this.sunManHealth);
+                
+                this.checkPlayerY();
+            },
+            loop: true
+        });
 
         //this.time.delayedCall(5000, () => this.sunMan());
     }

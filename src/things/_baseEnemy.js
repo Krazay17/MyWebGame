@@ -8,7 +8,6 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
         this.player = scene.player;
 
         this.setImmovable(true);
-        this.doesWalk = false;
         this.maxHealth = health;
         this.health = health;
         this.canDamage = true;
@@ -19,12 +18,19 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
         this.knockPower = 500;
         this.damage = 1;
         this.maxaccell = 300;
+        this.staggerDR = 1.0;
+
 
         // Behavior config
         this.speed = 150;
         this.jumpPower = 550;
         this.stuckJumpCooldown = 1000; // ms cooldown between stuck jumps
         this.edgeLookaheadDistance = 10; // pixels to check for platform edges
+        this.direction = 1; // -1 = left, 1 = right
+        this.patrolDelay = 2500; // ms delay before turn after overrun
+        this.lastTurnTime = 0;
+        this.onPlatform = false;
+        this.recentlyDamaged = false;
 
         // Internal state
         this.state = 'idle';  // 'idle', 'walking', 'jumping', 'falling'
@@ -40,6 +46,7 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
         if (!this.alive) return;
         this.updateHealthBar();
         this.locoAnims();
+        if(!this.stunned) this.staggerDR = Phaser.Math.Clamp(this.staggerDR + delta / 8000, 0, 1);
         if (this.accelToPlayerSpeed) this.scene.physics.accelerateToObject(this, this.player, this.accelToPlayerSpeed, this.maxaccell, this.maxaccell);
     }
 
@@ -65,7 +72,7 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
         this.healthBarBg.y = this.y - this.displayHeight / 2 - 6;
     }
 
-    TakeDamage(player, damage, stagger) {
+    TakeDamage(player, damage = 1, stagger = false, duration = 250) {
         if (!this.canDamage) return false;
         if (!this.createdHealthBar) this.createHealthBar();
 
@@ -77,8 +84,9 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
             this.scene.time.removeEvent(this.hitRecover);
             this.die(player);
         } else {
-            if (stagger) {
+            if (stagger && (this.staggerDR > .33)) {
                 this.stunned = true;
+                this.staggerDR /= 1.5;
                 if (!this.prevVelocity) {
                     this.prevVelocity = this.body.velocity.clone();
                 }
@@ -86,7 +94,7 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
                 this.setTint(0xff0000);
                 this.scene.time.removeEvent(this.hitRecover);
                 this.hitRecover = this.scene.time.addEvent({
-                    delay: 200,
+                    delay: duration * this.staggerDR,
                     callback: () => {
                         if (this.alive) {
                             this.stunned = false;
@@ -97,7 +105,12 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
                     }
                 });
             }
-            this.accelToPlayer(300, 400);
+            this.recentlyDamaged = true;
+            if (this.recentlyDamagedTimer) this.scene.time.removeEvent(this.recentlyDamagedTimer)
+            this.recentlyDamagedTimer = this.scene.time.delayedCall(2000, () => {
+                this.recentlyDamaged = false;
+            }
+            )
         }
         return true;
     }
@@ -111,7 +124,6 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
 
         this.destroy();
     }
-
 
     playerCollide(player, enemy) {
         const direction = new Phaser.Math.Vector2(player.x - enemy.x, player.y - enemy.y);
@@ -147,57 +159,45 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-    handleMovement(time) {
-        // if (!this.body.blocked.down) {
-        //     // In air
-        //     this.state = this.body.velocity.y > 0 ? 'falling' : 'jumping';
-        //     return;
-        // }
-
+    patrol(time) {
         if (this.stunned) return;
+        const onGround = this.body.blocked.down || this.body.touching.down;
+        if (!onGround) return;
 
-        this.state = 'walking';
+        // Check tile ahead and below to avoid ledge
+        const aheadX = this.x + this.direction * 44;
+        const tile = this.scene.walls?.getTileAtWorldXY(aheadX, this.y + 64);
+        const wallTile = this.scene.walls?.getTileAtWorldXY(aheadX, this.y + 32);
 
-        // Simple AI: move toward player
-        const player = this.scene.player;
-        if (!player) return;
-
-        const directionX = Math.sign(player.x - this.x);
-        const directionY = Math.sign(player.y - this.y);
-        const distance = { x: Math.abs(this.x - player.x), y: Math.abs(this.y - player.y) };
-        const dist = distance.x + distance.y;
-        if (dist > 800) return;
-
-        const distanceScaled = this.mapRangeClamped(distance.x, 0, 100, 0, 1)
-        this.setVelocityX(directionX * this.speed * distanceScaled);
-        if (this.flying) {
-            this.setVelocityY(directionY * this.speed * distanceScaled);
+        if (!tile || tile.index === -1 || wallTile || this.body.blocked.left || this.body.blocked.right || this.body.touching.left || this.body.touching.right) {
+            if (time > this.lastTurnTime + this.patrolDelay) {
+                this.direction *= -1;
+                this.lastTurnTime = time;
+            }
         }
 
-        // Edge detection: cast a point ahead and down to check if ground is there
-        const edgeX = this.x + directionX * this.edgeLookaheadDistance;
-        const edgeY = this.y + this.height / 2 + 2;
+        this.setVelocityX(this.direction * this.speed);
+        this.flipX = this.direction > 0;
+    }
 
-        const tileBelow = this.scene.groundLayer ? this.scene.groundLayer.getTileAtWorldXY(edgeX, edgeY) : null;
+    chasePlayer(time) {
+        this.seesPlayer = true;
+        if (this.stunned) return;
+        const dx = this.player.x - this.x;
+        const dy = this.player.y - this.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
 
-        // const noGroundAhead = !tileBelow;
-        const noGroundAhead = false;
-
-        // Wall stuck detection
-        const stuckAgainstWall = this.body.touching.left || this.body.touching.right;
-        const nearlyZeroVelocityX = Math.abs(this.body.velocity.x) < 10;
-
-        // Should jump if stuck or edge ahead and cooldown elapsed
-        const canJump = (time - this.lastJumpTime) > this.stuckJumpCooldown;
-
-        if ((stuckAgainstWall || nearlyZeroVelocityX && this.body.touching.down) || noGroundAhead) {
-            if (canJump) {
-                this.setVelocityY(-this.jumpPower);
-                this.lastJumpTime = time;
-            } else {
-                // Prevent moving forward if edge or wall detected but can't jump yet
-                this.setVelocityX(0);
+        if (distance < 350 && Math.abs(dy) < 40 || this.recentlyDamaged) {
+            // Player is close and roughly same height
+            this.speed = 200;
+            if (!this.turnDelay) {
+                this.turnDelay = true;
+            this.direction = Math.sign(dx);
+            this.scene.time.delayedCall(400, () => this.turnDelay = false);
             }
+        } else {
+            this.speed = 60;
+        this.seesPlayer = false;
         }
     }
 

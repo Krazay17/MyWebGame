@@ -287,7 +287,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
                 this.canSlide = false;
                 this.slideAnim = true;
-                this.scene.time.delayedCall(1000, () => this.slideAnim = false);
+                this.scene.time.delayedCall(900, () => this.slideAnim = false);
                 this.setVelocityX(speed);
             }
 
@@ -432,7 +432,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         if (this.canResetDash) {
             this.queResetDash = false;
             this.canDash = true;
-            this.jumpMax = 400;
+            this.jumpMax = 425;
             this.setTint(0x66ff33);
         } else {
             this.queResetDash = true;

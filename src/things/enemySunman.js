@@ -16,18 +16,21 @@ export default class SunMan extends BaseEnemy {
             });
         };
         this.play('sunsheet')
+
         
-        const lookForPlayer = scene.time.addEvent({
-            delay: 1000,
-            loop: true,
-            callback: () => {
-                if(this.distanceToPlayer() < 550){
-                this.accelToPlayer(200, 400);
-                }
-            }
-        })
-        this.on('die', () => {
-            scene.time.removeEvent(lookForPlayer);
-    })
+        this.accelToPlayer(200, 400);
+        
+    //     const lookForPlayer = scene.time.addEvent({
+    //         delay: 1000,
+    //         loop: true,
+    //         callback: () => {
+    //             if(this.distanceToPlayer() < 550){
+    //             this.accelToPlayer(200, 400);
+    //             }
+    //         }
+    //     })
+    //     this.on('die', () => {
+    //         scene.time.removeEvent(lookForPlayer);
+    // })
     }
 }

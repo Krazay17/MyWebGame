@@ -106,7 +106,7 @@ export default class Home extends BaseGame {
     }
 
     spawnEnemies() {
-        this.spawnManager.spawnDuck(400, 1000);
+        this.spawnManager.spawnDuck(400, 1000, 50);
         this.spawnManager.SpawnCoin(100, 300);
     }
 }

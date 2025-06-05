@@ -95,13 +95,13 @@ export default class BaseGame extends Phaser.Scene {
     const tileset = map.addTilesetImage(tilesheet, tilesheet);
     const layer1 = map.createLayer('layer1', tileset, 0, 0);
     const layer2 = map.createLayer('layer2', tileset, 0, 0);
-    const walls = map.createLayer('walls', tileset, 0, 0);
+    this.walls = map.createLayer('walls', tileset, 0, 0);
     const walls2 = map.createLayer('walls2', tileset, 0, 0);
 
-    walls.setCollisionByExclusion([-1]); // excludes only empty tiles
+    this.walls.setCollisionByExclusion([-1]); // excludes only empty tiles
     walls2.setCollisionByExclusion([-1]); // excludes only empty tiles
     this.tilemapColliders = [
-      { walls: walls, handler: 'TouchPlatform' },
+      { walls: this.walls, handler: 'TouchPlatform' },
       { walls: walls2, handler: 'touchFireWall' },
     ];
 
@@ -276,7 +276,6 @@ export default class BaseGame extends Phaser.Scene {
 
   spawnSunman(x, y) {
     this.spawnManager.spawnSunMans(x, y, 10)
-    console.log('spawnedSunMan');
   }
 
   spawnBullets(x, y, text) {
@@ -306,5 +305,15 @@ export default class BaseGame extends Phaser.Scene {
     //   })
     // }
     // this.bulletSpawnLocs.push([x, y])
+  }
+  
+  spawnDuck(x, y) {
+    const duck = this.spawnManager.spawnDuck(x, y, 20, .25);
+    duck.on('die', () => {
+      this.time.delayedCall(15000, () => {
+        this.spawnDuck(x, y, 20);
+
+      })
+    })
   }
 }

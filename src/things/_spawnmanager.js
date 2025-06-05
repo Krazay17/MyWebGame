@@ -37,12 +37,7 @@ export default class SpawnManager {
         sunMan.scaleCollision(170, 170);
         sunMan.setCollideWorldBounds(true);
         sunMan.body.setMaxSpeed(1000);
-        sunMan.on('die', () => {
-            this.scene.time.delayedCall(10000, () => {
-            this.spawnSunMans(x, y, health);
 
-            })
-        })
         return sunMan;
     }
 
@@ -99,7 +94,7 @@ export default class SpawnManager {
     spawnDuck(x, y, health = 5, scale = .3) {
         const duck = new Duck(this.scene, x, y, 'duck', health)
         this.scene.enemyGroup.add(duck);
-        duck.body.setBounce(.55);
+        duck.body.setBounce(.7);
         duck.setScale(scale);
 
         return duck;

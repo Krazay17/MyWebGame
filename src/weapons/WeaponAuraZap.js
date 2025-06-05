@@ -28,7 +28,8 @@ export default class AuraZap extends WeaponBase {
     }
 
     getCost() {
-        return 50 * (GameManager.power.auraLevel ** 2);
+        const level = GameManager.power.auraLevel
+        return (level ** 3) + (level * 50);
     }
 
     setLevel(level) {
@@ -51,7 +52,7 @@ export default class AuraZap extends WeaponBase {
 
 fire() {
     const groups = this.scene.attackableGroups;
-    const range = Phaser.Math.Clamp(GameManager.power.auraLevel * 50, 200, 800);
+    const range = Phaser.Math.Clamp(GameManager.power.auraLevel * 25, 250, 600);
     const playerPos = this.player.getCurrentPos();
     const validTargets = [];
 

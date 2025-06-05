@@ -22,9 +22,6 @@ export default class level2 extends BaseGame {
 
     }
 
-    spawnDuck(x, y) {
-        this.spawnManager.spawnDuck(x, y, 5, .2);
-    }
 
     setupPortals() {
         this.portalList = [];

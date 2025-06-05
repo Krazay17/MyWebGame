@@ -7,14 +7,13 @@ export default class Duck extends BaseEnemy
         super(scene, x, y, id);
         this.maxHealth = health;
         this.health = health;
-        this.doesWalk = true;
 
     }
 
     preUpdate(time, delta) {
         super.preUpdate(time, delta);
-        
-        this.handleMovement(time);
+        this.patrol(time);
+        this.chasePlayer(time);
     }
 
     playerCollide(player, enemy) {

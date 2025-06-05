@@ -10,5 +10,7 @@ export default class Bat extends BaseEnemy {
         this.flying = true;
 
         this.accelToPlayer(100, 600);
+
+        this.scaleCollision(30, 30)
     }
 }

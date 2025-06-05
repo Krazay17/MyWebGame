@@ -101,13 +101,13 @@ export default class BaseGame extends Phaser.Scene {
     walls.setCollisionByExclusion([-1]); // excludes only empty tiles
     walls2.setCollisionByExclusion([-1]); // excludes only empty tiles
     this.tilemapColliders = [
-      {walls: walls, handler: 'TouchPlatform'}, 
-      {walls: walls2, handler: 'touchFireWall'},
+      { walls: walls, handler: 'TouchPlatform' },
+      { walls: walls2, handler: 'touchFireWall' },
     ];
 
     const objects = map.getObjectLayer('objects');
     objects.objects.forEach(obj => {
-      this[obj.name]?.(obj.x, obj.y);
+      this[obj.name]?.(obj.x, obj.y, obj.text?.text);
     });
   }
 
@@ -139,7 +139,7 @@ export default class BaseGame extends Phaser.Scene {
 
     // Explicitly add wall collisions
     if (this.tilemapColliders?.length) {
-      this.tilemapColliders.forEach(({walls, handler}) => {
+      this.tilemapColliders.forEach(({ walls, handler }) => {
         this.physics.add.collider(this.weaponGroup, walls, (weapon, wall) => {
           weapon[handler]?.(wall);
         }, null, this);
@@ -188,6 +188,7 @@ export default class BaseGame extends Phaser.Scene {
     this.physics.add.collider(this.weaponGroup, this.walkableGroup);
     this.physics.add.collider(this.itemGroup, this.walkableGroup);
     this.physics.add.collider(this.enemyGroup, this.walkableGroup);
+    this.physics.add.collider(this.enemyGroup, this.enemyGroup);
     this.physics.add.collider(this.softEnemyGroup, this.softEnemyGroup, (enemy1, enemy2) => {
     }, null, this);
   }
@@ -271,5 +272,34 @@ export default class BaseGame extends Phaser.Scene {
     const width = gameSize.width;
     const height = gameSize.height;
     this.sky1.setDisplaySize(width, height);
+  }
+
+  spawnBullets(x, y, text) {
+    const delay = parseInt(text, 10);
+
+    this.time.addEvent({
+      delay: delay,
+      loop: true,
+      callback: () => {
+        this.spawnManager.spawnBullet(x, y);
+      }
+    })
+
+    // if (!this.bulletSpawnLocs) {
+    //   this.bulletSpawnLocs = [];
+
+    //   this.time.addEvent({
+    //     delay: delay,
+    //     loop: true,
+    //     callback: () => {
+    //       this.bulletSpawnLocs.forEach(([x, y]) => {
+    //         this.spawnManager.spawnBullet(x, y);
+    //         console.log('fire')
+
+    //       })
+    //     }
+    //   })
+    // }
+    // this.bulletSpawnLocs.push([x, y])
   }
 }

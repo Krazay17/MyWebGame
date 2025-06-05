@@ -229,7 +229,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         //this.knockbackVelocity = direction.scale(50);
 
         const velocity = direction.scale(600);
-        console.log(velocity.y);
         this.TakeDamage(velocity.x, velocity.y, 5, 300);
 
     }
@@ -352,7 +351,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             this.isCrouch = false;
         } else if (!isDown && !this.isCrouch && (this.lerpHitBox(delta) === false)){
             this.lerpHitBox(delta)
-            console.log(this.lerpHitBox(delta))
         }
     }
 

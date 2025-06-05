@@ -17,18 +17,14 @@ export default class level2 extends BaseGame {
         this.setupWorld(0, 0, 6400, 6400);
         this.setupPlayer(1030, 573);
         this.setupGroups();
-        this.setupMusic();
         this.setupTileMap();
-
         this.setupCollisions();
-
-        this.setupPortals();
-
+        this.setupMusic();
 
     }
 
     spawnDuck(x, y) {
-        this.spawnManager.spawnDuck(x, y);
+        this.spawnManager.spawnDuck(x, y, 5, .2);
     }
 
     setupPortals() {

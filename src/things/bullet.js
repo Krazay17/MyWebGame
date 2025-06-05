@@ -1,4 +1,4 @@
-export default class bullet extends Phaser.Physics.Arcade.Sprite {
+export default class Bullet extends Phaser.Physics.Arcade.Sprite {
     constructor (scene, x, y, texture = 'bullet') {
         super(scene, x, y, texture)
         scene.add.existing(this);

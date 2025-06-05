@@ -10,7 +10,6 @@ export default class Level1 extends BaseGame {
     this.load.image('redsky0', 'assets/RedSky0.webp');
     this.load.image('redsky1', 'assets/RedSky1.webp');
     this.load.image('redsky2', 'assets/RedSky2.webp');
-    this.load.image('bullet', 'assets/bullet.png');
     this.load.spritesheet('sunsheet', 'assets/SunSheet.png', {
       frameWidth: 256,
       frameHeight: 256

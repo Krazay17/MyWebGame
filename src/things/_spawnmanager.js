@@ -68,6 +68,12 @@ export default class SpawnManager {
         };
     }
 
+    spawnBullet(x, y) {
+        const bullet = new Bullet(this.scene, x, y, 'bullet');
+        this.scene.softBulletGroup.add(bullet);
+        bullet.setVelocityX(-300);
+    }
+
     spawnFireballs(x, y) {
         const bullet = new Bullet(this.scene, x, y, 'fireballsheet');
         this.scene.softBulletGroup.add(bullet);
@@ -84,11 +90,11 @@ export default class SpawnManager {
         return bullet;
     }
 
-    spawnDuck(x, y) {
-        const duck = new Duck(this.scene, x, y, 'duck', 40)
+    spawnDuck(x, y, health = 5, scale = .3) {
+        const duck = new Duck(this.scene, x, y, 'duck', health)
         this.scene.enemyGroup.add(duck);
         duck.body.setBounce(.55);
-        duck.setScale(.3);
+        duck.setScale(scale);
 
         return duck;
     }

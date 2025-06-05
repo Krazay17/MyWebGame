@@ -442,10 +442,86 @@
                  "type":"",
                  "visible":true,
                  "width":94.3333,
-                 "x":4139.83,
-                 "y":1133.83
+                 "x":4135.83,
+                 "y":1135.83
+                }, 
+                {
+                 "height":60,
+                 "id":12,
+                 "name":"spawnDuck",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":78,
+                 "x":2888,
+                 "y":554
+                }, 
+                {
+                 "height":60,
+                 "id":13,
+                 "name":"spawnDuck",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":78,
+                 "x":3793,
+                 "y":116
+                }, 
+                {
+                 "height":19,
+                 "id":18,
+                 "name":"spawnBullets",
+                 "rotation":0,
+                 "text":
+                    {
+                     "text":"1500",
+                     "wrap":true
+                    },
+                 "type":"",
+                 "visible":true,
+                 "width":93.6667,
+                 "x":6657.53028636364,
+                 "y":405.045454545455
+                }, 
+                {
+                 "height":19,
+                 "id":25,
+                 "name":"spawnBullets",
+                 "rotation":0,
+                 "text":
+                    {
+                     "text":"1200",
+                     "wrap":true
+                    },
+                 "type":"",
+                 "visible":true,
+                 "width":93.6667,
+                 "x":6630.86361969697,
+                 "y":562.378787878788
+                }, 
+                {
+                 "height":19,
+                 "id":26,
+                 "name":"spawnBullets",
+                 "rotation":0,
+                 "text":
+                    {
+                     "text":"1500",
+                     "wrap":true
+                    },
+                 "type":"",
+                 "visible":true,
+                 "width":93.6667,
+                 "x":6600.1969530303,
+                 "y":926.378787878788
                 }],
          "opacity":1,
+         "properties":[
+                {
+                 "name":"spawnRate",
+                 "type":"int",
+                 "value":500
+                }],
          "type":"objectgroup",
          "visible":true,
          "x":0,
@@ -891,7 +967,7 @@
          "y":0
         }],
  "nextlayerid":6,
- "nextobjectid":12,
+ "nextobjectid":27,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.2",

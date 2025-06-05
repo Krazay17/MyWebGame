@@ -13,4 +13,11 @@ export default class Bat extends BaseEnemy {
 
         this.scaleCollision(30, 30)
     }
+
+    preUpdate(time, delta) {
+        super.preUpdate(time, delta);
+        if(this.body.velocity.length() < 50) {
+            this.setVelocity(Phaser.Math.Between(-400, 400), 400);
+        }
+        }
 }

@@ -2,11 +2,11 @@ import WeaponBase from './_weaponbase.js';
 
 export default class WeaponSword extends WeaponBase {
     constructor(scene, player) {
-        super(scene, player, 6)
+        super(scene, player, 5)
 
         this.name = 'sword'
-        this.baseCooldown = 250;
-        this.meleeDuration = 250;
+        this.baseCooldown = 300;
+        this.meleeDuration = 300;
         this.spamAdd = 100;
         this.hitSoundId = 'energysound';
 
@@ -14,7 +14,7 @@ export default class WeaponSword extends WeaponBase {
             scene.anims.create({
                 key: 'sword',
                 defaultTextureKey: 'sword',
-                duration: 250,
+                duration: 300,
                 frames: [
                     { frame: 0 },
                     { frame: 1 },

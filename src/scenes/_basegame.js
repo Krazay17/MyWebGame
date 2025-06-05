@@ -321,8 +321,16 @@ export default class BaseGame extends Phaser.Scene {
           deathSpawn();
         }
       })
-      
       deathSpawn();
+    })
+  }
+
+  spawnCoin(x, y) {
+    const coin = this.spawnManager.SpawnCoin(x, y);
+    coin.on('pickup', () => {
+      this.time.delayedCall(25000, () => {
+        this.spawnCoin(x, y);
+      })
     })
   }
 }

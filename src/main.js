@@ -27,7 +27,8 @@ const config = {
         gravity: {y: 720, x: 0},
         timescale: 1,
         fps: 60,
-        fixedStep: true,
+        //fixedStep: true,
+        tileBias: 40,
         debug: false,
       }
     },

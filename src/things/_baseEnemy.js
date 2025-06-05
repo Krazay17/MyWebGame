@@ -40,7 +40,7 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
         if (!this.alive) return;
         this.updateHealthBar();
         this.locoAnims();
-        if(this.accelToPlayerSpeed) this.scene.physics.accelerateToObject(this, this.player, this.accelToPlayerSpeed, this.maxaccell, this.maxaccell);
+        if (this.accelToPlayerSpeed) this.scene.physics.accelerateToObject(this, this.player, this.accelToPlayerSpeed, this.maxaccell, this.maxaccell);
     }
 
     createHealthBar() {
@@ -76,25 +76,28 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
             this.alive = false;
             this.scene.time.removeEvent(this.hitRecover);
             this.die(player);
-        } else if (stagger){
-            this.stunned = true;
-            if (!this.prevVelocity) {
-                this.prevVelocity = this.body.velocity.clone();
-            }
-            this.setVelocity(stagger.x / 3, stagger.y / 3)
-            this.setTint(0xff0000);
-            this.scene.time.removeEvent(this.hitRecover);
-            this.hitRecover = this.scene.time.addEvent({
-                delay: 200,
-                callback: () => {
-                    if (this.alive) {
-                        this.stunned = false;
-                        this.setVelocity(this.prevVelocity.x, this.prevVelocity.y);
-                        delete this.prevVelocity
-                        this.setTint();
-                    }
+        } else {
+            if (stagger) {
+                this.stunned = true;
+                if (!this.prevVelocity) {
+                    this.prevVelocity = this.body.velocity.clone();
                 }
-            });
+                this.setVelocity(stagger.x / 3, stagger.y / 3)
+                this.setTint(0xff0000);
+                this.scene.time.removeEvent(this.hitRecover);
+                this.hitRecover = this.scene.time.addEvent({
+                    delay: 200,
+                    callback: () => {
+                        if (this.alive) {
+                            this.stunned = false;
+                            this.setVelocity(this.prevVelocity.x, this.prevVelocity.y);
+                            delete this.prevVelocity
+                            this.setTint();
+                        }
+                    }
+                });
+            }
+            this.accelToPlayer(300, 400);
         }
         return true;
     }
@@ -103,6 +106,7 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
         player.updateSource(this.maxHealth);
         if (this.healthBar) this.healthBar.destroy();
         if (this.healthBarBg) this.healthBarBg.destroy();
+        this.scene.time.removeAllEvents
         this.emit('die', player);
 
         this.destroy();
@@ -235,4 +239,13 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
         this.accelToPlayerSpeed = Phaser.Math.Between(min, max);
     }
 
+    distanceToPlayer() {
+        const player = this.scene.player ? this.scene.player : null;
+        if (!player) return;
+
+        const dx = player.x - this.x;
+        const dy = player.y - this.y;
+
+        return Math.sqrt(dx * dx + dy * dy); // Euclidean distance
+    }
 }

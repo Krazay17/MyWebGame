@@ -2,6 +2,8 @@ import BaseGame from "./_basegame.js";
 
 /// <reference path="../types/phaser.d.ts" />
 
+// Tower climb level
+
 export default class Level3 extends BaseGame {
     constructor() {
         super('Level3')
@@ -10,6 +12,7 @@ export default class Level3 extends BaseGame {
     preload() {
         super.preload()
         this.load.audio('music2', 'assets/music2.mp3');
+        this.load.tilemapTiledJSON('tilemap2', 'assets/tilemap2.json')
         this.load.image('bat', 'assets/BatEnemy.png')
         this.load.spritesheet('sunsheet', 'assets/SunSheet.png', {
             frameHeight: 256,
@@ -20,17 +23,18 @@ export default class Level3 extends BaseGame {
     create() {
         this.setupSave();
         this.setupSky();
-        this.setupWorld(-1200, 0, 2400, 7000)
+        this.setupWorld(0, 0, 6400, 6400)
         this.setupGroups();
-        this.setupPlayer(0, 5500);
-        this.setupMusic('music2');
-        this.setupFPS();
+        this.setupPlayer(3200, 6200);
+        this.setupTileMap('tilemap2');
         this.setupCollisions();
         this.makeClimbingPlatforms();
+        this.setupMusic('music2');
+        this.setupFPS();
 
         this.walkableGroup.create(0, 5600, 'platform');
 
-        this.sunManHealth = 3;
+        //this.sunManHealth = 3;
 
         this.spawnSpeed = 2500;
         this.enemyTimers();
@@ -101,16 +105,16 @@ export default class Level3 extends BaseGame {
             loop: true
         });
 
-        this.sunTimer = this.time.addEvent({
-            delay: 5000,
-            callback: () => {
-                const { x, y } = this.getSpawnPos();
-                const bat = this.spawnManager.spawnSunMans(x, y, this.sunManHealth);
+        // this.sunTimer = this.time.addEvent({
+        //     delay: 5000,
+        //     callback: () => {
+        //         const { x, y } = this.getSpawnPos();
+        //         const bat = this.spawnManager.spawnSunMans(x, y, this.sunManHealth);
 
-                this.checkPlayerY();
-            },
-            loop: true
-        });
+        //         this.checkPlayerY();
+        //     },
+        //     loop: true
+        // });
 
         //this.time.delayedCall(5000, () => this.sunMan());
     }
@@ -122,10 +126,10 @@ export default class Level3 extends BaseGame {
         const spawnLeft = Phaser.Math.Between(0, 1) === 0;
 
         const x = spawnLeft
-            ? left - Phaser.Math.Between(50, 150)
-            : right + Phaser.Math.Between(50, 150);
+            ? left + Phaser.Math.Between(50, 150)
+            : right - Phaser.Math.Between(50, 150);
 
-        const y = this.player.y + Phaser.Math.Between(-150, 150)
+        const y = this.player.y + Phaser.Math.Between(-650, -850)
 
         return { x, y, spawnLeft };
     }

@@ -8,7 +8,6 @@ export default class level2 extends BaseGame {
     preload() {
         super.preload();
         this.load.tilemapTiledJSON('tilemap1', 'assets/tilemap1.json')
-        this.load.image('tilesheet', 'assets/tilesheet.png')
     }
 
     create() {

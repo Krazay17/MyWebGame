@@ -90,9 +90,9 @@ export default class BaseGame extends Phaser.Scene {
     });
   }
 
-  setupTileMap() {
-    const map = this.make.tilemap({ key: 'tilemap1' });
-    const tileset = map.addTilesetImage('tilesheet', 'tilesheet');
+  setupTileMap(tilemap = 'tilemap1', tilesheet = 'tilesheet') {
+    const map = this.make.tilemap({ key: tilemap });
+    const tileset = map.addTilesetImage(tilesheet, tilesheet);
     const layer1 = map.createLayer('layer1', tileset, 0, 0);
     const layer2 = map.createLayer('layer2', tileset, 0, 0);
     const walls = map.createLayer('walls', tileset, 0, 0);
@@ -272,6 +272,11 @@ export default class BaseGame extends Phaser.Scene {
     const width = gameSize.width;
     const height = gameSize.height;
     this.sky1.setDisplaySize(width, height);
+  }
+
+  spawnSunman(x, y) {
+    this.spawnManager.spawnSunMans(x, y, 10)
+    console.log('spawnedSunMan');
   }
 
   spawnBullets(x, y, text) {

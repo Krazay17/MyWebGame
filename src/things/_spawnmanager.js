@@ -28,8 +28,8 @@ export default class SpawnManager {
         return coin;
     }
 
-    spawnSunMans(x, y, heatlh) {
-        const sunMan = new SunMan(this.scene, x, y, heatlh);
+    spawnSunMans(x, y, health) {
+        const sunMan = new SunMan(this.scene, x, y, health);
         this.scene.softEnemyGroup.add(sunMan);
         sunMan.body.allowGravity = false;
         sunMan.setBounce(1);
@@ -37,6 +37,12 @@ export default class SpawnManager {
         sunMan.scaleCollision(170, 170);
         sunMan.setCollideWorldBounds(true);
         sunMan.body.setMaxSpeed(1000);
+        sunMan.on('die', () => {
+            this.scene.time.delayedCall(10000, () => {
+            this.spawnSunMans(x, y, health);
+
+            })
+        })
         return sunMan;
     }
 

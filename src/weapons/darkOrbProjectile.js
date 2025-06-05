@@ -13,7 +13,8 @@ export default class DarkOrbProjectile extends WeaponProjectile {
             delay: this.baseTickDelay,
             callback: () => {
                 this.hitTargets = [];
-                this.damageTick.delay = Phaser.Math.Clamp(this.baseTickDelay -= 5, 100, 200);
+                this.damageTick.delay = Phaser.Math.Clamp(this.baseTickDelay -= 5, 80, 200);
+                console.log(this.baseTickDelay)
 
             },
             repeat: -1,
@@ -38,6 +39,7 @@ export default class DarkOrbProjectile extends WeaponProjectile {
             this.setVelocity(0, 0);
             this.setScale(this.scale + .015);
             if (!this.detonated) {
+                this.detonated = true;
                 this.scene.time.delayedCall(400, () => this.destroy())
             }
         } else {
@@ -45,7 +47,11 @@ export default class DarkOrbProjectile extends WeaponProjectile {
         const direction = new Phaser.Math.Vector2(cursorPos.x - this.x, cursorPos.y - this.y).normalize();
         const speed = direction.scale(200);
             this.setVelocity(speed.x, speed.y);
-            console.log(speed);
         }
+    }
+
+    destroy() {
+        this.scene.time.removeEvent(this.damageTick);
+        super.destroy();
     }
 }

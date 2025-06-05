@@ -306,14 +306,23 @@ export default class BaseGame extends Phaser.Scene {
     // }
     // this.bulletSpawnLocs.push([x, y])
   }
-  
+
   spawnDuck(x, y) {
     const duck = this.spawnManager.spawnDuck(x, y, 20, .25);
     duck.on('die', () => {
-      this.time.delayedCall(15000, () => {
-        this.spawnDuck(x, y, 20);
-
+      const deathSpawn = () => this.time.delayedCall(25000, () => {
+        const dx = this.player.x - x;
+        const dy = this.player.y - y;
+        const distance = Math.sqrt(dx * dx - dy * dy);
+        console.log(distance)
+        if (distance > 800) {
+          this.spawnDuck(x, y);
+        } else {
+          deathSpawn();
+        }
       })
+      
+      deathSpawn();
     })
   }
 }

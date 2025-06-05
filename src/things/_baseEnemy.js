@@ -27,11 +27,11 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
         this.stuckJumpCooldown = 1000; // ms cooldown between stuck jumps
         this.edgeLookaheadDistance = 10; // pixels to check for platform edges
         this.direction = 1; // -1 = left, 1 = right
-        this.patrolDelay = 2500; // ms delay before turn after overrun
+        this.patrolDelay = 2000; // ms delay before turn after overrun
         this.lastTurnTime = 0;
         this.onPlatform = false;
         this.recentlyDamaged = false;
-
+        this.jumpDelay = 4000;
         // Internal state
         this.state = 'idle';  // 'idle', 'walking', 'jumping', 'falling'
         this.hasJumpedFromStuck = false;
@@ -46,7 +46,7 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
         if (!this.alive) return;
         this.updateHealthBar();
         this.locoAnims();
-        if(!this.stunned) this.staggerDR = Phaser.Math.Clamp(this.staggerDR + delta / 8000, 0, 1);
+        if (!this.stunned) this.staggerDR = Phaser.Math.Clamp(this.staggerDR + delta / 10000, 0, 1);
         if (this.accelToPlayerSpeed) this.scene.physics.accelerateToObject(this, this.player, this.accelToPlayerSpeed, this.maxaccell, this.maxaccell);
     }
 
@@ -72,7 +72,7 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
         this.healthBarBg.y = this.y - this.displayHeight / 2 - 6;
     }
 
-    TakeDamage(player, damage = 1, stagger = false, duration = 250) {
+    TakeDamage(player, damage = 1, stagger = false, duration = 300) {
         if (!this.canDamage) return false;
         if (!this.createdHealthBar) this.createHealthBar();
 
@@ -85,8 +85,8 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
             this.die(player);
         } else {
             if (stagger && (this.staggerDR > .33)) {
-                this.stunned = true;
                 this.staggerDR /= 1.5;
+                this.stunned = true;
                 if (!this.prevVelocity) {
                     this.prevVelocity = this.body.velocity.clone();
                 }
@@ -170,7 +170,12 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
         const wallTile = this.scene.walls?.getTileAtWorldXY(aheadX, this.y + 32);
 
         if (!tile || tile.index === -1 || wallTile || this.body.blocked.left || this.body.blocked.right || this.body.touching.left || this.body.touching.right) {
-            if (time > this.lastTurnTime + this.patrolDelay) {
+            if ((time > this.lastJumpTime + this.jumpDelay) && this.seesPlayer && (this.body.blocked.down || this.body.touching.down)) {
+
+                this.setVelocityY(-500)
+                this.lastJumpTime = time;
+            }
+            else if (time > this.lastTurnTime + this.patrolDelay) {
                 this.direction *= -1;
                 this.lastTurnTime = time;
             }
@@ -181,23 +186,24 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
     }
 
     chasePlayer(time) {
-        this.seesPlayer = true;
         if (this.stunned) return;
         const dx = this.player.x - this.x;
         const dy = this.player.y - this.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
-        if (distance < 350 && Math.abs(dy) < 40 || this.recentlyDamaged) {
+        if (distance < 450 && Math.abs(dy) < 80 || this.recentlyDamaged) {
             // Player is close and roughly same height
+            this.seesPlayer = true;
             this.speed = 200;
-            if (!this.turnDelay) {
-                this.turnDelay = true;
-            this.direction = Math.sign(dx);
-            this.scene.time.delayedCall(400, () => this.turnDelay = false);
+            if (this.direction !== Math.sign(dx) && !this.justTurned) {
+                this.justTurned = true;
+                this.direction = Math.sign(dx);
+                this.scene.time.delayedCall(Phaser.Math.Between(500, 1500), () => this.justTurned = false);
             }
+
         } else {
             this.speed = 60;
-        this.seesPlayer = false;
+            this.seesPlayer = false;
         }
     }
 

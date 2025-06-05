@@ -83,39 +83,43 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
             this.alive = false;
             this.scene.time.removeEvent(this.hitRecover);
             this.die(player);
-        } else if (stagger && (this.staggerDR > .33)) {
-            this.staggerDR /= 1.5;
-            this.stunned = true;
-            if (!this.prevVelocity) {
-                this.prevVelocity = this.body.velocity.clone();
-            }
-            this.setVelocity(stagger.x / 3, stagger.y / 3)
-            this.setTint(0xff0000);
-            this.scene.time.removeEvent(this.hitRecover);
-            this.hitRecover = this.scene.time.addEvent({
-                delay: duration * this.staggerDR,
-                callback: () => {
-                    if (this.alive) {
-                        this.stunned = false;
-                        this.setVelocity(this.prevVelocity.x, this.prevVelocity.y);
-                        delete this.prevVelocity
-                        this.setTint();
-                    }
-                }
-            });
         } else {
-            this.setTint(0xff0000);
-            this.scene?.time.delayedCall(100, () => {
-                this.setTint();
+
+            if (stagger && (this.staggerDR > .33)) {
+                this.staggerDR /= 1.5;
+                this.stunned = true;
+                if (!this.prevVelocity) {
+                    this.prevVelocity = this.body.velocity.clone();
+                }
+                this.setVelocity(stagger.x / 3, stagger.y / 3)
+                this.setTint(0xff0000);
+                this.scene.time.removeEvent(this.hitRecover);
+                this.hitRecover = this.scene.time.addEvent({
+                    delay: duration * this.staggerDR,
+                    callback: () => {
+                        if (this.alive) {
+                            this.stunned = false;
+                            this.setVelocity(this.prevVelocity.x, this.prevVelocity.y);
+                            delete this.prevVelocity
+                            this.setTint();
+                        }
+                    }
+                });
+            } else {
+                this.setTint(0xff0000);
+                this.scene?.time.delayedCall(100, () => {
+                    this.setTint();
+                })
+            }
+
+            this.recentlyDamaged = true;
+            if (this.recentlyDamagedTimer) this.scene?.time.removeEvent(this.recentlyDamagedTimer)
+            this.recentlyDamagedTimer = this.scene.time.delayedCall(5000, () => {
+                this.recentlyDamaged = false;
             })
-            
-        this.recentlyDamaged = true;
-        if (this.recentlyDamagedTimer) this.scene?.time.removeEvent(this.recentlyDamagedTimer)
-        this.recentlyDamagedTimer = this.scene.time.delayedCall(2000, () => {
-            this.recentlyDamaged = false;
-        })
 
         }
+
         return true;
     }
 

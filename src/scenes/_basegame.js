@@ -90,6 +90,27 @@ export default class BaseGame extends Phaser.Scene {
     });
   }
 
+  setupTileMap() {
+    const map = this.make.tilemap({ key: 'tilemap1' });
+    const tileset = map.addTilesetImage('tilesheet', 'tilesheet');
+    const layer1 = map.createLayer('layer1', tileset, 0, 0);
+    const layer2 = map.createLayer('layer2', tileset, 0, 0);
+    const walls = map.createLayer('walls', tileset, 0, 0);
+    const walls2 = map.createLayer('walls2', tileset, 0, 0);
+
+    walls.setCollisionByExclusion([-1]); // excludes only empty tiles
+    walls2.setCollisionByExclusion([-1]); // excludes only empty tiles
+    this.tilemapColliders = [
+      {walls: walls, handler: 'TouchPlatform'}, 
+      {walls: walls2, handler: 'touchFireWall'},
+    ];
+
+    const objects = map.getObjectLayer('objects');
+    objects.objects.forEach(obj => {
+      this[obj.name]?.(obj.x, obj.y);
+    });
+  }
+
   setupGroups() {
     this.weaponGroup = new WeaponGroup(this, this.player);
 
@@ -118,19 +139,19 @@ export default class BaseGame extends Phaser.Scene {
 
     // Explicitly add wall collisions
     if (this.tilemapColliders?.length) {
-      this.tilemapColliders.forEach(walls => {
+      this.tilemapColliders.forEach(({walls, handler}) => {
         this.physics.add.collider(this.weaponGroup, walls, (weapon, wall) => {
-          weapon.platformHit(wall)
+          weapon[handler]?.(wall);
         }, null, this);
         this.physics.add.collider(this.player, walls, (player, wall) => {
-          player.TouchPlatform(wall);
+          player[handler]?.(wall);
         }, null, this);
         this.physics.add.collider(this.enemyGroup, walls);
         this.physics.add.collider(this.itemGroup, walls);
       });
     }
 
-    this.physics.add.collider(this.player, this.walkableGroup, (player, walkable) => {
+    this.walkableCollider = this.physics.add.collider(this.player, this.walkableGroup, (player, walkable) => {
       player.TouchPlatform(walkable);
     }, null, this);
 

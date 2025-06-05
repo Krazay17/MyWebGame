@@ -28,7 +28,7 @@ const config = {
         timescale: 1,
         fps: 60,
         fixedStep: true,
-        debug: false,
+        debug: true,
       }
     },
     parent: 'body',

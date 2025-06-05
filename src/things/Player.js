@@ -15,7 +15,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         scene.add.existing(this);
         scene.physics.add.existing(this);
 
-        this.body.setMaxSpeed(1400);
+        this.body.setMaxSpeed(1200);
 
         this.setupAnimation();
 
@@ -23,7 +23,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
         this.setScale(0.35);
         this.setDepth(10);
-        this.setSize(110, 250);
+        this.setSize(115, 250);
         this.setOffset(70, 0);
         this.baseHitBoxSize = { y: 250, yo: 0 };
         this.alive = true;
@@ -40,7 +40,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.canJump = true;
         this.canDash = true;
         this.canResetDash = true;
-        this.crouchBoost = true;
+        this.canSlide = true;
         this.crouchCD = 0;
         this.wallJump = false;
         this.wallJumpX = 0;
@@ -159,6 +159,15 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 this.Died();
             }
         }
+        if (this.knockbackVelocity) {
+            if (this.knockbackVelocity.length() > 0.1) {
+                this.setVelocityX(this.knockbackVelocity.x); // or setVelocity if using Arcade
+                this.setVelocityY(this.knockbackVelocity.y);
+                this.knockbackVelocity.scale(0.9); // decay over time
+            } else {
+                this.knockbackVelocity.set(0, 0);
+            }
+        }
     }
 
     Died() {
@@ -211,6 +220,20 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
+    touchFireWall(wall) {
+        const tileWorldX = wall.getCenterX();
+        const tileWorldY = wall.getCenterY();
+        const rawDirection = new Phaser.Math.Vector2(this.x - tileWorldX, this.y - tileWorldY);
+        const angle = Phaser.Math.Snap.To(rawDirection.angle(), Phaser.Math.DegToRad(90)); // Snap to 90°
+        const direction = new Phaser.Math.Vector2(Math.cos(angle), Math.sin(angle));
+        //this.knockbackVelocity = direction.scale(50);
+
+        const velocity = direction.scale(600);
+        console.log(velocity.y);
+        this.TakeDamage(velocity.x, velocity.y, 5, 300);
+
+    }
+
     getWeaponGroup() {
         return this.weapons;
     }
@@ -224,6 +247,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         const isLeft = left.isDown
         const isRight = right.isDown
         const isUp = up.some(key => key.isDown);
+        const isChatting = this.playerUI.Chatting;
 
         const WalkLerp = (a, modify) => {
             if (!modify) modify = this.body.blocked.down ? .5 : .09;
@@ -233,7 +257,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         };
         if ((isLeft || isRight)) this.syncNetwork();
 
-        if (isLeft && !isDown && !this.playerUI.Chatting) {
+        if (isLeft && !isDown && !isChatting) {
             this.setVelocityX(WalkLerp(-this.speed));
             this.flipX = true;
             if (this.body.blocked.down) {
@@ -244,7 +268,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             if (dash.isDown && this.canDash) {
                 this.Dash(-600);
             }
-        } else if (isRight && !isDown && !this.playerUI.Chatting) {
+        } else if (isRight && !isDown && !isChatting) {
             this.setVelocityX(WalkLerp(this.speed));
             this.flipX = false;
             if (this.body.blocked.down) {
@@ -255,12 +279,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             if (dash.isDown && this.canDash) {
                 this.Dash(600);
             }
-        } else if (isDown && !this.playerUI.Chatting) {
+        } else if (isDown && !isChatting) {
             var crouchSpeed;
 
-            const crouchBooster = (speed) => {
+            const slideBoost = (speed) => {
 
-                this.crouchBoost = false;
+                this.canSlide = false;
                 this.slideAnim = true;
                 this.scene.time.delayedCall(1000, () => this.slideAnim = false);
                 this.setVelocityX(speed);
@@ -278,10 +302,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 this.setFrame(6);
                 crouchSpeed = 0;
             }
-            if (this.crouchBoost && this.body.blocked.down) {
+            if (this.canSlide && this.body.blocked.down) {
                 this.stop();
                 this.setFrame(9)
-                crouchBooster(crouchSpeed * 9);
+                slideBoost(crouchSpeed * 9);
             }
 
             this.setVelocityX(WalkLerp(crouchSpeed, .025));
@@ -292,16 +316,16 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             else this.setFrame(2);
         }
 
-        if (!isDown && !this.crouchBoost) {
+        if (!isDown && !this.canSlide) {
             if (this.crouchCD < 1000) {
                 this.crouchCD += delta;
             } else {
+                this.canSlide = true;
                 this.crouchCD = 0;
-                this.crouchBoost = true;
             }
         }
 
-        if (isUp && this.canJump && !this.playerUI.Chatting) {
+        if (isUp && this.canJump && !isChatting) {
             this.setVelocityY(-this.jumpPower);
             this.jumpPower += delta * 1.8;
             this.stop();
@@ -318,43 +342,46 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             this.wallJump = false;
         }
 
-        if (isDown && !this.playerUI.Chatting) {
+        if (isDown && !isChatting && !this.isCrouch) {
             this.isCrouch = true;
-            this.hitBoxSize = { y: 180, yo: 70 }
-            this.setSize(110, 180);
+            this.hitBoxSize = { y: 180, yo: 70 };
+            this.setSize(115, 180);
             this.setOffset(70, 70);
+            this.scene.physics.world.collide(this, this.scene.walkableGroup);
         } else if (!isDown && this.isCrouch) {
-            if (this.lerpHitBox(delta)) {
-                this.isCrouch = false;
-            };
+            this.isCrouch = false;
+        } else if (!isDown && !this.isCrouch && (this.lerpHitBox(delta) === false)){
+            this.lerpHitBox(delta)
+            console.log(this.lerpHitBox(delta))
         }
     }
 
-lerpHitBox(delta) {
-    let done = true;
+    lerpHitBox(delta) {
+        if (!this.hitBoxSize) return;
+        let done = true;
 
-    // Interpolate height
-    if (Math.abs(this.hitBoxSize.y - this.baseHitBoxSize.y) > 1) {
-        this.hitBoxSize.y = Phaser.Math.Linear(this.hitBoxSize.y, this.baseHitBoxSize.y, delta / 100); // smoothing factor
-        this.setSize(110, this.hitBoxSize.y);
-        done = false;
-    } else {
-        this.hitBoxSize.y = this.baseHitBoxSize.y;
-        this.setSize(110, this.hitBoxSize.y);
+        // Interpolate height
+        if (Math.abs(this.hitBoxSize.y - this.baseHitBoxSize.y) > 1) {
+            this.hitBoxSize.y = Phaser.Math.Linear(this.hitBoxSize.y, this.baseHitBoxSize.y, delta / 100); // smoothing factor
+            this.setSize(115, this.hitBoxSize.y);
+            done = false;
+        } else {
+            this.hitBoxSize.y = this.baseHitBoxSize.y;
+            this.setSize(115, this.hitBoxSize.y);
+        }
+
+        // Interpolate offset
+        if (Math.abs(this.hitBoxSize.yo - this.baseHitBoxSize.yo) > 1) {
+            this.hitBoxSize.yo = Phaser.Math.Linear(this.hitBoxSize.yo, this.baseHitBoxSize.yo, delta / 100);
+            this.setOffset(70, this.hitBoxSize.yo);
+            done = false;
+        } else {
+            this.hitBoxSize.yo = this.baseHitBoxSize.yo;
+            this.setOffset(70, this.hitBoxSize.yo);
+        }
+
+        return done;
     }
-
-    // Interpolate offset
-    if (Math.abs(this.hitBoxSize.yo - this.baseHitBoxSize.yo) > 1) {
-        this.hitBoxSize.yo = Phaser.Math.Linear(this.hitBoxSize.yo, this.baseHitBoxSize.yo, delta / 100);
-        this.setOffset(70, this.hitBoxSize.yo);
-        done = false;
-    } else {
-        this.hitBoxSize.yo = this.baseHitBoxSize.yo;
-        this.setOffset(70, this.hitBoxSize.yo);
-    }
-
-    return done;
-}
 
 
     resetJump() {
@@ -363,7 +390,7 @@ lerpHitBox(delta) {
 
     }
 
-    TakeDamage(x, y, damage = 1) {
+    TakeDamage(x, y, damage = 1, stunDuration = 300) {
         if (this.iFrame) return false;
         if (this.hitCD) return false;
 
@@ -383,9 +410,11 @@ lerpHitBox(delta) {
 
         this.stunned = true;
         this.emit('playerstunned');
+        this.stop();
+        this.setFrame(8);
         this.scene.time.removeEvent(this.stunTimer);
         this.stunTimer = this.scene.time.addEvent({
-            delay: 300,
+            delay: stunDuration,
             callback: () => {
                 this.stunned = false;
             }

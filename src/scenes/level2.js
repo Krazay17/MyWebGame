@@ -8,33 +8,23 @@ export default class level2 extends BaseGame {
     preload() {
         super.preload();
         this.load.tilemapTiledJSON('tilemap1', 'assets/tilemap1.json')
-        this.load.image('tiles', 'assets/tilesheet.png')
+        this.load.image('tilesheet', 'assets/tilesheet.png')
     }
 
     create() {
         this.setupSky();
         this.setupSave();
-        this.setupWorld(0, 0, 5000, 5000);
+        this.setupWorld(0, 0, 6400, 6400);
         this.setupPlayer(1030, 573);
         this.setupGroups();
         this.setupMusic();
+        this.setupTileMap();
 
-        const map = this.make.tilemap({ key: 'tilemap1' });
-        const tileset = map.addTilesetImage('tiles', 'tiles');
-        const layer1 = map.createLayer('layer1', tileset, 0, 0);
-        const layer2 = map.createLayer('layer2', tileset, 0, 0);
-        const walls = map.createLayer('walls', tileset, 0, 0);
-
-        walls.setCollisionByExclusion([-1]); // excludes only empty tiles
-        this.tilemapColliders = [walls];
         this.setupCollisions();
 
         this.setupPortals();
 
-        const objects = map.getObjectLayer('objects1');
-        objects.objects.forEach(obj => {
-            this[obj.name]?.(obj.x, obj.y);
-        });
+
     }
 
     spawnDuck(x, y) {

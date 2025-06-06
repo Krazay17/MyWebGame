@@ -32,6 +32,7 @@ export default class Preloader extends Phaser.Scene {
         this.load.image('platformtall', 'assets/platformtall.png');
         this.load.image('zap', 'assets/Zap.png');
         this.load.image('auraicon', 'assets/AuraIcon.png');
+        this.load.image('auraicondesat', 'assets/AuraIconDesat.png');
         this.load.image('bottomplat', 'assets/BottomPlat.png');
         this.load.spritesheet('dudesheet', 'assets/DudeSheet.png', {
             frameWidth: 256,
@@ -62,7 +63,8 @@ export default class Preloader extends Phaser.Scene {
     create() {
         GameManager.load();
         window.secretDevMode = () => {
-            GameManager.flags.devMode = !GameManager.devMode;
+            GameManager.flags.devmode = !GameManager.flags.devmode;
+            console.log(GameManager.flags.devmode);
         };
 
         this.scene.start(GameManager.area);

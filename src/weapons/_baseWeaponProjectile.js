@@ -50,21 +50,23 @@ export default class WeaponProjectile extends Phaser.Physics.Arcade.Sprite {
         return true;
     }
 
-    playHitSound() {
+playHitSound() {
+    // Hard exit if the tab is not active
+    if (document.visibilityState !== 'visible') return;
+
     const now = this.scene.time.now;
 
-    if (!this.lastPlayTime || now - this.lastPlayTime > 100) {
+    // Prevent spam
+    if (!this.lastPlayTime || now - this.lastPlayTime > 30) {
         this.lastPlayTime = now;
 
-        if (!this.hitSound) {
-            this.hitSound = this.scene.sound.add(this.hitSoundId);
-        }
+        // Only try to play if the audio system is unlocked and the tab is visible
+        if (this.scene.sound.locked) return;
 
-        if (this.hitSound.isPlaying) {
-            this.hitSound.stop();
-        }
+        // Clean, simple, no pooling
+        this.scene.sound.play(this.hitSoundId);
+    }
+}
 
-        this.hitSound.play();
-    }
-    }
+
 }

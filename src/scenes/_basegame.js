@@ -33,6 +33,15 @@ export default class BaseGame extends Phaser.Scene {
     this.bounds = this.physics.world.bounds;
     this.cameras.main.setBounds(xleft, ytop, width, height);
     this.spawnManager = new SpawnManager(this)
+    this.sound.pauseOnBlur = false;
+
+    window.addEventListener('focus', () => {
+      this.sound.mute = false;
+    });
+
+    window.addEventListener('blur', () => {
+      this.sound.mute = true;
+    });
 
     this.network = new NetworkManager(this);
 
@@ -61,6 +70,16 @@ export default class BaseGame extends Phaser.Scene {
       this.invMenu = this.scene.get('Inventory');
       this.invMenu.init({ player: this.player });
     }
+
+
+    this.input.keyboard.on('keydown-C', () => {
+      this.invMenu.scene.setVisible(true);
+      this.invMenu.scene.setActive(true);
+    });
+    this.input.keyboard.on('keyup-C', () => {
+      this.invMenu.scene.setVisible(false);
+      this.invMenu.scene.setActive(false);
+    });
 
     if (!this.scene.isActive('PlayerUI')) {
       this.scene.launch('PlayerUI', { player: this.player, gameScene: this });

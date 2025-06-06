@@ -1,11 +1,11 @@
-const CURRENT_VERSION = 1.51;
+const CURRENT_VERSION = 1.53;
 
 export default {
     version: CURRENT_VERSION,
     name: { text: 'Hunter', color: '#FFFFFF' },
     location: {x: 0, y: 0},
     area: 'Home',
-    power: { source: 0, auraLevel: 1},
+    power: { source: 0, spent: 0, auraLevel: 1, auraUpgradeA: null, auraUpgradeB: null, shurikanUpgradeA: null, shurikanUpgradeB: null,},
     source: 0,
     weapons: { left: 'shurikan', right: 'sword', aura: 'zap' },
     playerHealth: 5,
@@ -60,7 +60,7 @@ export default {
             this.location = parsed.location ?? {x: 0, y: 0};
             this.name = parsed.name ?? { text: 'Hunter', color: '#FFFFFF' };
             this.area = parsed.area ?? 'Home';
-            this.power = parsed.power ?? { source: 0, auraLevel: 1};
+            this.power = parsed.power ?? { source: 0, spent: 0, auraLevel: 1, };
             this.source = typeof parsed.source === 'number' ? Math.floor(parsed.source) : 0;
             this.weapons = parsed.weapons ?? { left: 'shurikan', right: 'sword', aura: 'zap' };
             this.playerHealth = parsed.playerHealth ?? 5;
@@ -76,7 +76,7 @@ export default {
         this.name = keep.name ?? { text: 'Hunter', color: '#FFFFFF' };
         this.location = {x: 0, y: 0};
         this.area = keep.area ?? 'Home';
-        this.power = keep.power ?? { source: 0, auraLevel: 1};
+        this.power = keep.power ?? { source: 0, auraLevel: 1 };
         this.source = keep.source ?? 0;
         this.weapons = keep.weapons ?? { left: 'shurikan', right: 'sword', aura: 'zap' };
         this.playerHealth = 5;
@@ -110,6 +110,5 @@ getNetworkData() {
 getLastLocation() {
     return this.location ?? {x:0, y:0};
 }
-
 
 }

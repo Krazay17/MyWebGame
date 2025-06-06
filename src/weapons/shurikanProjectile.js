@@ -1,8 +1,8 @@
 import WeaponProjectile from "./_baseWeaponProjectile.js";
 
 export default class ShurikanProjectile extends WeaponProjectile {
-    constructor(scene, x, y, player, chainCount = 0) {
-        super(scene, x, y, 'shurikan', player, 1);
+    constructor(scene, x, y, player, chainCount = 0, damage = 1) {
+        super(scene, x, y, 'shurikan', player, damage);
 
         this.maxTargets = 1;
         this.chainCount = chainCount;
@@ -23,14 +23,29 @@ export default class ShurikanProjectile extends WeaponProjectile {
 
     }
 
-    enemyHit(enemy) {
-        super.enemyHit(enemy, true);
+    enemyHit(enemy, stagger = true) {
+        if (!this.canHit(enemy)) return;
 
-        if (this.chainCount > 0) {
+        const velocity = this.body.velocity;
+
+        if (enemy.TakeDamage(this.player, this.baseDamage, stagger? velocity : null)) {
+            this.playHitSound();
+        }
+        console.log(this.chainCount);
+
+        if ((this.chainCount > 0)) {
             this.chainAttack(enemy);
+            this.setVelocity(0)
+            this.scene.time?.delayedCall(25, () =>{
             this.destroy();
+
+            })
         } else {
+            this.setVelocity(0)
+            this.scene.time?.delayedCall(25, () =>{
             this.destroy();
+
+            })
         }
     }
 
@@ -52,11 +67,9 @@ export default class ShurikanProjectile extends WeaponProjectile {
 
     chainAttack(enemy) {
         const groups = this.scene.attackableGroups;
-        const range = 500;
+        const range = 400;
         const thisPos = new Phaser.Math.Vector2(this.x, this.y)
         const validTargets = [];
-
-        this.hitTargets = [];
 
         groups.forEach(({ zap, group, handler }) => {
             if (!zap) return;
@@ -84,8 +97,8 @@ export default class ShurikanProjectile extends WeaponProjectile {
             const { target, handler, pos } = validTargets[i];
             this.chainCount--;
             const chainShurikan = new ShurikanProjectile(this.scene, thisPos.x, thisPos.y, this.player, this.chainCount)
-            this.scene.weaponGroup.add(chainShurikan);
             chainShurikan.hitTargets.push(enemy);
+            this.scene.weaponGroup.add(chainShurikan);
             const direction = pos.subtract(thisPos).normalize().scale(1000);
             chainShurikan.allowGravity = false;
             chainShurikan.setVelocity(direction.x, direction.y)

@@ -12,88 +12,241 @@ export default class Inventory extends Phaser.Scene {
     }
 
     create() {
-        this.visible = false;
-        this.buttons = [];
+        this.scene.setVisible(false);
+        this.scene.setActive(false);
+        this.upgradeButtons = [];
 
-        this.bg = this.add.rectangle(1200, 300, 800, 600, 0x000000, 0.5).setVisible(false);
-        this.text = this.add.text(1200, 25, 'Inventory', {
-            fontSize: '32px',
-            fontStyle: 'bold'
-        }).setOrigin(0.5).setVisible(false);
+        this.bg = this.add.rectangle(1200, 300, 800, 800, 0x000000, 0.5);
 
-        this.buttons.push(this.setupButton(1000, 200, false, 'shurikan', 'shurikan', .4));
-        this.buttons.push(this.setupButton(1200, 200, false, 'sword', 'swordicon', .5));
-        this.buttons.push(this.setupButton(1400, 200, false, 'darkorb', 'darkorb', 1, 0));
-        this.buttons.push(this.setupButton(1000, 400, false, 'whip', 'whipicon', .5));
+        this.setupWeaponButton(900, 100, 'shurikan', 'shurikan', .4);
+        this.setupWeaponButton(1100, 100, 'sword', 'swordicon', .5);
+        this.setupWeaponButton(1300, 100, 'darkorb', 'darkorb', 1, 0);
+        this.setupWeaponButton(1500, 100, 'whip', 'whipicon', .5);
 
-        this.buttons.push(this.setupButton(1200, 550, true, 'zap', 'auraicon', 1, 0));
-        this.buttons.push(this.setupButton(1100, 600, true, 'zap', 'auraicon', 1, 0));
-
-        this.auraText = this.add.text(1200, 500, 'Aura level: ' + GameManager.power.auraLevel, {
+        this.setupButton(1200, 500, 'auraicon', 1)
+            .on('pointerdown', () => {
+                if (this.player.aura.tryIncreaseAura()) {
+                    this.auraText.setText('Aura level: ' + GameManager.power.auraLevel);
+                    this.auraCostText.setText('Cost: ' + this.player.aura.getCost());
+                }
+            });
+        this.auraText = this.add.text(1200, 425, 'Aura level: ' + GameManager.power.auraLevel, {
             fontSize: '24px',
             fontStyle: 'bold',
-        }).setOrigin(0.5).setVisible(false);
-
-        this.auraCostText = this.add.text(1200, 600, 'Cost: ' + this.aura.getCost(), {
+        }).setOrigin(0.5);
+        this.auraCostText = this.add.text(1200, 450, 'Cost: ' + this.aura.getCost(), {
             fontSize: '24px',
             fontStyle: 'bold',
-        }).setOrigin(0.5).setVisible(false);
+        }).setOrigin(0.5);
 
-        this.input.keyboard.on('keydown-C', () => {
-            this.visible = true;
-            this.bg.setVisible(this.visible);
-            this.text.setVisible(this.visible);
-            this.buttons.forEach(button => button.setVisible(this.visible));
-            this.auraText.setVisible(this.visible);
-            this.auraCostText.setVisible(this.visible);
-        });
+        this.shurikanUpgradeAButton = this.setupButton(900, 300, 'auraicondesat', 1, '0x00FFEE', 'Cost: 2000\nShurikan hits 3 more targets')
+            .on('pointerdown', () => {
+                if (!GameManager.power.shurikanUpgradeA && (GameManager.power.source > 2000)) {
+                    this.player.updateSource(-2000);
+                    GameManager.power.shurikanUpgradeA = true;
+                    GameManager.power.spent += 2000;
+                    this.player.leftWeapon.setupStats();
+                    this.player.rightWeapon.setupStats();
+                    this.shurikanUpgradeAButton.disableInteractive();
+                    this.shurikanUpgradeAButton.setTint(0xFFFFFF);
+                    this.tooltipText.setText('');
+                    this.tooltipText.setAlpha(0);
+                }
+            });
+        this.shurikanUpgradeBButton = this.setupButton(900, 400, 'auraicondesat', 1, '0x00FFEE', 'Cost: 2000\nShurikan deals 3 more damage to first target')
+            .on('pointerdown', () => {
+                if (!GameManager.power.shurikanUpgradeB && (GameManager.power.source > 2000)) {
+                    this.player.updateSource(-2000);
+                    GameManager.power.shurikanUpgradeB = true;
+                    GameManager.power.spent += 2000;
+                    this.player.leftWeapon.setupStats();
+                    this.player.rightWeapon.setupStats();
+                    this.shurikanUpgradeBButton.disableInteractive();
+                    this.shurikanUpgradeBButton.setTint(0xFFFFFF);
+                    this.tooltipText.setText('');
+                    this.tooltipText.setAlpha(0);
+                }
+            });
 
-        this.input.keyboard.on('keyup-C', () => {
-            this.visible = false;
-            this.bg.setVisible(this.visible);
-            this.text.setVisible(this.visible);
-            this.buttons.forEach(button => button.setVisible(this.visible));
-            this.auraText.setVisible(this.visible);
-            this.auraCostText.setVisible(this.visible);
-        });
-        this.input.keyboard.on('keydown-X', () => {
-            this.visible = !this.visible;
-            this.bg.setVisible(this.visible);
-            this.text.setVisible(this.visible);
-            this.buttons.forEach(button => button.setVisible(this.visible));
-            this.auraText.setVisible(this.visible);
-            this.auraCostText.setVisible(this.visible);
-        });
 
+        this.auraUpgradeA0Button = this.setupButton(1100, 600, 'auraicondesat', 1, '0x00FFEE', 'Cost: ' + this.player.aura.upgradeCosts.A1 + '\nZap hits 2 targets')
+            .on('pointerdown', () => {
+                if (this.player.aura.upgradeA(1)) {
+                    this.auraUpgradeA0Button.disableInteractive();
+                    this.auraUpgradeA0Button.setTint(0xFFFFFF);
+                    this.auraUpgradeA1Button.disableInteractive();
+                    this.auraUpgradeA1Button.setTint(0x000000);
+                    this.tooltipText.setText('');
+                    this.tooltipText.setAlpha(0);
+                }
+            });
+
+
+        this.auraUpgradeA1Button = this.setupButton(1300, 600, 'auraicondesat', 1, '0x00FFEE', 'Cost: ' + this.player.aura.upgradeCosts.A2 + '\nZap damage +2')
+            .on('pointerdown', () => {
+                if (this.player.aura.upgradeA(2)) {
+                    this.auraUpgradeA1Button.disableInteractive();
+                    this.auraUpgradeA1Button.setTint(0xFFFFFF);
+                    this.auraUpgradeA0Button.disableInteractive();
+                    this.auraUpgradeA0Button.setTint(0x000000);
+                    this.tooltipText.setText('');
+                    this.tooltipText.setAlpha(0);
+                }
+            });
+
+        this.auraUpgradeB0Button = this.setupButton(1100, 700, 'auraicondesat', 1, '0x00FFEE', 'Cost: ' + this.player.aura.upgradeCosts.B1 + '\nZap spawns orbs on hit')
+            .on('pointerdown', () => {
+                if (this.player.aura.upgradeB(1)) {
+                    this.auraUpgradeB0Button.disableInteractive();
+                    this.auraUpgradeB0Button.setTint(0xFFFFFF);
+                    this.auraUpgradeB1Button.disableInteractive();
+                    this.auraUpgradeB1Button.setTint(0x000000);
+                    this.tooltipText.setText('');
+                    this.tooltipText.setAlpha(0);
+                }
+            });
+
+        this.auraUpgradeB1Button = this.setupButton(1300, 700, 'auraicondesat', 1, '0x00FFEE', 'Cost: ' + this.player.aura.upgradeCosts.B2 + '\nZap damage +2')
+            .on('pointerdown', () => {
+                if (this.player.aura.upgradeB(2)) {
+                    this.auraUpgradeB1Button.disableInteractive();
+                    this.auraUpgradeB1Button.setTint(0xFFFFFF);
+                    this.auraUpgradeB0Button.disableInteractive();
+                    this.auraUpgradeB0Button.setTint(0x000000);
+                    this.tooltipText.setText('');
+                    this.tooltipText.setAlpha(0);
+                }
+            });
+
+        this.resetPowerButton = this.setupButton(1200, 800, 'auraicondesat', 1, '0xFF0000', 'Reset all power')
+            .on('pointerdown', () => {
+
+                this.player.updateSource(GameManager.power.spent / 2)
+                GameManager.power.spent = 0;
+
+                this.upgradeButtons.forEach(b => {
+                    this.resetButtons(b);
+                });
+
+                this.player.aura.resetUpgrades();
+                GameManager.power.shurikanUpgradeA = null;
+                GameManager.power.shurikanUpgradeB = null;
+                this.player.leftWeapon.setupStats();
+                this.player.rightWeapon.setupStats();
+                this.auraText.setText('Aura level: ' + GameManager.power.auraLevel);
+                this.auraCostText.setText('Cost: ' + this.player.aura.getCost());
+
+                GameManager.save()
+
+            });
+
+        this.upgradeButtons.push(
+            this.auraUpgradeA0Button,
+            this.auraUpgradeA1Button,
+            this.auraUpgradeB0Button,
+            this.auraUpgradeB1Button,
+            this.shurikanUpgradeAButton,
+            this.shurikanUpgradeBButton,
+        );
+
+        this.tooltipText = this.add.text(0, 0, '', {
+            fontSize: '24px',
+            fontStyle: 'bold',
+            color: '#00FF00',
+            backgroundColor: '#000000',
+            wordWrap: {
+                width: 150,
+            },
+        }).setOrigin(.5, 1).setAlpha(0);
+
+        this.checkUpgrades();
     }
 
-    setupButton(x = 1200, y = 200, isAura = false, weapon = 'darkorb', icon = 'darkorb', scale = 1) {
+    setupWeaponButton(x = 1200, y = 200, weapon = 'darkorb', icon = 'darkorb', scale = 1) {
         const button = this.add.image(x, y, icon)
             .setScale(scale)
             .setInteractive()
-            .setVisible(false)
             .on('pointerover', () => button.setTint(0x7d7d7d))
             .on('pointerout', () => button.setTint())
             .on('pointerdown', (pointer) => {
-                this.clickedButton(pointer, button)
+                const slot = pointer.button === 0
+                    ? 0
+                    : 1;
+                this.player.equipWeapon(weapon, slot)
             });
 
-        button.weapon = weapon;
-        button.isAura = isAura;
         return button;
     }
 
-    clickedButton(pointer, button) {
-        if (!button.isAura) {
-            const slot = pointer.button === 0
-                ? 0
-                : 1;
-            this.player.equipWeapon(button.weapon, slot)
-        } else {
-            if (this.player.tryIncreaseAura()) {
-                this.auraText.setText('Aura level: ' + GameManager.power.auraLevel);
-                this.auraCostText.setText('Cost: ' + this.aura.getCost());
-            }
+    setupButton(x = 1200, y = 200, icon = 'auraicon', scale = 1, tint = '0xFFFFFF', tooltip = '') {
+        const button = this.add.image(x, y, icon)
+            .setScale(scale)
+            .setInteractive()
+            .setTint(tint)
+            .on('pointerover', (pointer) => {
+                button.setTint(0x7d7d7d);
+                // tooltip
+                this.tooltipText.setText(tooltip);
+                this.tooltipText.setPosition(pointer.x, pointer.y);
+                this.tooltipText.setAlpha(1);
+            })
+            .on('pointerout', () => {
+                button.setTint(tint)
+
+                this.tooltipText.setText('');
+                this.tooltipText.setAlpha(0);
+            })
+        button.baseTint = tint;
+        return button;
+    }
+
+    resetButtons(button) {
+        button.setInteractive();
+        button.setTint(button.baseTint);
+    }
+
+    checkUpgrades() {
+        if (GameManager.power.shurikanUpgradeA) {
+            this.shurikanUpgradeAButton.disableInteractive();
+            this.shurikanUpgradeAButton.setTint(0xFFFFFF);
+        }
+        if (GameManager.power.shurikanUpgradeB) {
+            this.shurikanUpgradeBButton.disableInteractive();
+            this.shurikanUpgradeBButton.setTint(0xFFFFFF);
+        }
+
+        if (GameManager.power.auraUpgradeA === 1) {
+
+            this.auraUpgradeA0Button.disableInteractive();
+            this.auraUpgradeA0Button.setTint(0xFFFFFF);
+            this.auraUpgradeA1Button.disableInteractive();
+            this.auraUpgradeA1Button.setTint(0x000000);
+
+        }
+        if (GameManager.power.auraUpgradeA === 2) {
+
+            this.auraUpgradeA1Button.disableInteractive();
+            this.auraUpgradeA1Button.setTint(0xFFFFFF);
+            this.auraUpgradeA0Button.disableInteractive();
+            this.auraUpgradeA0Button.setTint(0x000000);
+
+        }
+        if (GameManager.power.auraUpgradeB === 1) {
+
+            this.auraUpgradeB0Button.disableInteractive();
+            this.auraUpgradeB0Button.setTint(0xFFFFFF);
+            this.auraUpgradeB1Button.disableInteractive();
+            this.auraUpgradeB1Button.setTint(0x000000);
+
+        }
+        if (GameManager.power.auraUpgradeB === 2) {
+
+            this.auraUpgradeB1Button.disableInteractive();
+            this.auraUpgradeB1Button.setTint(0xFFFFFF);
+            this.auraUpgradeB0Button.disableInteractive();
+            this.auraUpgradeB0Button.setTint(0x000000);
+
         }
     }
+
 }

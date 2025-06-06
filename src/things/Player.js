@@ -150,10 +150,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
             const pointer = this.scene.input.activePointer;
 
-            if (pointer.leftButtonDown() && !this.inventory.visible) {
+            if (pointer.leftButtonDown() && !this.inventory.scene.isVisible()) {
                 this.leftWeapon.fire(pointer);
             }
-            if (pointer.rightButtonDown() && !this.inventory.visible) {
+            if (pointer.rightButtonDown() && !this.inventory.scene.isVisible()) {
                 this.rightWeapon.fire(pointer);
             }
 
@@ -476,8 +476,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     updateSource(source) {
         const intSource = Math.floor(source);
         const prevSource = GameManager.power.source;
-        GameManager.power.source += intSource;
-        GameManager.power.source = Math.max(0, GameManager.power.source);
+        GameManager.power.source = Math.max(0, GameManager.power.source + intSource);
         GameManager.save();
         this.playerUI.scoreText.text = 'Source: ' + GameManager.power.source + '\n' + this.rankSystem.getRank(GameManager.power.source);
         this.network.socket.emit('playerLevel', GameManager.power);
@@ -518,7 +517,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     equipWeapon(name = 'Shurikan', slot = 0,) {
-        var equippedWeapon;
+        let equippedWeapon;
         if (slot === 0) {
             this.leftWeapon = createWeapon(name, this.scene, this);
             equippedWeapon = this.leftWeapon;
@@ -537,28 +536,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         }
         GameManager.save();
         return equippedWeapon;
-    }
-
-    tryIncreaseAura(reset) {
-        if (reset) {
-            GameManager.power.auraLevel = 1;
-            GameManager.save();
-            this.aura.setLevel(1);
-            return true;
-        }
-
-        const cost = this.aura.getCost();
-
-        if (GameManager.power.source >= cost) {
-            this.updateSource(-cost);
-            GameManager.power.auraLevel++;
-            GameManager.save();
-            this.aura.setLevel(GameManager.power.auraLevel);
-            this.network.socket.emit('playerLevel', GameManager.power);
-            return true;
-        } else {
-            return false;
-        };
     }
 
     getCurrentPos() {

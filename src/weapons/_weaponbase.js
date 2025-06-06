@@ -1,5 +1,5 @@
 export default class WeaponBase {
-    constructor(scene, player, damage = 1) {
+    constructor(scene, player, baseDamage = 1) {
         this.scene = scene;
         this.player = player;
         this.scene.events.once('shutdown', this.destroy, this);
@@ -13,7 +13,7 @@ export default class WeaponBase {
         this.offset;
         this.throwSoundId = 'shurikanthrow';
         this.hitSoundId = 'shurikanhit';
-        this.baseDamage = damage;
+        this.baseDamage = baseDamage;
         this.baseCooldown = 200;
         this.spamAdd = 50;
         this.knockStrength = 800;
@@ -21,6 +21,10 @@ export default class WeaponBase {
         this.hitLocation;
         this.tickHit = false;
         this.cooldownTimer = 0;
+    }
+
+    damage() {
+        return this.baseDamage;
     }
 
     update(delta) {
@@ -38,6 +42,8 @@ export default class WeaponBase {
         }
     }
 
+    setupStats() { }
+
     canFire() {
         return !this.cooldown;
     }
@@ -45,7 +51,7 @@ export default class WeaponBase {
     startCooldown() {
         this.cooldown = true;
         this.cd = Math.max(this.baseCooldown, this.baseCooldown + this.cooldownDelay);
-        
+
         this.cooldownStartTime = this.scene.time.now;
 
         this.cooldownTimer = this.scene.time.delayedCall(this.cd, () => {
@@ -118,7 +124,7 @@ export default class WeaponBase {
                 // line trace
                 if (Phaser.Geom.Intersects.RectangleToRectangle(bounds, RectRay)) {
                     hitRec = Phaser.Geom.Rectangle.Intersection(bounds, RectRay);
-                    var hit = {x: hitRec.centerX, y: hitRec.centerY};
+                    var hit = { x: hitRec.centerX, y: hitRec.centerY };
                     hits.push(target);
                     this[handler]?.(target, true, hit);
                     // this.scene.graphics.fillStyle(0x00ff00, 0.5);
@@ -130,8 +136,8 @@ export default class WeaponBase {
 
     polygonRay(data, thickness) {
         const end = this.rayTrackEnd
-        ? data.end
-        :data.start.clone().add(data.vector);
+            ? data.end
+            : data.start.clone().add(data.vector);
 
         // Create perpendicular vector to the direction
         const perp = new Phaser.Math.Vector2(-data.direction.y, data.direction.x).scale(thickness / 2);
@@ -160,7 +166,7 @@ export default class WeaponBase {
     enemyHit(target, stagger, location) {
         if (!this.canHit(target)) return;
 
-        if (target.TakeDamage(this.player, this.baseDamage, stagger? this.getKnockBack(target) : null)) {
+        if (target.TakeDamage(this.player, this.damage(), stagger ? this.getKnockBack(target) : null)) {
             this.playHitSound();
         }
     }
@@ -210,23 +216,27 @@ export default class WeaponBase {
     }
 
 
-    playHitSound() {
+playHitSound() {
+    // Hard exit if the tab is not active
+    if (document.visibilityState !== 'visible') return;
+
     const now = this.scene.time.now;
 
-    if (!this.lastPlayTime || now - this.lastPlayTime > 33) {
+    // Prevent spam
+    if (!this.lastPlayTime || now - this.lastPlayTime > 30) {
         this.lastPlayTime = now;
 
-        if (!this.hitSound) {
-            this.hitSound = this.scene.sound.add(this.hitSoundId);
-        }
+        // Only try to play if the audio system is unlocked and the tab is visible
+        if (this.scene.sound.locked) return;
 
-        if (this.hitSound.isPlaying) {
-            this.hitSound.stop();
-        }
+        // Clean, simple, no pooling
+        this.scene.sound.play(this.hitSoundId);
+    }
+}
 
-        this.hitSound.play();
-    }
-    }
+
+
+
 
     mapRangeClamped(value, inMin, inMax, outMin, outMax) {
         if (inMin === inMax) return outMin; // Avoid divide by zero

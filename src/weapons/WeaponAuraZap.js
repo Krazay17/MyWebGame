@@ -12,9 +12,7 @@ export default class AuraZap extends WeaponBase {
         this.upA = 0;
         this.upB = 0;
 
-        this.upgradeACost = 2000;
-
-        this.upgradeCosts = { A1: 2000, A2: 3000, B1: 5000, B2: 6000, };
+        this.upgradeCosts = { A1: 1000, A2: 500, B1: 2000, B2: 1000, };
 
         this.auraSprite = new AuraSprite(scene, player.x, player.y, GameManager.power.auraLevel);
 
@@ -58,12 +56,16 @@ export default class AuraZap extends WeaponBase {
     }
 
     setStats() {
+        const power = GameManager.power;
+
+        this.auraSprite.setAuraLevel(power.auraLevel);
+
         if (this.zapTimer.delay) {
-            this.zapTimer.delay = this.baseZapCd / GameManager.power.auraLevel;
+            this.zapTimer.delay = this.baseZapCd / power.auraLevel;
         }
 
-        if (GameManager.power.auraUpgradeA) {
-            switch (GameManager.power.auraUpgradeA) {
+        if (power.auraUpgradeA) {
+            switch (power.auraUpgradeA) {
                 case 1:
                     this.maxTargets = 2;
                     break;
@@ -77,8 +79,8 @@ export default class AuraZap extends WeaponBase {
             }
         }
 
-        if (GameManager.power.auraUpgradeB) {
-            switch (GameManager.power.auraUpgradeB) {
+        if (power.auraUpgradeB) {
+            switch (power.auraUpgradeB) {
                 case 1:
                     this.spawnOrb = true;
                     break;
@@ -93,7 +95,7 @@ export default class AuraZap extends WeaponBase {
         }
         console.log(this.baseDamage)
 
-        this.player.network.socket.emit('playerLevel', GameManager.power);
+        this.player.network.socket.emit('playerLevel', power);
     }
 
     fire() {

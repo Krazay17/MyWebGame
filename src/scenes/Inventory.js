@@ -1,4 +1,5 @@
 import GameManager from "../things/GameManager";
+import {weaponUpgradeCosts} from '../weapons/WeaponManager'
 
 export default class Inventory extends Phaser.Scene {
     constructor() {
@@ -39,12 +40,14 @@ export default class Inventory extends Phaser.Scene {
             fontStyle: 'bold',
         }).setOrigin(0.5);
 
-        this.shurikanUpgradeAButton = this.setupButton(900, 300, 'auraicondesat', 1, '0x00FFEE', 'Cost: 2000\nShurikan hits 3 more targets')
+        
+
+        this.shurikanUpgradeAButton = this.setupButton(900, 300, 'auraicondesat', 1, '0x00FFEE', 'Cost: ' + weaponUpgradeCosts.shurikanA + '\nShurikan hits 3 more targets')
             .on('pointerdown', () => {
-                if (!GameManager.power.shurikanUpgradeA && (GameManager.power.source > 2000)) {
-                    this.player.updateSource(-2000);
+                if (!GameManager.power.shurikanUpgradeA && (GameManager.power.source > weaponUpgradeCosts.shurikanA)) {
+                    this.player.updateSource(-weaponUpgradeCosts.shurikanA);
                     GameManager.power.shurikanUpgradeA = true;
-                    GameManager.power.spent += 2000;
+                    GameManager.power.spent += weaponUpgradeCosts.shurikanA;
                     this.player.leftWeapon.setupStats();
                     this.player.rightWeapon.setupStats();
                     this.shurikanUpgradeAButton.disableInteractive();
@@ -53,12 +56,12 @@ export default class Inventory extends Phaser.Scene {
                     this.tooltipText.setAlpha(0);
                 }
             });
-        this.shurikanUpgradeBButton = this.setupButton(900, 400, 'auraicondesat', 1, '0x00FFEE', 'Cost: 2000\nShurikan deals 3 more damage to first target')
+        this.shurikanUpgradeBButton = this.setupButton(900, 400, 'auraicondesat', 1, '0x00FFEE', 'Cost: ' + weaponUpgradeCosts.shurikanB + '\nShurikan deals 3 more damage to first target')
             .on('pointerdown', () => {
-                if (!GameManager.power.shurikanUpgradeB && (GameManager.power.source > 2000)) {
-                    this.player.updateSource(-2000);
+                if (!GameManager.power.shurikanUpgradeB && (GameManager.power.source > weaponUpgradeCosts.shurikanB)) {
+                    this.player.updateSource(-weaponUpgradeCosts.shurikanB);
                     GameManager.power.shurikanUpgradeB = true;
-                    GameManager.power.spent += 2000;
+                    GameManager.power.spent += weaponUpgradeCosts.shurikanB;
                     this.player.leftWeapon.setupStats();
                     this.player.rightWeapon.setupStats();
                     this.shurikanUpgradeBButton.disableInteractive();

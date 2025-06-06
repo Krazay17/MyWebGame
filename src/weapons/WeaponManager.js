@@ -12,6 +12,8 @@ const weaponTypes = {
     zap: AuraZap,
 };
 
+export const weaponUpgradeCosts = {shurikanA: 1000, shurikanB: 500};
+
 export function createWeapon(type, scene, player) {
     const WeaponClass = weaponTypes[type];
     return new WeaponClass(scene, player)

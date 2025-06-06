@@ -21,6 +21,8 @@ export default class WeaponBase {
         this.hitLocation;
         this.tickHit = false;
         this.cooldownTimer = 0;
+
+        this.weaponUpgradeCosts = {shurikanA: 1000, shurikanB: 500}
     }
 
     damage() {

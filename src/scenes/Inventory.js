@@ -161,6 +161,7 @@ export default class Inventory extends Phaser.Scene {
             this.auraUpgradeB1Button,
             this.shurikanUpgradeAButton,
             this.shurikanUpgradeBButton,
+            this.shurikanUpgradeCButton,
         );
 
         this.tooltipText = this.add.text(0, 0, '', {

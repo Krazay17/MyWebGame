@@ -13,7 +13,9 @@ export default class Inventory extends Phaser.Scene {
     }
 
     create() {
+        this.input.enabled = false;
         this.scene.setVisible(false);
+        this.scene.setActive(false);
         this.upgradeButtons = [];
         this.allButtons = [];
 
@@ -175,8 +177,6 @@ export default class Inventory extends Phaser.Scene {
         }).setOrigin(.5, 1).setAlpha(0);
 
         this.checkUpgrades();
-        this.input.enabled = false;
-        this.scene.setActive(false);
     }
 
     setupWeaponButton(x = 1200, y = 200, weapon = 'darkorb', icon = 'darkorb', scale = 1) {

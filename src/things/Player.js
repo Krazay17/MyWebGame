@@ -123,12 +123,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 this.scene.scene.start('Home')
             }
         });
-        this.scene.input.keyboard.on('keydown-R', () => {
-            if (!this.playerUI.Chatting) {
-                this.Died();
-                this.scene.scene.restart();
-            }
-        });
+        // this.scene.input.keyboard.on('keydown-R', () => {
+        //     if (!this.playerUI.Chatting) {
+        //         this.Died();
+        //         this.scene.scene.restart();
+        //     }
+        // });
 
         this.setStats();
         this.resetJump();

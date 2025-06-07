@@ -90,11 +90,9 @@ this.zoom = Phaser.Math.Snap.To(this.zoom, 0.1);
     if (!this.scene.isActive('Inventory')) {
       this.scene.launch('Inventory', { player: this.player });
       this.invMenu = this.scene.get('Inventory');
-      this.invMenu.scene.setActive(false);
     } else {
       this.invMenu = this.scene.get('Inventory');
       this.invMenu.init({ player: this.player });
-      this.invMenu.scene.setActive(false);
     }
 
 

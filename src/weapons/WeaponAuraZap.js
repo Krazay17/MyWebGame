@@ -52,6 +52,7 @@ export default class AuraZap extends WeaponBase {
     }
 
     damage() {
+        console.log(this.baseDamage + this.upA + this.upB)
         return this.baseDamage + this.upA + this.upB;
     }
 
@@ -70,13 +71,12 @@ export default class AuraZap extends WeaponBase {
                     this.maxTargets = 2;
                     break;
                 case 2:
-                    this.baseDamage += 2;
-                    break;
-                default:
-                    this.maxTargets = 1;
-                    this.baseDamage = 1;
+                    this.upA= 2;
                     break;
             }
+        } else {
+            this.maxTargets = 1;
+            this.upA= 0;
         }
 
         if (power.auraUpgradeB) {
@@ -85,13 +85,12 @@ export default class AuraZap extends WeaponBase {
                     this.spawnOrb = true;
                     break;
                 case 2:
-                    this.baseDamage += 2;
-                    break;
-                default:
-                    this.spawnOrb = false;
-                    this.baseDamage = 1;
+                    this.upB = 2;
                     break;
             }
+        } else {
+            this.spawnOrb = false;
+            this.upB = 0;
         }
 
         this.player.network.socket.emit('playerLevel', power);
@@ -206,8 +205,8 @@ export default class AuraZap extends WeaponBase {
 
     resetUpgrades() {
         GameManager.power.auraLevel = 1;
-        GameManager.power.auraUpgradeA = null;
-        GameManager.power.auraUpgradeB = null;
+        GameManager.power.auraUpgradeA = 0;
+        GameManager.power.auraUpgradeB = 0;
         this.setStats();
     }
 }

@@ -37,9 +37,20 @@ export default class BaseGame extends Phaser.Scene {
 
     this.input.on('wheel', (wheel) => {
       if (!this.zoom) this.zoom = 1;
-      this.zoom -= wheel.deltaY/5000;
+      // Step 1: Adjust zoom
+this.zoom -= wheel.deltaY / 1000;
+
+// Step 2: Clamp
+this.zoom = Phaser.Math.Clamp(this.zoom, 0.6, 3);
+
+// Step 3: Snap to nearest 0.2
+this.zoom = Phaser.Math.Snap.To(this.zoom, 0.1);
+
       console.log(this.zoom);
+
+      this.sky1.setScale(1 / this.zoom);
       this.cameras.main.setZoom(this.zoom)
+      //this.resizeBackgroundToFill();
     })
 
     window.addEventListener('focus', () => {
@@ -64,8 +75,8 @@ export default class BaseGame extends Phaser.Scene {
     this.network.refreshScene(this);
   }
 
-  setupSky(a = 'purplesky0', ao = { x: 0, y: 0 }, b = 'purplesky1', bo = { x: 800, y: 600 }, c = 'purplesky2', co = { x: 600, y: 500 }) {
-    this.sky1 = this.add.image(ao.x, ao.y, a).setOrigin(0)
+  setupSky(a = 'purplesky0', ao = { x: this.scale.width /2 , y: this.scale.height / 2 }, b = 'purplesky1', bo = { x: 800, y: 600 }, c = 'purplesky2', co = { x: 600, y: 500 }) {
+    this.sky1 = this.add.image(ao.x, ao.y, a).setOrigin(.5)
       .setDisplaySize(this.scale.width, this.scale.height).setScrollFactor(0);
     this.sky2 = this.add.image(bo.x, bo.y, b).setScale(1).setScrollFactor(.2);
     this.sky3 = this.add.image(co.x, co.y, c).setScale(1).setScrollFactor(.6);
@@ -80,18 +91,22 @@ export default class BaseGame extends Phaser.Scene {
     if (!this.scene.isActive('Inventory')) {
       this.scene.launch('Inventory', { player: this.player });
       this.invMenu = this.scene.get('Inventory');
+      this.invMenu.scene.setActive(false);
     } else {
       this.invMenu = this.scene.get('Inventory');
       this.invMenu.init({ player: this.player });
+      this.invMenu.scene.setActive(false);
     }
 
 
     this.input.keyboard.on('keydown-C', () => {
       this.invMenu.scene.setVisible(true);
       this.invMenu.scene.setActive(true);
+      this.invMenu.input.enabled = true;
     });
     this.input.keyboard.on('keyup-C', () => {
       this.invMenu.scene.setVisible(false);
+      this.invMenu.input.enabled = false;
       this.invMenu.scene.setActive(false);
     });
 
@@ -296,7 +311,7 @@ export default class BaseGame extends Phaser.Scene {
   resizeSky(gameSize) {
     const width = gameSize.width;
     const height = gameSize.height;
-    this.sky1.setDisplaySize(width, height);
+    this.sky1.setPosition(width /2 , height / 2);
   }
 
   spawnSunman(x, y) {

@@ -14,17 +14,17 @@ export default class Inventory extends Phaser.Scene {
 
     create() {
         this.scene.setVisible(false);
-        this.scene.setActive(false);
         this.upgradeButtons = [];
+        this.allButtons = [];
 
         this.bg = this.add.rectangle(1200, 300, 800, 800, 0x000000, 0.5);
 
-        this.setupWeaponButton(900, 100, 'shurikan', 'shurikan', .4);
-        this.setupWeaponButton(1100, 100, 'sword', 'swordicon', .5);
-        this.setupWeaponButton(1300, 100, 'darkorb', 'darkorb', 1, 0);
-        this.setupWeaponButton(1500, 100, 'whip', 'whipicon', .5);
+        this.shurikanButton = this.setupWeaponButton(900, 100, 'shurikan', 'shurikan', .4);
+        this.swordButton = this.setupWeaponButton(1100, 100, 'sword', 'swordicon', .5);
+        this.darkorbButton = this.setupWeaponButton(1300, 100, 'darkorb', 'darkorb', 1, 0);
+        this.whipButton = this.setupWeaponButton(1500, 100, 'whip', 'whipicon', .5);
 
-        this.setupButton(1200, 500, 'auraicon', 1)
+        this.auraButton = this.setupButton(1200, 500, 'auraicon', 1)
             .on('pointerdown', () => {
                 if (this.player.aura.tryIncreaseAura()) {
                     this.auraText.setText('Aura level: ' + GameManager.power.auraLevel);
@@ -39,8 +39,6 @@ export default class Inventory extends Phaser.Scene {
             fontSize: '24px',
             fontStyle: 'bold',
         }).setOrigin(0.5);
-
-
 
         this.shurikanUpgradeAButton = this.setupButton(900, 200, 'auraicondesat', 1, '0x00FFEE', 'Cost: ' + weaponUpgradeCosts.shurikanA + '\nShurikan hits 3 more targets')
             .on('pointerdown', () => {
@@ -71,7 +69,6 @@ export default class Inventory extends Phaser.Scene {
                 }
             });
 
-
         this.auraUpgradeA0Button = this.setupButton(1100, 600, 'auraicondesat', 1, '0x00FFEE', 'Cost: ' + this.player.aura.upgradeCosts.A1 + '\nZap hits 2 targets')
             .on('pointerdown', () => {
                 if (this.player.aura.upgradeA(1)) {
@@ -83,7 +80,6 @@ export default class Inventory extends Phaser.Scene {
                     this.tooltipText.setAlpha(0);
                 }
             });
-
 
         this.auraUpgradeA1Button = this.setupButton(1300, 600, 'auraicondesat', 1, '0x00FFEE', 'Cost: ' + this.player.aura.upgradeCosts.A2 + '\nZap damage +2')
             .on('pointerdown', () => {
@@ -163,6 +159,8 @@ export default class Inventory extends Phaser.Scene {
         }).setOrigin(.5, 1).setAlpha(0);
 
         this.checkUpgrades();
+        this.input.enabled = false;
+        this.scene.setActive(false);
     }
 
     setupWeaponButton(x = 1200, y = 200, weapon = 'darkorb', icon = 'darkorb', scale = 1) {

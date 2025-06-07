@@ -11,6 +11,11 @@ export default class PlayerUI extends Phaser.Scene {
         this.player = data.player;
         this.gameScene = data.gameScene;
         this.player.playerUI = this;
+
+        this.healthBoxUpdate(this.player.health, this.player.healthMax);
+        this.player.on('updateHealth', (health, max) => {
+            this.healthBoxUpdate(health, max)
+        });
     }
 
     create() {
@@ -26,23 +31,25 @@ export default class PlayerUI extends Phaser.Scene {
         this.leftWeaponBox = this.add.graphics().setDepth(1);
         this.rightWeaponBox = this.add.graphics().setDepth(1);
 
-    this.fpsText = this.add.text(0, 0, '', { font: '24px Courier' });
-    this.fpsText.setScrollFactor(0);
-    this.time.addEvent({
-      delay: 200,
-      loop: true,
-      callback: () => {
-        this.fpsText.setText(`FPS: ${Math.floor(this.game.loop.actualFps)}` 
-        + '\nLoc: ' + Math.round(this.player.x) + ', ' + Math.round(this.player.y));
-      }
-    });
+
+
+        this.fpsText = this.add.text(0, 0, '', { font: '24px Courier' });
+        this.fpsText.setScrollFactor(0);
+        this.time.addEvent({
+            delay: 200,
+            loop: true,
+            callback: () => {
+                this.fpsText.setText(`FPS: ${Math.floor(this.game.loop.actualFps)}`
+                    + '\nLoc: ' + Math.round(this.player.x) + ', ' + Math.round(this.player.y));
+            }
+        });
 
         this.scoreText = this.add.text(10, 50, 'Source: ' + GameManager.power.source + '\n' + this.player.rankSystem.getRank(GameManager.power.source), {
             fontSize: '32px',
             color: '#4fffff'
         });
         this.scoreText.setScrollFactor(0);
-    
+
         this.textBoxX = this.scale.width / 2
         this.textBoxY = this.scale.height / 2 + 100;
 
@@ -224,6 +231,20 @@ export default class PlayerUI extends Phaser.Scene {
                 delete this.playerTextMap[id];
             }
         }
+    }
+
+    healthBoxUpdate(health, max) {
+        if (!this.healthBg) {
+            this.healthBg = this.add.rectangle(0, 150, 300, 25, 0x000000, .8).setDepth(1).setOrigin(0, 0);
+        }
+        if (!this.healthBox) {
+            this.healthBox = this.add.graphics().setDepth(2).fillStyle('0x00FF00', 1);
+            this.healthBox.fillRect(0, 150, 300, 25);
+        }
+        const percentHealth = health / max;
+        this.healthBox.clear();
+        this.healthBox.fillStyle(0x00FF00, 1);
+        this.healthBox.fillRect(0, 150, 300 * percentHealth, 25);
     }
 
 }

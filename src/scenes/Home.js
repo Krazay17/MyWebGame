@@ -18,7 +18,6 @@ export default class Home extends BaseGame {
         this.setupSave();
         this.setupSky();
         this.setupWorld(-2000, 0, 4000, 2000);
-        this.setupFPS();
         this.setupPlayer(0, 740);
         this.setupMusic('music1');
 

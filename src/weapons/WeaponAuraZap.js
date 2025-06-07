@@ -22,7 +22,7 @@ export default class AuraZap extends WeaponBase {
                 this.fire();
             },
             loop: true,
-        }, this);
+        });
 
         this.setStats();
     }
@@ -93,7 +93,6 @@ export default class AuraZap extends WeaponBase {
                     break;
             }
         }
-        console.log(this.baseDamage)
 
         this.player.network.socket.emit('playerLevel', power);
     }

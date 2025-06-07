@@ -29,7 +29,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.setOffset(70, 0);
         this.baseHitBoxSize = { y: 250, yo: 0 };
         this.alive = true;
-        this.health = 5;
+        this.stats = { health: 25, healthMax: 25 }
+        this.healthMax = 25;
+        this.health = 25;
         this.deathPenalty;
         this.source = GameManager.power.source;
         this.auraLevel = GameManager.power.auraLevel;
@@ -69,6 +71,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.equipWeapon('zap', 2)
         this.weapons = [this.leftWeapon, this.rightWeapon];
 
+        this.healthTick = 0;
         this.tryLeftAttack = false;
         this.canLeftAttack = true;
         this.canRightAttack = true;
@@ -76,13 +79,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.rightSpam = 0;
         this.speed = 250;
 
-
         this.rankSystem = new RankSystem();
 
+
         this.controls = {
-            up: [scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W, false),
-            scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE, false)
-            ],
+            up: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W, false),
+            jump: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE, false),
             down: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S, false),
             left: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A, false),
             right: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D, false),
@@ -133,9 +135,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             }
         });
 
+        this.setStats();
         this.resetJump();
         this.resetDash();
-
     }
 
     preUpdate(time, delta) {
@@ -172,12 +174,20 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
+    setStats() {
+        this.healthMax = GameManager.stats.healthMax ?? 25;
+        this.health = GameManager.stats.health ?? 25;
+        this.emit('updateHealth', this.health, this.healthMax);
+    }
+
     Died() {
         if (this.alive == false) return;
         this.alive = false;
 
         this.deathPenalty = Math.floor(-GameManager.power.source / 2);
         this.updateSource(this.deathPenalty);
+
+        GameManager.stats.health = this.healthMax;
 
         this.leftSpam = 0;
         this.rightSpam = 0;
@@ -197,7 +207,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         gameOverText.setScrollFactor(0);
 
         this.scene.physics?.pause(); // Stop physics
-        this.scene.time.delayedCall(2000, () => this.scene.scene.restart());
+        this.scene.time.delayedCall(2000, () => {
+            this.scene.scene.restart()
+        });
         this.emit('playerdied');
 
         GameManager.save();
@@ -235,19 +247,16 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     }
 
-    getWeaponGroup() {
-        return this.weapons;
-    }
-
     handleInput(delta) {
         if (this.stunned || !this.alive) return;
 
-        const { left, right, down, up, dash } = this.controls;
+        const { left, right, down, up, jump, dash } = this.controls;
 
-        const isDown = down.isDown
-        const isLeft = left.isDown
-        const isRight = right.isDown
-        const isUp = up.some(key => key.isDown);
+        const isDown = down.isDown;
+        const isLeft = left.isDown;
+        const isRight = right.isDown;
+        const isUp = up.isDown;
+        const isJump = jump.isDown;
         const isChatting = this.playerUI.Chatting;
 
         const WalkLerp = (a, modify) => {
@@ -326,7 +335,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             }
         }
 
-        if (isUp && this.canJump && !isChatting) {
+        if (isJump && this.canJump && !isChatting) {
             this.setVelocityY(-this.jumpPower);
             this.jumpPower += delta * 1.8;
             this.stop();
@@ -351,8 +360,23 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             this.scene.physics.world.collide(this, this.scene.walkableGroup);
         } else if (!isDown && this.isCrouch) {
             this.isCrouch = false;
-        } else if (!isDown && !this.isCrouch && (this.lerpHitBox(delta) === false)){
+        } else if (!isDown && !this.isCrouch && (this.lerpHitBox(delta) === false)) {
             this.lerpHitBox(delta)
+        }
+
+        if (isUp && !isChatting) {
+            this.healthTick += delta / 300;
+            this.speed = 50;
+            if (this.healthTick > 1) {
+                this.healthTick = 0;
+                this.health = Math.min(this.healthMax, this.health + 1);
+                this.updateSource(-1);
+                this.emit('updateHealth', this.health, this.healthMax);
+                this.network.socket.emit('updateHealth', this.health, this.healthMax);
+            }
+        } else {
+
+            this.speed = 250;
         }
     }
 
@@ -383,7 +407,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         return done;
     }
 
-
     resetJump() {
         this.jumpPower = this.baseJumpPower;
         this.canJump = true;
@@ -401,6 +424,15 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 this.hitCD = false;
             }
         });
+
+        this.health = Phaser.Math.Clamp(this.health - damage, 0, this.healthMax);
+        GameManager.stats.health = this.health;
+        this.emit('updateHealth', this.health, this.healthMax);
+        this.network.socket.emit('updateHealth', this.health, this.healthMax);
+        if (this.health === 0) {
+            this.Died();
+        }
+
 
         if (this.damageSound) {
             if (this.damageSound.isPlaying)

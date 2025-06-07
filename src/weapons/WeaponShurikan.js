@@ -14,24 +14,23 @@ export default class WeaponShurikan extends WeaponBase {
     }
 
     setupStats() {
-        if(GameManager.power.shurikanUpgradeA) {
+        if (GameManager.power.shurikanUpgradeA) {
             this.chainCount = 5;
         } else {
             this.chainCount = 1;
         }
-        if(GameManager.power.shurikanUpgradeB) {
-            this.baseDamage = 4;
+        if (GameManager.power.shurikanUpgradeB) {
+            this.baseDamage = 3;
         } else {
             this.baseDamage = 1;
         }
-        console.log(GameManager.power.shurikanUpgradeB)
     }
 
     fire(pointer) {
         if (!this.canFire()) return;
         this.startCooldown();
 
-        const {start, vector} = this.calculateShot(pointer, 1000);
+        const { start, vector } = this.calculateShot(pointer, 1000);
 
         const projectile = new ShurikanProjectile(this.scene, start.x, start.y, this.player, this.chainCount, this.baseDamage);
         this.scene.weaponGroup.add(projectile);

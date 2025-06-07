@@ -1,4 +1,4 @@
-const CURRENT_VERSION = 1.53;
+const CURRENT_VERSION = 1.54;
 
 export default {
     version: CURRENT_VERSION,
@@ -7,6 +7,7 @@ export default {
     area: 'Home',
     power: { source: 0, spent: 0, auraLevel: 1, auraUpgradeA: null, auraUpgradeB: null, shurikanUpgradeA: null, shurikanUpgradeB: null,},
     source: 0,
+    stats: {healthMax: 25, health: 25},
     weapons: { left: 'shurikan', right: 'sword', aura: 'zap' },
     playerHealth: 5,
     volume: {master: 1, music: 1},
@@ -24,6 +25,7 @@ export default {
             area: this.area,
             power: this.power,
             source: this.source,
+            stats: this.stats,
             weapons: this.weapons,
             playerHealth: this.playerHealth,
             volume: this.volume,
@@ -48,7 +50,7 @@ export default {
                         collectedItems: parsed.collectedItems,
                         flags: parsed.flags,
                         weapons: parsed.weapons,
-                        //power: parsed.power,
+                        power: parsed.power,
                     }
                 });
 
@@ -62,6 +64,7 @@ export default {
             this.area = parsed.area ?? 'Home';
             this.power = parsed.power ?? { source: 0, spent: 0, auraLevel: 1, };
             this.source = typeof parsed.source === 'number' ? Math.floor(parsed.source) : 0;
+            this.stats = parsed.stats ?? {healthMax: 25, health: 25};
             this.weapons = parsed.weapons ?? { left: 'shurikan', right: 'sword', aura: 'zap' };
             this.playerHealth = parsed.playerHealth ?? 5;
             this.volume = parsed.volume ?? {master: 1, music: 1};
@@ -78,6 +81,7 @@ export default {
         this.area = keep.area ?? 'Home';
         this.power = keep.power ?? { source: 0, auraLevel: 1 };
         this.source = keep.source ?? 0;
+        this.stats = keep.stats ?? {healthMax: 25, health: 25};
         this.weapons = keep.weapons ?? { left: 'shurikan', right: 'sword', aura: 'zap' };
         this.playerHealth = 5;
         this.volume = keep.volume ?? {master: 1, music: 1};

@@ -29,7 +29,6 @@ export default class Level3 extends BaseGame {
         this.setupTileMap('tilemap2');
         this.setupCollisions();
         this.setupMusic('music2');
-        this.setupFPS();
 
         //this.sunManHealth = 3;
 
@@ -131,8 +130,8 @@ export default class Level3 extends BaseGame {
         const spawnLeft = Phaser.Math.Between(0, 1) === 0;
 
         const x = spawnLeft
-            ? left + Phaser.Math.Between(50, 150)
-            : right - Phaser.Math.Between(50, 150);
+            ? left + Phaser.Math.Between(150, 500)
+            : right - Phaser.Math.Between(150, 500);
 
         const y = this.player.y + Phaser.Math.Between(-650, -850)
 

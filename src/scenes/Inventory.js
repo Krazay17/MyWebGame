@@ -1,5 +1,5 @@
 import GameManager from "../things/GameManager";
-import {weaponUpgradeCosts} from '../weapons/WeaponManager'
+import { weaponUpgradeCosts } from '../weapons/WeaponManager'
 
 export default class Inventory extends Phaser.Scene {
     constructor() {
@@ -40,9 +40,9 @@ export default class Inventory extends Phaser.Scene {
             fontStyle: 'bold',
         }).setOrigin(0.5);
 
-        
 
-        this.shurikanUpgradeAButton = this.setupButton(900, 300, 'auraicondesat', 1, '0x00FFEE', 'Cost: ' + weaponUpgradeCosts.shurikanA + '\nShurikan hits 3 more targets')
+
+        this.shurikanUpgradeAButton = this.setupButton(900, 200, 'auraicondesat', 1, '0x00FFEE', 'Cost: ' + weaponUpgradeCosts.shurikanA + '\nShurikan hits 3 more targets')
             .on('pointerdown', () => {
                 if (!GameManager.power.shurikanUpgradeA && (GameManager.power.source > weaponUpgradeCosts.shurikanA)) {
                     this.player.updateSource(-weaponUpgradeCosts.shurikanA);
@@ -56,7 +56,7 @@ export default class Inventory extends Phaser.Scene {
                     this.tooltipText.setAlpha(0);
                 }
             });
-        this.shurikanUpgradeBButton = this.setupButton(900, 400, 'auraicondesat', 1, '0x00FFEE', 'Cost: ' + weaponUpgradeCosts.shurikanB + '\nShurikan deals 3 more damage to first target')
+        this.shurikanUpgradeBButton = this.setupButton(900, 300, 'auraicondesat', 1, '0x00FFEE', 'Cost: ' + weaponUpgradeCosts.shurikanB + '\nShurikan deals 2 more damage to first target')
             .on('pointerdown', () => {
                 if (!GameManager.power.shurikanUpgradeB && (GameManager.power.source > weaponUpgradeCosts.shurikanB)) {
                     this.player.updateSource(-weaponUpgradeCosts.shurikanB);

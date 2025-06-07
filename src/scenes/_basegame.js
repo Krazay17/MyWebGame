@@ -3,7 +3,7 @@ import NetworkManager from '../things/NetworkManager.js';
 import GameManager from '../things/GameManager.js';
 import SpawnManager from '../things/_spawnmanager.js';
 import WeaponGroup from '../weapons/WeaponGroup.js';
-import Inventory from './Inventory.js';
+import GhostPlayer from '../things/GhostPlayer.js';
 
 export default class BaseGame extends Phaser.Scene {
   constructor(key) {
@@ -35,6 +35,13 @@ export default class BaseGame extends Phaser.Scene {
     this.spawnManager = new SpawnManager(this)
     this.sound.pauseOnBlur = false;
 
+    this.input.on('wheel', (wheel) => {
+      if (!this.zoom) this.zoom = 1;
+      this.zoom -= wheel.deltaY/5000;
+      console.log(this.zoom);
+      this.cameras.main.setZoom(this.zoom)
+    })
+
     window.addEventListener('focus', () => {
       this.sound.mute = false;
     });
@@ -45,9 +52,16 @@ export default class BaseGame extends Phaser.Scene {
 
     this.network = new NetworkManager(this);
 
-    Object.values(this.network.otherPlayers).forEach(ghost => {
-      ghost.updateScene(this);
-    });
+    // Object.values(this.network.otherPlayers).forEach(([id, oldGhost]) => {
+    //   //ghost.updateScene(this);
+    //   //console.log(ghost)
+    //   // Recreate with current scene
+    //   const {x, y, data} = oldGhost.getMyData();
+    //   oldGhost.destroy();
+
+    //   this.network.otherPlayers[id] = new GhostPlayer(this, id, x, y, data);
+    // });
+    this.network.refreshScene(this);
   }
 
   setupSky(a = 'purplesky0', ao = { x: 0, y: 0 }, b = 'purplesky1', bo = { x: 800, y: 600 }, c = 'purplesky2', co = { x: 600, y: 500 }) {
@@ -97,17 +111,6 @@ export default class BaseGame extends Phaser.Scene {
     }
   }
 
-  setupFPS() {
-    this.fpsText = this.add.text(0, 0, '', { font: '24px Courier' });
-    this.fpsText.setScrollFactor(0);
-    this.time.addEvent({
-      delay: 500,
-      loop: true,
-      callback: () => {
-        this.fpsText.setText(`FPS: ${Math.floor(this.game.loop.actualFps)}`);
-      }
-    });
-  }
 
   setupTileMap(tilemap = 'tilemap1', tilesheet = 'tilesheet') {
     const map = this.make.tilemap({ key: tilemap });
@@ -225,7 +228,7 @@ export default class BaseGame extends Phaser.Scene {
 
       // Start new track
       globalThis.currentMusic = this.sound.add(key, { loop: true });
-      globalThis.currentMusic.volume = GameManager.volume.music;
+      globalThis.currentMusic.volume = GameManager.volume.music ?? 1;
       globalThis.currentMusic.play();
     }
   }
@@ -243,7 +246,6 @@ export default class BaseGame extends Phaser.Scene {
     this.setupGroups();
     this.setupCollisions();
     this.setupMusic();
-    this.setupFPS();
   }
 
   shrinkCollision(object, x, y) {
@@ -284,6 +286,10 @@ export default class BaseGame extends Phaser.Scene {
       progressBar.clear();
       progressBar.fillStyle(0xffffff, 1);
       progressBar.fillRect(barX, barY, barWidth * value, barHeight);
+      if (value === 1) {
+        loadingText.destroy();
+        progressBar.clear();
+      }
     });
   }
 

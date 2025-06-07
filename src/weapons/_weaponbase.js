@@ -228,9 +228,6 @@ playHitSound() {
     if (!this.lastPlayTime || now - this.lastPlayTime > 30) {
         this.lastPlayTime = now;
 
-        // Only try to play if the audio system is unlocked and the tab is visible
-        if (this.scene.sound.locked) return;
-
         // Clean, simple, no pooling
         this.scene.sound.play(this.hitSoundId);
     }

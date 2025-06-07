@@ -28,7 +28,6 @@ export default class Level1 extends BaseGame {
     this.setupSky('redsky0', { x: 0, y: 0 }, 'redsky1', { x: 600, y: 400 }, 'redsky2', { x: 600, y: 400 });
     this.setupWorld();
     this.setupMusic('music');
-    this.setupFPS();
     this.setupPlayer(-1100, 300);
 
     this.setupGroups();

@@ -143,6 +143,13 @@ export default class NetworkManager {
       }
     })
 
+    this.socket.on('updateHealthUpdate', ({id, health, max}) => {
+      const player = this.otherPlayers[id];
+      if (player) {
+        player.updateHealth(health, max);
+      }
+    })
+
 
   }
 
@@ -157,4 +164,18 @@ export default class NetworkManager {
     const ghost = new GhostPlayer(this.scene, id, x, y, data);
     this.otherPlayers[id] = ghost;
   }
+
+refreshScene(scene) {
+  this.scene = scene;
+
+  for (const id in this.otherPlayers) {
+    const oldGhost = this.otherPlayers[id];
+    const { x, y, data } = oldGhost.getSyncData(); // You’ll make this next
+
+    oldGhost.destroy(); // Clean up from old scene
+
+    this.otherPlayers[id] = new GhostPlayer(scene, id, x, y, data);
+  }
+}
+
 }

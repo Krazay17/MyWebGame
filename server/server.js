@@ -124,10 +124,18 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('updateHealth', (health, max) => {
+    if (players[socket.id]) {
+      players[socket.id].health = health;
+
+      socket.broadcast.emit('updateHealthUpdate', {id: socket.id, health, max});
+    }
+  })
+
   socket.on('playerchatRequest', (message) => {
     if (players[socket.id]) {
 
-      socket.broadcast.emit('playerchatUpdate', { id: socket.id, message: message });
+      socket.broadcast.emit('playerchatUpdate', { id: socket.id, message });
     }
   })
 

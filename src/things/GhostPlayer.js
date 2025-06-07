@@ -25,21 +25,6 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
     this.setDepth(8);
 
     this.createVisuals();
-    // Initialize health bar state
-    //this.updateHealth(this.currentHealth, this.maxHealth);
-
-
-    const debugRect = this.scene.add.graphics();
-    this.add(debugRect);
-    debugRect.lineStyle(2, 0xFF0000, 1);
-
-    // Calculate debug rectangle position relative to the main sprite
-    const spriteOriginalWidth = 32; // Adjust if your 'dudesheet' frame size is different
-    const spriteOriginalHeight = 48; // Adjust if your 'dudesheet' frame size is different
-    const spriteScale = 0.35;
-    const scaledWidth = spriteOriginalWidth * spriteScale;
-    const scaledHeight = spriteOriginalHeight * spriteScale;
-    debugRect.strokeRect(-scaledWidth / 2, -scaledHeight / 2, scaledWidth, scaledHeight);
   }
 
   createVisuals() {
@@ -176,7 +161,7 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
   }
 
   syncAll(x, y, data) {
-    this.data = data;
+    this.myData = data;
     const power = data.power || { source: 0, auraLevel: 1 };
     const name = data.name || { text: 'Hunter', color: '#FFFFFF' };
 

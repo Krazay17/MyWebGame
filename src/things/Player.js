@@ -361,7 +361,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
         if (isUp && !isChatting) {
             this.healthTick += delta / 300;
-            this.speed = 50;
+            this.speed = 100;
+            this.stop();
+            this.setFrame(10)
+        this.body.setMaxVelocity(200, 100);
             if (this.healthTick > 1) {
                 this.healthTick = 0;
                 this.health = Math.min(this.healthMax, this.health + 1);
@@ -372,6 +375,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         } else {
 
             this.speed = 250;
+        this.body.setMaxVelocity(1000, 1000);
         }
     }
 

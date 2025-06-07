@@ -185,7 +185,7 @@ export default class WeaponBase {
         if (!this.canHit(target)) return;
 
         target.hit?.(this, target);
-        playHitSound();
+        playHitSound(this.scene, this.hitSoundId);
         target.destroy(this.scene, this.hitSoundId);
     }
 

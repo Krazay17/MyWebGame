@@ -14,7 +14,7 @@ export function playHitSound(scene, soundKey, options = {}) {
         // You can pass extra options like volume, detune, etc.
         scene.sound.play(soundKey, {
             volume: options.volume ?? 1,
-            detune: options.detune ?? 0,
+            detune: options.detune ?? Phaser.Math.Between(-55, 55),
             rate: options.rate ?? 1
         });
     }

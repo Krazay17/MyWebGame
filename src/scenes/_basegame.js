@@ -46,20 +46,19 @@ this.zoom = Phaser.Math.Clamp(this.zoom, 0.6, 3);
 // Step 3: Snap to nearest 0.2
 this.zoom = Phaser.Math.Snap.To(this.zoom, 0.1);
 
-      console.log(this.zoom);
 
       this.sky1.setScale(1 / this.zoom);
       this.cameras.main.setZoom(this.zoom)
       //this.resizeBackgroundToFill();
     })
 
-    window.addEventListener('focus', () => {
-      this.sound.mute = false;
-    });
+    // window.addEventListener('focus', () => {
+    //   this.sound.mute = false;
+    // });
 
-    window.addEventListener('blur', () => {
-      this.sound.mute = true;
-    });
+    // window.addEventListener('blur', () => {
+    //   this.sound.mute = true;
+    // });
 
     this.network = new NetworkManager(this);
 
@@ -354,7 +353,6 @@ this.zoom = Phaser.Math.Snap.To(this.zoom, 0.1);
         const dx = this.player.x - x;
         const dy = this.player.y - y;
         const distance = Math.sqrt(dx * dx - dy * dy);
-        console.log(distance)
         if (distance > 800) {
           this.spawnDuck(x, y);
         } else {

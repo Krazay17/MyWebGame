@@ -144,6 +144,7 @@ export default class Inventory extends Phaser.Scene {
                 this.player.aura.resetUpgrades();
                 GameManager.power.shurikanUpgradeA = null;
                 GameManager.power.shurikanUpgradeB = null;
+                GameManager.power.shurikanUpgradeC = null;
                 this.player.leftWeapon.setupStats();
                 this.player.rightWeapon.setupStats();
                 this.auraText.setText('Aura level: ' + GameManager.power.auraLevel);

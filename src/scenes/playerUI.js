@@ -44,7 +44,7 @@ export default class PlayerUI extends Phaser.Scene {
             }
         });
 
-        this.scoreText = this.add.text(10, 50, 'Source: ' + GameManager.power.source + '\n' + this.player.rankSystem.getRank(GameManager.power.source), {
+        this.scoreText = this.add.text(10, 50, 'Source: ' + GameManager.power.money + '\n' + this.player.rankSystem.getRank(GameManager.power.money), {
             fontSize: '32px',
             color: '#4fffff'
         });
@@ -212,11 +212,11 @@ export default class PlayerUI extends Phaser.Scene {
 
             if (this.playerTextMap[playerId]) {
                 const textObj = this.playerTextMap[playerId];
-                textObj.setText(player.nameText + ' - ' + player.source);
+                textObj.setText(player.nameText + ' - ' + player.money);
                 textObj.setY(yloc);
                 textObj.setColor(player.nameColor);
             } else {
-                const textObj = this.add.text(0, yloc, player.nameText + ' - ' + player.source, {
+                const textObj = this.add.text(0, yloc, player.nameText + ' - ' + player.money, {
                     fontSize: '24px',
                     fill: '#FFFFFF',
                 });

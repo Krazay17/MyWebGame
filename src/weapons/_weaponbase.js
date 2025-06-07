@@ -1,3 +1,5 @@
+import { playHitSound } from "../things/soundUtils.js";
+
 export default class WeaponBase {
     constructor(scene, player, baseDamage = 1) {
         this.scene = scene;
@@ -169,7 +171,7 @@ export default class WeaponBase {
         if (!this.canHit(target)) return;
 
         if (target.TakeDamage(this.player, this.damage(), stagger ? this.getKnockBack(target) : null)) {
-            this.playHitSound();
+            playHitSound(this.scene, this.hitSoundId);
         }
     }
 
@@ -183,8 +185,8 @@ export default class WeaponBase {
         if (!this.canHit(target)) return;
 
         target.hit?.(this, target);
-        this.playHitSound();
-        target.destroy();
+        playHitSound();
+        target.destroy(this.scene, this.hitSoundId);
     }
 
     canHit(target) {
@@ -216,26 +218,6 @@ export default class WeaponBase {
         }
         this.throwSound.play();
     }
-
-
-playHitSound() {
-    // Hard exit if the tab is not active
-    if (document.visibilityState !== 'visible') return;
-
-    const now = this.scene.time.now;
-
-    // Prevent spam
-    if (!this.lastPlayTime || now - this.lastPlayTime > 30) {
-        this.lastPlayTime = now;
-
-        // Clean, simple, no pooling
-        this.scene.sound.play(this.hitSoundId);
-    }
-}
-
-
-
-
 
     mapRangeClamped(value, inMin, inMax, outMin, outMax) {
         if (inMin === inMax) return outMin; // Avoid divide by zero

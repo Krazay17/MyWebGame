@@ -1,10 +1,11 @@
+import { playHitSound } from "../things/soundUtils.js";
 import WeaponProjectile from "./_baseWeaponProjectile.js";
 
 export default class ShurikanProjectile extends WeaponProjectile {
-    constructor(scene, x, y, player, chainCount = 0, damage = 1) {
+    constructor(scene, x, y, player, chainCount = 0, damage = 1, maxTargets = 1) {
         super(scene, x, y, 'shurikan', player, damage);
 
-        this.maxTargets = 1;
+        this.maxTargets = maxTargets;
         this.chainCount = chainCount;
         this.destroyOnHit = false;
         this.shrinkCollision(this, this.width/1.6, this.height/1.6)
@@ -29,9 +30,8 @@ export default class ShurikanProjectile extends WeaponProjectile {
         const velocity = this.body.velocity;
 
         if (enemy.TakeDamage(this.player, this.baseDamage, stagger? velocity : null)) {
-            this.playHitSound();
+            playHitSound(this.scene, this.hitSoundId)
         }
-        console.log(this.chainCount);
 
         if ((this.chainCount > 0)) {
             this.chainAttack(enemy);

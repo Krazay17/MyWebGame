@@ -6,14 +6,14 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
   constructor(scene, id, x = 0, y = 0,
     data = {
       name: { text: 'Hunter', color: '#ffffff' },
-      power: { source: 0, auraLevel: 1 },
+      power: { money: 0, auraLevel: 1 },
     }) {
     super(scene, x, y);
     this.id = id;
     this.myData = data;
     const name = data?.name ?? { text: 'Hunter', color: '#ffffff' };
-    const power = data?.power ?? { source: 0, auraLevel: 1 };
-    this.source = power.source;
+    const power = data?.power ?? { money: 0, auraLevel: 1 };
+    this.money = power.money;
     this.auraLevel = power.auraLevel;
     this.nameText = name.text;
     this.nameColor = name.color;
@@ -45,20 +45,20 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
 
     const spriteHeight = this.sprite.displayHeight;
 
-    // Add sourceText as a child of the container
-    this.sourceText = this.scene.add.text(0, -spriteHeight / 2 - 20, this.ranks.getRank(this.source) + '\n' + this.source, {
+    // Add moneyText as a child of the container
+    this.moneyText = this.scene.add.text(0, -spriteHeight / 2 - 20, this.ranks.getRank(this.money) + '\n' + this.money, {
       fontSize: '12px',
       align: 'center',
       fill: '#ffffff'
     }).setOrigin(0.5).setDepth(2); // Higher depth than sprite
-    this.add(this.sourceText);
+    this.add(this.moneyText);
 
     // Add headName as a child of the container
     this.headName = this.scene.add.text(0, -spriteHeight / 2 - 40, this.nameText, {
       fontSize: '12px',
       align: 'center',
       fill: this.nameColor,
-    }).setOrigin(0.5).setDepth(2); // Same depth as source text
+    }).setOrigin(0.5).setDepth(2); // Same depth as money text
     this.add(this.headName);
 
     // Initialize healthBar graphics object, but don't draw it until updateHealth
@@ -153,21 +153,21 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
     console.log(percentHealth);
   }
 
-  updatePower(source, auraLevel) {
-    this.source = source;
+  updatePower(money, auraLevel) {
+    this.money = money;
     this.auraLevel = auraLevel;
     this.auraSprite.setAuraLevel(this.auraLevel);
-    this.sourceText.setText(this.ranks.getRank(this.source) + '\n' + this.source);
+    this.moneyText.setText(this.ranks.getRank(this.money) + '\n' + this.money);
   }
 
   syncAll(x, y, data) {
     this.myData = data;
-    const power = data.power || { source: 0, auraLevel: 1 };
+    const power = data.power || { money: 0, auraLevel: 1 };
     const name = data.name || { text: 'Hunter', color: '#FFFFFF' };
 
     this.updatePosition(x, y);
     this.updateName(name.text, name.color);
-    this.updatePower(power.source, power.auraLevel);
+    this.updatePower(power.money, power.auraLevel);
   }
 
   getSyncData() {

@@ -42,8 +42,8 @@ export default class Inventory extends Phaser.Scene {
 
         this.shurikanUpgradeAButton = this.setupButton(900, 200, 'auraicondesat', 1, '0x00FFEE', 'Cost: ' + weaponUpgradeCosts.shurikanA + '\nShurikan hits 3 more targets')
             .on('pointerdown', () => {
-                if (!GameManager.power.shurikanUpgradeA && (GameManager.power.source > weaponUpgradeCosts.shurikanA)) {
-                    this.player.updateSource(-weaponUpgradeCosts.shurikanA);
+                if (!GameManager.power.shurikanUpgradeA && (GameManager.power.money > weaponUpgradeCosts.shurikanA)) {
+                    this.player.updateMoney(-weaponUpgradeCosts.shurikanA);
                     GameManager.power.shurikanUpgradeA = true;
                     GameManager.power.spent += weaponUpgradeCosts.shurikanA;
                     this.player.leftWeapon.setupStats();
@@ -54,16 +54,30 @@ export default class Inventory extends Phaser.Scene {
                     this.tooltipText.setAlpha(0);
                 }
             });
-        this.shurikanUpgradeBButton = this.setupButton(900, 300, 'auraicondesat', 1, '0x00FFEE', 'Cost: ' + weaponUpgradeCosts.shurikanB + '\nShurikan deals 2 more damage to first target')
+        this.shurikanUpgradeBButton = this.setupButton(900, 300, 'auraicondesat', 1, '0x00FFEE', 'Cost: ' + weaponUpgradeCosts.shurikanB + '\nShurikan deals 1 more damage to first target')
             .on('pointerdown', () => {
-                if (!GameManager.power.shurikanUpgradeB && (GameManager.power.source > weaponUpgradeCosts.shurikanB)) {
-                    this.player.updateSource(-weaponUpgradeCosts.shurikanB);
+                if (!GameManager.power.shurikanUpgradeB && (GameManager.power.money > weaponUpgradeCosts.shurikanB)) {
+                    this.player.updateMoney(-weaponUpgradeCosts.shurikanB);
                     GameManager.power.shurikanUpgradeB = true;
                     GameManager.power.spent += weaponUpgradeCosts.shurikanB;
                     this.player.leftWeapon.setupStats();
                     this.player.rightWeapon.setupStats();
                     this.shurikanUpgradeBButton.disableInteractive();
                     this.shurikanUpgradeBButton.setTint(0xFFFFFF);
+                    this.tooltipText.setText('');
+                    this.tooltipText.setAlpha(0);
+                }
+            });
+        this.shurikanUpgradeCButton = this.setupButton(900, 400, 'auraicondesat', 1, '0x00FFEE', 'Cost: ' + weaponUpgradeCosts.shurikanC + '\nShurikan splits into 3 on frist hit')
+            .on('pointerdown', () => {
+                if (!GameManager.power.shurikanUpgradeC && (GameManager.power.money > weaponUpgradeCosts.shurikanC)) {
+                    this.player.updateMoney(-weaponUpgradeCosts.shurikanC);
+                    GameManager.power.shurikanUpgradeC = true;
+                    GameManager.power.spent += weaponUpgradeCosts.shurikanC;
+                    this.player.leftWeapon.setupStats();
+                    this.player.rightWeapon.setupStats();
+                    this.shurikanUpgradeCButton.disableInteractive();
+                    this.shurikanUpgradeCButton.setTint(0xFFFFFF);
                     this.tooltipText.setText('');
                     this.tooltipText.setAlpha(0);
                 }
@@ -120,7 +134,7 @@ export default class Inventory extends Phaser.Scene {
         this.resetPowerButton = this.setupButton(1200, 800, 'auraicondesat', 1, '0xFF0000', 'Reset all power')
             .on('pointerdown', () => {
 
-                this.player.updateSource(GameManager.power.spent / 2)
+                this.player.updateMoney(GameManager.power.spent / 2)
                 GameManager.power.spent = 0;
 
                 this.upgradeButtons.forEach(b => {
@@ -215,6 +229,11 @@ export default class Inventory extends Phaser.Scene {
             this.shurikanUpgradeBButton.disableInteractive();
             this.shurikanUpgradeBButton.setTint(0xFFFFFF);
         }
+        if (GameManager.power.shurikanUpgradeC) {
+            this.shurikanUpgradeCButton.disableInteractive();
+            this.shurikanUpgradeCButton.setTint(0xFFFFFF);
+        }
+
 
         if (GameManager.power.auraUpgradeA === 1) {
 

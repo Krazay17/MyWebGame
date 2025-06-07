@@ -36,7 +36,7 @@ export default class Pickup extends Phaser.Physics.Arcade.Sprite
     }
 
     pickup(player, pickup) {
-        player.updateSource(5);
+        player.updateMoney(5);
         this.playPickupSound();
         this.emit('pickup');
         this.destroy();

@@ -9,6 +9,7 @@ export default class WeaponShurikan extends WeaponBase {
         this.baseCooldown = 50;
         this.spamAdd = 90;
         this.chainCount = 1;
+        this.initialTargets = 1
 
         this.setupStats();
     }
@@ -20,9 +21,14 @@ export default class WeaponShurikan extends WeaponBase {
             this.chainCount = 1;
         }
         if (GameManager.power.shurikanUpgradeB) {
-            this.baseDamage = 3;
+            this.baseDamage = 2;
         } else {
             this.baseDamage = 1;
+        }
+        if (GameManager.power.shurikanUpgradeC) {
+            this.initialTargets = 3;
+        } else {
+            this.initialTargets = 1;
         }
     }
 
@@ -32,7 +38,7 @@ export default class WeaponShurikan extends WeaponBase {
 
         const { start, vector } = this.calculateShot(pointer, 1000);
 
-        const projectile = new ShurikanProjectile(this.scene, start.x, start.y, this.player, this.chainCount, this.baseDamage);
+        const projectile = new ShurikanProjectile(this.scene, start.x, start.y, this.player, this.chainCount, this.baseDamage, this.initialTargets);
         this.scene.weaponGroup.add(projectile);
         projectile.setBounce(.8);
         projectile.allowGravity = false;

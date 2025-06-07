@@ -1,3 +1,5 @@
+import { playHitSound } from "../things/soundUtils.js";
+
 export default class WeaponProjectile extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, id = 'shurikan', player, damage = 1) {
         super(scene, x, y, id);
@@ -16,7 +18,7 @@ export default class WeaponProjectile extends Phaser.Physics.Arcade.Sprite {
 
     bulletHit(bullet) {
         if (!this.canHit(bullet)) return;
-        this.playHitSound();
+        playHitSound(this.scene, this.hitSoundId);
         bullet.destroy();
     }
 
@@ -30,7 +32,7 @@ export default class WeaponProjectile extends Phaser.Physics.Arcade.Sprite {
         const velocity = this.body.velocity;
 
         if (enemy.TakeDamage(this.player, this.baseDamage, stagger? velocity : null)) {
-            this.playHitSound();
+        playHitSound(this.scene, this.hitSoundId);
             return;
         }
     }
@@ -39,8 +41,7 @@ export default class WeaponProjectile extends Phaser.Physics.Arcade.Sprite {
         if (!this.canHit(target)) return;
 
         const velocity = this.body.velocity;
-
-        this.playHitSound();
+        playHitSound(this.scene, this.hitSoundId);
         target.hit?.(this.player, this.baseDamage, velocity);
     }
 
@@ -49,24 +50,4 @@ export default class WeaponProjectile extends Phaser.Physics.Arcade.Sprite {
         this.hitTargets.push(target);
         return true;
     }
-
-playHitSound() {
-    // Hard exit if the tab is not active
-    if (document.visibilityState !== 'visible') return;
-
-    const now = this.scene.time.now;
-
-    // Prevent spam
-    if (!this.lastPlayTime || now - this.lastPlayTime > 30) {
-        this.lastPlayTime = now;
-
-        // Only try to play if the audio system is unlocked and the tab is visible
-        if (this.scene.sound.locked) return;
-
-        // Clean, simple, no pooling
-        this.scene.sound.play(this.hitSoundId);
-    }
-}
-
-
 }

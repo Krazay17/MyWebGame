@@ -23,7 +23,7 @@ export default class Home extends BaseGame {
 
         this.setupGroups();
 
-        const boxPos = [[-200, 200], [-500, 500], [-400, 300], [-200, 500], [100, 550], [400, 500], [200, 400]];
+        const boxPos = [[-200, 200], [-500, 400], [-400, 200], [-200, 400], [100, 450], [400, 400], [200, 300]];
         boxPos.forEach(pos => this.staticItemGroup.add(new Breakable(this, pos[0], pos[1], 'boxsheet', 2)));
 
         this.setupCollisions();

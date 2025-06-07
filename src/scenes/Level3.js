@@ -72,24 +72,28 @@ export default class Level3 extends BaseGame {
         }
         if (y > 3000) {
             this.batTimer.delay = 1000;
+            this.doSpawnSunMans = true;
             this.sunManHealth = 10;
             this.sunTimer.delay = 5500;
             return;
         }
         if (y > 2000) {
             this.batTimer.delay = 500;
+            this.doSpawnSunMans = true;
             this.sunManHealth = 15;
             this.sunTimer.delay = 5000;
             return;
         }
         if (y > 1000) {
             this.batTimer.delay = 250;
+            this.doSpawnSunMans = true;
             this.sunManHealth = 25;
             this.sunTimer.delay = 4500;
             return;
         }
         if (y > 0) {
             this.batTimer.delay = 100;
+            this.doSpawnSunMans = true;
             this.sunManHealth = 50;
             this.sunTimer.delay = 2000;
             return;

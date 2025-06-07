@@ -50,7 +50,7 @@ export default class EscMenu extends Phaser.Scene {
 
 
         const instructions = this.add.text(0, 50,
-            'WASD - Move\nShift - dash\nL/R Click - Attack\nC -Inventory\nR - Reset', {
+            'ASD - Move\nW - Heal\nSPACE - Jump\nShift - dash\nL/R Click - Attack\nC -Inventory\nT - Home', {
             fontSize: '32px',
             color: '#4fffff',
         });

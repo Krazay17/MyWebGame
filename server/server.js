@@ -116,11 +116,11 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('playerLevel', ({ source, auraLevel }) => {
+  socket.on('playerLevel', ({ money, auraLevel }) => {
     if (players[socket.id]) {
-      players[socket.id].data.power = { source, auraLevel };
+      players[socket.id].data.power = { money, auraLevel };
 
-      socket.broadcast.emit('playerLeveled', { id: socket.id, source, auraLevel });
+      socket.broadcast.emit('playerLeveled', { id: socket.id, money, auraLevel });
     }
   });
 

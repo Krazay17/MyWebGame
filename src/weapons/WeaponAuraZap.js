@@ -41,8 +41,8 @@ export default class AuraZap extends WeaponBase {
         const level = GameManager.power.auraLevel;
         const cost = level ** 3 + level * 50;
 
-        if (GameManager.power.source >= cost) {
-            this.player.updateSource(-cost);
+        if (GameManager.power.money >= cost) {
+            this.player.updateMoney(-cost);
             GameManager.power.auraLevel += 1;
             GameManager.power.spent += cost;
             GameManager.save();
@@ -150,8 +150,8 @@ export default class AuraZap extends WeaponBase {
         const { A1, A2 } = this.upgradeCosts
         switch (upgrade) {
             case 1:
-                if (GameManager.power.source > A1) {
-                    this.player.updateSource(-A1)
+                if (GameManager.power.money > A1) {
+                    this.player.updateMoney(-A1)
                     GameManager.power.spent += A1;
                     GameManager.power.auraUpgradeA = 1;
                     GameManager.save();
@@ -161,8 +161,8 @@ export default class AuraZap extends WeaponBase {
                     return true;
                 }
             case 2:
-                if (GameManager.power.source > A2) {
-                    this.player.updateSource(-A2)
+                if (GameManager.power.money > A2) {
+                    this.player.updateMoney(-A2)
                     GameManager.power.spent += A2;
                     GameManager.power.auraUpgradeA = 2;
                     GameManager.save();
@@ -179,8 +179,8 @@ export default class AuraZap extends WeaponBase {
         const { B1, B2 } = this.upgradeCosts
         switch (upgrade) {
             case 1:
-                if (GameManager.power.source > B1) {
-                    this.player.updateSource(-B1)
+                if (GameManager.power.money > B1) {
+                    this.player.updateMoney(-B1)
                     GameManager.power.spent += B1;
                     GameManager.power.auraUpgradeB = 1;
                     GameManager.save();
@@ -190,8 +190,8 @@ export default class AuraZap extends WeaponBase {
                     return true;
                 }
             case 2:
-                if (GameManager.power.source > B2) {
-                    this.player.updateSource(-B2)
+                if (GameManager.power.money > B2) {
+                    this.player.updateMoney(-B2)
                     GameManager.power.spent += B2;
                     GameManager.power.auraUpgradeB = 2;
                     GameManager.save();

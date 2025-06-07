@@ -124,7 +124,7 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
     }
 
     die(player) {
-        player.updateSource(this.maxHealth);
+        player.updateMoney(this.maxHealth);
         if (this.healthBar) this.healthBar.destroy();
         if (this.healthBarBg) this.healthBarBg.destroy();
         this.scene.time.removeAllEvents

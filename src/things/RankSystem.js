@@ -26,17 +26,17 @@ export default class RankSystem {
     ];
   }
 
-getRank(source) {
-  if (typeof source !== 'number' || isNaN(source)) {
+getRank(money) {
+  if (typeof money !== 'number' || isNaN(money)) {
     return "_";
   }
-  const rank = this.ranks.find(rank => source >= rank.min && source <= rank.max);
+  const rank = this.ranks.find(rank => money >= rank.min && money <= rank.max);
   return rank?.title || "_";
 }
 
 
 
-  hasRankChanged(prevSource, currentSource) {
-    return this.getRank(prevSource) !== this.getRank(currentSource);
+  hasRankChanged(prevMoney, currentMoney) {
+    return this.getRank(prevMoney) !== this.getRank(currentMoney);
   }
 }

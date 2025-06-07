@@ -121,10 +121,10 @@ export default class NetworkManager {
     });
 
     // Level update
-    this.socket.on('playerLeveled', ({ id, source, auraLevel }) => {
+    this.socket.on('playerLeveled', ({ id, money, auraLevel }) => {
       const player = this.otherPlayers[id];
       if (player) {
-        player.updatePower(source, auraLevel);
+        player.updatePower(money, auraLevel);
       }
     });
 
@@ -155,7 +155,7 @@ export default class NetworkManager {
 
   addOtherPlayer(id, x = -1100, y = 400, data = {
     name: { text: 'Hunter', color: '#ffffff' },
-    power: { source: 0, auraLevel: 1 },
+    power: { money: 0, auraLevel: 1 },
   }) {
     if (this.otherPlayers[id]) {
       this.otherPlayers[id].destroy();

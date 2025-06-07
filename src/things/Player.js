@@ -33,7 +33,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.healthMax = 25;
         this.health = 25;
         this.deathPenalty;
-        this.source = GameManager.power.source;
+        this.money = GameManager.power.money;
         this.auraLevel = GameManager.power.auraLevel;
         this.name = GameManager.name;
 
@@ -95,7 +95,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
 
         this.scene.input.on('pointerdown', (pointer) => {
-            if (GameManager.flags.devMode && pointer.middleButtonDown()) {
+            if (GameManager.flags.devmode && pointer.middleButtonDown()) {
                 const worldPos = pointer.positionToCamera(this.scene.cameras.main);
                 this.setPosition(worldPos.x, worldPos.y);
                 this.setVelocity(0);
@@ -105,13 +105,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             }
         });
         this.scene.input.keyboard.on('keydown-F', () => {
-            if (GameManager.flags.devMode) {
-                this.updateSource(500000);
-            }
-        });
-        this.scene.input.keyboard.on('keydown-G', () => {
-            if (GameManager.flags.devMode) {
-                this.tryIncreaseAura(true)
+            if (GameManager.flags.devmode) {
+                this.updateMoney(5000);
             }
         });
 
@@ -184,8 +179,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         if (this.alive == false) return;
         this.alive = false;
 
-        this.deathPenalty = Math.floor(-GameManager.power.source / 2);
-        this.updateSource(this.deathPenalty);
+        this.deathPenalty = Math.floor(-GameManager.power.money / 2);
+        this.updateMoney(this.deathPenalty);
 
         GameManager.stats.health = this.healthMax;
 
@@ -370,7 +365,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             if (this.healthTick > 1) {
                 this.healthTick = 0;
                 this.health = Math.min(this.healthMax, this.health + 1);
-                this.updateSource(-1);
+                this.updateMoney(-1);
                 this.emit('updateHealth', this.health, this.healthMax);
                 this.network.socket.emit('updateHealth', this.health, this.healthMax);
             }
@@ -455,7 +450,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.setVelocityX(x);
         this.setVelocityY(y);
 
-        this.updateSource(-damage);
+        this.updateMoney(-damage);
 
         return true;
     }
@@ -499,18 +494,18 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         player.setVelocityX(floor.body.velocity.x);
     }
 
-    PickupItem(source = 0) {
-        if (source > 0) {
-            this.updateSource(source);
+    PickupItem(money = 0) {
+        if (money > 0) {
+            this.updateMoney(money);
         }
     }
 
-    updateSource(source) {
-        const intSource = Math.floor(source);
-        const prevSource = GameManager.power.source;
-        GameManager.power.source = Math.max(0, GameManager.power.source + intSource);
+    updateMoney(money) {
+        const intMoney = Math.floor(money);
+        const prevMoney = GameManager.power.money;
+        GameManager.power.money = Math.max(0, GameManager.power.money + intMoney);
         GameManager.save();
-        this.playerUI.scoreText.text = 'Source: ' + GameManager.power.source + '\n' + this.rankSystem.getRank(GameManager.power.source);
+        this.playerUI.scoreText.text = 'Source: ' + GameManager.power.money + '\n' + this.rankSystem.getRank(GameManager.power.money);
         this.network.socket.emit('playerLevel', GameManager.power);
     }
 

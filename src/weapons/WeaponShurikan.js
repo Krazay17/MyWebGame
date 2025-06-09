@@ -30,6 +30,7 @@ export default class WeaponShurikan extends WeaponBase {
         } else {
             this.initialTargets = 1;
         }
+        console.log(GameManager.power.shurikanUpgradeA)
     }
 
     fire(pointer) {
@@ -39,7 +40,7 @@ export default class WeaponShurikan extends WeaponBase {
         const { start, vector } = this.calculateShot(pointer, 1000);
 
         const projectile = new ShurikanProjectile(this.scene, start.x, start.y, this.player, this.chainCount, this.baseDamage, this.initialTargets);
-        this.scene.weaponGroup.add(projectile);
+        
         projectile.setBounce(.8);
         projectile.allowGravity = false;
         projectile.setScale(.15);

@@ -174,9 +174,15 @@ this.zoom = Phaser.Math.Snap.To(this.zoom, 0.1);
     // Explicitly add wall collisions
     if (this.tilemapColliders?.length) {
       this.tilemapColliders.forEach(({ walls, handler }) => {
-        this.physics.add.collider(this.weaponGroup, walls, (weapon, wall) => {
+        this.physics.add.collider(this.weaponGroup, walls, null, (weapon, wall) => {
           weapon[handler]?.(wall);
-        }, null, this);
+          
+          if (weapon.ignoreWall) {
+            return false;
+          }
+          return true;
+        }, this);
+
         this.physics.add.collider(this.player, walls, (player, wall) => {
           player[handler]?.(wall);
         }, null, this);
@@ -218,8 +224,8 @@ this.zoom = Phaser.Math.Snap.To(this.zoom, 0.1);
       player.TouchPlatform(walkable);
     }, null, this);
 
-    this.physics.add.collider(this.weaponGroup, this.staticItemGroup);
-    this.physics.add.collider(this.weaponGroup, this.walkableGroup);
+    // this.physics.add.collider(this.weaponGroup, this.staticItemGroup);
+    // this.physics.add.collider(this.weaponGroup, this.walkableGroup);
     this.physics.add.collider(this.itemGroup, this.walkableGroup);
     this.physics.add.collider(this.enemyGroup, this.walkableGroup);
     this.physics.add.collider(this.enemyGroup, this.enemyGroup);

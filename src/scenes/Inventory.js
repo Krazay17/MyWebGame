@@ -85,6 +85,11 @@ export default class Inventory extends Phaser.Scene {
                 }
             });
 
+        this.swordUpgradeAButton = this.setupButton(1100, 200, 'auraicondesat', 1, '0x00FFEE', 'Cost: ' + weaponUpgradeCosts.swordA + '\nFire energy wave on swing')
+            .on('pointerdown', () => {
+                this.selectUpgrade('swordUpgradeA', weaponUpgradeCosts.swordA, this.swordUpgradeAButton);
+            });
+
         this.auraUpgradeA0Button = this.setupButton(1100, 600, 'auraicondesat', 1, '0x00FFEE', 'Cost: ' + this.player.aura.upgradeCosts.A1 + '\nZap hits 2 targets')
             .on('pointerdown', () => {
                 if (this.player.aura.upgradeA(1)) {
@@ -147,6 +152,7 @@ export default class Inventory extends Phaser.Scene {
                 GameManager.power.shurikanUpgradeA = null;
                 GameManager.power.shurikanUpgradeB = null;
                 GameManager.power.shurikanUpgradeC = null;
+                GameManager.power.swordUpgradeA = null;
                 this.player.leftWeapon.setupStats();
                 this.player.rightWeapon.setupStats();
                 this.auraText.setText('Aura level: ' + GameManager.power.auraLevel);
@@ -164,6 +170,7 @@ export default class Inventory extends Phaser.Scene {
             this.shurikanUpgradeAButton,
             this.shurikanUpgradeBButton,
             this.shurikanUpgradeCButton,
+            this.swordUpgradeAButton,
         );
 
         this.tooltipText = this.add.text(0, 0, '', {
@@ -235,6 +242,10 @@ export default class Inventory extends Phaser.Scene {
             this.shurikanUpgradeCButton.disableInteractive();
             this.shurikanUpgradeCButton.setTint(0xFFFFFF);
         }
+        if (GameManager.power.swordUpgradeA) {
+            this.swordUpgradeAButton.disableInteractive();
+            this.swordUpgradeAButton.setTint(0xFFFFFF);
+        }
 
 
         if (GameManager.power.auraUpgradeA === 1) {
@@ -268,6 +279,20 @@ export default class Inventory extends Phaser.Scene {
             this.auraUpgradeB0Button.disableInteractive();
             this.auraUpgradeB0Button.setTint(0x000000);
 
+        }
+    }
+
+    selectUpgrade(upgradeKey, cost, button) {
+        if (!GameManager.power[upgradeKey] && (GameManager.power.money > cost)) {
+            this.player.updateMoney(-cost);
+            GameManager.power[upgradeKey] = true;
+            GameManager.power.spent += cost;
+            this.player.leftWeapon.setupStats();
+            this.player.rightWeapon.setupStats();
+            button.disableInteractive();
+            button.setTint(0xFFFFFF);
+            this.tooltipText.setText('');
+            this.tooltipText.setAlpha(0);
         }
     }
 

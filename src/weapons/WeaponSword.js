@@ -1,4 +1,6 @@
+import GameManager from '../things/GameManager.js';
 import WeaponBase from './_weaponbase.js';
+import SwordWave from './swordWave.js';
 
 export default class WeaponSword extends WeaponBase {
     constructor(scene, player) {
@@ -26,14 +28,35 @@ export default class WeaponSword extends WeaponBase {
                 ],
             })
         }
+
+        if (!scene.anims.get('swordwave')) {
+            scene.anims.create({
+                key: 'swordwave',
+                defaultTextureKey: 'swordwave',
+                duration: 200,
+                repeat: -1,
+                frames: [
+                    { frame: 0 },
+                    { frame: 1 },
+                ],
+            })
+        }
     }
 
     update(delta) {
         super.update(delta);
         if (this.sword) {
-        
+
             this.sword.x = this.player.x + this.swordOffset.x;
             this.sword.y = this.player.y - 15 + this.swordOffset.y;
+        }
+    }
+
+    setupStats() {
+        if(GameManager.power.swordUpgradeA) {
+            this.doesFireWave = true;
+        } else {
+            this.doesFireWave = false;
         }
     }
 
@@ -50,9 +73,9 @@ export default class WeaponSword extends WeaponBase {
         this.swordOffset = data.vector;
 
         this.sword = this.scene.add.sprite(data.start.x + data.vector.x, data.start.y + data.vector.y, 'sword')
-        .setScale(0.24)
-        .setAngle(angleDeg)
-        .setDepth(101);
+            .setScale(0.24)
+            .setAngle(angleDeg)
+            .setDepth(101);
         this.sword.play('sword');
         this.sword.setFlipY(angleDeg > 90 || angleDeg < -90);
 
@@ -62,11 +85,24 @@ export default class WeaponSword extends WeaponBase {
         this.rayTickData = rayData;
         this.meleeRayTick = true;
 
+        if (this.doesFireWave) {
+        this.fireWave(data, angleDeg)
+        }
+
         // Cleanup
         this.scene.time.delayedCall(this.meleeDuration, () => {
             this.meleeRayTick = false;
             this.sword.destroy();
             delete this.sword;
         });
+    }
+
+    fireWave({end, direction}, angleDeg) {
+        const speed = direction.clone().scale(400);
+        this.wave = new SwordWave( this.scene, end.x, end.y, this.player );
+        this.wave.setAngle(angleDeg);
+        this.wave.setFlipY( angleDeg > 90 || angleDeg < -90 );
+        this.wave.setVelocity(speed.x, speed.y)
+
     }
 }

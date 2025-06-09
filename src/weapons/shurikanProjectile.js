@@ -62,7 +62,13 @@ export default class ShurikanProjectile extends WeaponProjectile {
 
     itemHit(item) {
         super.itemHit(item);
+    }
 
+    TouchPlatform() {
+        this.customBounce();
+    }
+
+    platformHit() {
     }
 
     chainAttack(enemy) {
@@ -107,11 +113,4 @@ export default class ShurikanProjectile extends WeaponProjectile {
         }
     }
 
-      shrinkCollision(object, x, y) {
-    object.body.setSize(x, y); // Smaller than sprite size
-    object.body.setOffset(
-      (object.width - x) / 2,
-      (object.height - y) / 2
-    );
-  }
 }

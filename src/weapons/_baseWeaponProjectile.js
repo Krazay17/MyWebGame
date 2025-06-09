@@ -8,6 +8,7 @@ export default class WeaponProjectile extends Phaser.Physics.Arcade.Sprite {
 
         scene.add.existing(this);
         scene.physics.add.existing(this);
+        this.scene.weaponGroup.add(this);
 
         this.hitSoundId = 'shurikanhit';
         this.baseDamage = damage;
@@ -26,13 +27,15 @@ export default class WeaponProjectile extends Phaser.Physics.Arcade.Sprite {
         if (this.destroyOnHit) this.destroy();
     }
 
+    TouchPlatform() { }
+
     enemyHit(enemy, stagger = true) {
         if (!this.canHit(enemy)) return;
 
         const velocity = this.body.velocity;
 
-        if (enemy.TakeDamage(this.player, this.baseDamage, stagger? velocity : null)) {
-        playHitSound(this.scene, this.hitSoundId);
+        if (enemy.TakeDamage(this.player, this.baseDamage, stagger ? velocity : null)) {
+            playHitSound(this.scene, this.hitSoundId);
             return;
         }
     }
@@ -50,4 +53,33 @@ export default class WeaponProjectile extends Phaser.Physics.Arcade.Sprite {
         this.hitTargets.push(target);
         return true;
     }
+
+    shrinkCollision(object, x, y) {
+        object.body.setSize(x, y); // Smaller than sprite size
+        object.body.setOffset(
+            (object.width - x) / 2,
+            (object.height - y) / 2
+        );
+    }
+
+    customBounce(scale = 1) {
+        const body = this.body;
+        console.log('bounce')
+
+        if (!body) return;
+
+        // Flip velocity on touch direction
+        if (body.blocked.left || body.touching.left) {
+            body.setVelocityX(Math.abs(body.velocity.x * scale));
+        } else if (body.blocked.right || body.touching.right) {
+            body.setVelocityX(-Math.abs(body.velocity.x * scale));
+        }
+
+        if (body.blocked.up || body.touching.up) {
+            body.setVelocityY(Math.abs(body.velocity.y * scale));
+        } else if (body.blocked.down || body.touching.down) {
+            body.setVelocityY(-Math.abs(body.velocity.y * scale));
+        }
+    }
+
 }

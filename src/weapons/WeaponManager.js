@@ -12,7 +12,7 @@ const weaponTypes = {
     zap: AuraZap,
 };
 
-export const weaponUpgradeCosts = { shurikanA: 1000, shurikanB: 500, shurikanC: 2500 };
+export const weaponUpgradeCosts = { shurikanA: 1000, shurikanB: 500, shurikanC: 2500 , swordA: 1000 };
 
 export function createWeapon(type, scene, player) {
     const WeaponClass = weaponTypes[type];

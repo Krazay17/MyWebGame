@@ -58,6 +58,10 @@ export default class Preloader extends Phaser.Scene {
             frameWidth: 256,
             frameHeight: 256,
         });
+        this.load.spritesheet('swordwave', 'assets/SwordWave.png', {
+            frameWidth: 512,
+            frameHeight: 1024,
+        });
     }
 
     create() {

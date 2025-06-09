@@ -25,6 +25,8 @@ export default class WeaponBase {
         this.cooldownTimer = 0;
 
         this.weaponUpgradeCosts = {shurikanA: 1000, shurikanB: 500}
+
+        this.setupStats();
     }
 
     damage() {

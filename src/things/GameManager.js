@@ -5,11 +5,7 @@ export default {
     name: { text: 'Hunter', color: '#FFFFFF' },
     location: {x: 0, y: 0},
     area: 'Home',
-    power: { money: 0, spent: 0, auraLevel: 1, auraUpgradeA: null, auraUpgradeB: null, 
-        shurikanUpgradeA: null, 
-        shurikanUpgradeB: null, 
-        shurikanUpgradeB: null, 
-        swordUpgradeA: null, },
+    power: { money: 0, spent: 0, auraLevel: 1, },
     money: 0,
     stats: {healthMax: 25, health: 25},
     weapons: { left: 'shurikan', right: 'sword', aura: 'zap' },
@@ -83,7 +79,7 @@ export default {
         this.name = keep.name ?? { text: 'Hunter', color: '#FFFFFF' };
         this.location = {x: 0, y: 0};
         this.area = keep.area ?? 'Home';
-        this.power = keep.power ?? { money: 0, auraLevel: 1 };
+        this.power = keep.power ?? { money: 0, spent: 0, auraLevel: 1 };
         this.money = keep.money ?? 0;
         this.stats = keep.stats ?? {healthMax: 25, health: 25};
         this.weapons = keep.weapons ?? { left: 'shurikan', right: 'sword', aura: 'zap' };

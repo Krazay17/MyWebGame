@@ -129,10 +129,10 @@ export default class NetworkManager {
     });
 
     // Shurikan throw
-    this.socket.on('shurikanthrown', ({ id, x, y, d }) => {
+    this.socket.on('shurikanthrown', ({ id, shotInfo }) => {
       const player = this.otherPlayers[id];
       if (player) {
-        player.ghostShurikan(x, y, d);
+        player.ghostShurikan(shotInfo);
       }
     });
 
@@ -147,6 +147,13 @@ export default class NetworkManager {
       const player = this.otherPlayers[id];
       if (player) {
         player.updateHealth(health, max);
+      }
+    })
+
+    this.socket.on('playerSlideUpdate', (id) => {
+      const player = this.otherPlayers[id];
+      if (player) {
+        player.slide();
       }
     })
 

@@ -33,7 +33,7 @@ export default class AuraZap extends WeaponBase {
     }
 
     getCost() {
-        const level = GameManager.power.auraLevel
+        const level = GameManager.power.auraLevel;
         return (level ** 3) + (level * 50);
     }
 
@@ -52,51 +52,45 @@ export default class AuraZap extends WeaponBase {
     }
 
     damage() {
-        console.log(this.baseDamage + this.upA + this.upB)
         return this.baseDamage + this.upA + this.upB;
     }
 
     setStats() {
-        const power = GameManager.power;
+        const upgrades = GameManager.upgrades;
 
-        this.auraSprite.setAuraLevel(power.auraLevel);
+        this.auraSprite.setAuraLevel(GameManager.power.auraLevel);
 
         if (this.zapTimer.delay) {
-            this.zapTimer.delay = this.baseZapCd / power.auraLevel;
+            this.zapTimer.delay = this.baseZapCd / GameManager.power.auraLevel;
         }
 
-        if (power.auraUpgradeA) {
-            switch (power.auraUpgradeA) {
-                case 1:
-                    this.maxTargets = 2;
-                    break;
-                case 2:
-                    this.upA= 2;
-                    break;
-            }
+        if (upgrades.auraUpgradeA1) {
+            this.maxTargets = 2;
+            this.upA = 0;
+        } else if (upgrades.auraUpgradeA2) {
+            this.upA = 2;
+            this.maxTargets = 1;
         } else {
             this.maxTargets = 1;
-            this.upA= 0;
+            this.upA = 0;
         }
 
-        if (power.auraUpgradeB) {
-            switch (power.auraUpgradeB) {
-                case 1:
-                    this.spawnOrb = true;
-                    break;
-                case 2:
-                    this.upB = 2;
-                    break;
-            }
+        if (upgrades.auraUpgradeB1) {
+            this.spawnOrb = true;
+            this.upB = 0;
+        } else if (upgrades.auraUpgradeB2) {
+            this.upB = 2;
+            this.spawnOrb = false;
         } else {
             this.spawnOrb = false;
             this.upB = 0;
         }
 
-        this.player.network.socket.emit('playerLevel', power);
+        this.player.network.socket.emit('playerLevel', GameManager.power);
     }
 
     fire() {
+        if (!this.player.alive) return;
         const groups = this.scene.attackableGroups;
         const range = Phaser.Math.Clamp(GameManager.power.auraLevel * 25, 250, 600);
         const playerPos = this.player.getCurrentPos();
@@ -143,70 +137,5 @@ export default class AuraZap extends WeaponBase {
     zapVisual(x, y, target) {
         this.zapLine = new ZapSprite(this.scene, x, y, this.player, target)
 
-    }
-
-    upgradeA(upgrade) {
-        const { A1, A2 } = this.upgradeCosts
-        switch (upgrade) {
-            case 1:
-                if (GameManager.power.money > A1) {
-                    this.player.updateMoney(-A1)
-                    GameManager.power.spent += A1;
-                    GameManager.power.auraUpgradeA = 1;
-                    GameManager.save();
-
-                    this.maxTargets = 2;
-
-                    return true;
-                }
-            case 2:
-                if (GameManager.power.money > A2) {
-                    this.player.updateMoney(-A2)
-                    GameManager.power.spent += A2;
-                    GameManager.power.auraUpgradeA = 2;
-                    GameManager.save();
-
-                    this.upA = 2;
-
-                    return true;
-                }
-        }
-        return false;
-    }
-
-    upgradeB(upgrade) {
-        const { B1, B2 } = this.upgradeCosts
-        switch (upgrade) {
-            case 1:
-                if (GameManager.power.money > B1) {
-                    this.player.updateMoney(-B1)
-                    GameManager.power.spent += B1;
-                    GameManager.power.auraUpgradeB = 1;
-                    GameManager.save();
-
-                    this.spawnOrb = true;
-
-                    return true;
-                }
-            case 2:
-                if (GameManager.power.money > B2) {
-                    this.player.updateMoney(-B2)
-                    GameManager.power.spent += B2;
-                    GameManager.power.auraUpgradeB = 2;
-                    GameManager.save();
-
-                    this.upB = 2
-
-                    return true;
-                }
-        }
-        return false;
-    }
-
-    resetUpgrades() {
-        GameManager.power.auraLevel = 1;
-        GameManager.power.auraUpgradeA = 0;
-        GameManager.power.auraUpgradeB = 0;
-        this.setStats();
     }
 }

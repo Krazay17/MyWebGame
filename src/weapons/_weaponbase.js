@@ -24,9 +24,6 @@ export default class WeaponBase {
         this.tickHit = false;
         this.cooldownTimer = 0;
 
-        this.weaponUpgradeCosts = {shurikanA: 1000, shurikanB: 500}
-
-        this.setupStats();
     }
 
     damage() {
@@ -43,12 +40,12 @@ export default class WeaponBase {
 
         if (this.meleeRayTick) {
             this.rayTickData.start.x = this.player.x;
-            this.rayTickData.start.y = this.player.y - 25;
+            this.rayTickData.start.y = this.player.y - 10;
             this.fireRayAttack(this.rayTickData);
         }
     }
 
-    setupStats() { }
+    setStats() {}
 
     canFire() {
         return !this.cooldown;
@@ -71,6 +68,8 @@ export default class WeaponBase {
         this.scene.events.off('update', this.update, this);
         // any other cleanup here
     }
+
+    onBlur() {}
 
     calculateShot(pointer, scale = 1, rayThickness = 26) {
         const headOffset = 10;

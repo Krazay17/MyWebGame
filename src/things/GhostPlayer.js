@@ -93,24 +93,60 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
     if (Math.abs(this.xv) < epsilon) this.xv = 0;
     if (Math.abs(this.yv) < epsilon) this.yv = 0;
 
-    if ((this.yv === 0 && this.xv > 0) || this.xv < 0) {
-      this.sprite.play('dudewalk', true);
-    } else if (this.yv == 0 && this.xv == 0) {
-      this.sprite.stop();
-      this.sprite.setFrame(0);
-    }
-
     if (this.xv > 0) {
       this.sprite.flipX = true;
     } else if (this.xv < 0) {
       this.sprite.flipX = false;
     }
 
-    if (this.yv > 0 || this.yv < 0) {
+    if ((this.yv === 0 && this.xv > 0) || this.xv < 0 && !this.sliding) {
+      this.sprite.play('dudewalk', true);
+    } else if (this.yv == 0 && this.xv == 0 && !this.sliding) {
+      this.sprite.stop();
+      this.sprite.setFrame(0);
+    }
+
+
+    if (this.yv > 0 || this.yv < 0 && !this.sliding) {
       this.sprite.stop();
       this.sprite.setFrame(5);
     }
   }
+
+  setGhostState(state) {
+  if (!this.sprite) return;
+
+  this.x = state.x;
+  this.y = state.y;
+  this.sprite.flipX = state.flipX;
+
+  if (state.isSliding) {
+    this.sprite.setFrame(9); // Slide frame
+    return;
+  }
+
+  if (state.isCrouching) {
+    this.sprite.play('dudecrouch', true);
+    return;
+  }
+
+  if (state.isHealing) {
+    this.sprite.setFrame(10); // Heal frame
+    return;
+  }
+
+  if (state.isJumping) {
+    this.sprite.setFrame(5); // Jump frame
+    return;
+  }
+
+  if (state.anim) {
+    this.sprite.play(state.anim, true);
+  } else if (state.frame !== undefined) {
+    this.sprite.setFrame(state.frame);
+  }
+}
+
 
   updateName(text, color) {
     this.nameColor = color;
@@ -149,8 +185,6 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
     // Foreground
     this.healthBar.fillStyle(0x00FF00, 1);
     this.healthBar.fillRect(healthBarX, healthBarY, healthBarWidth * percentHealth, healthBarHeight);
-
-    console.log(percentHealth);
   }
 
   updatePower(money, auraLevel) {
@@ -170,6 +204,14 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
     this.updatePower(power.money, power.auraLevel);
   }
 
+  slide() {
+    this.sliding = true;
+    this.sprite.stop();
+    this.sprite.setFrame(9);
+    this.scene.time.delayedCall(900, ()=> this.sliding = false);
+    console.log('slide')
+  }
+
   getSyncData() {
     return {
       x: this.x,
@@ -186,13 +228,13 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
   //     super.destroy(); // Destroys the container itself
   // }
 
-  ghostShurikan(x, y, d) {
+  ghostShurikan(shotInfo) {
+    const {start, direction} = shotInfo;
     const speed = 1000;
 
-    const direction = new Phaser.Math.Vector2(d.x, d.y).normalize();
-    const velocity = direction.scale(speed);
+    const velocity = new Phaser.Math.Vector2(direction.x, direction.y).scale(speed);
 
-    const shurikan = this.scene.physics.add.sprite(x, y, 'shurikan');
+    const shurikan = this.scene.physics.add.sprite(start.x, start.y, 'shurikan');
     shurikan.setScale(0.15);
     shurikan.setAlpha(0.6);
     shurikan.setTint(0x00ffff);

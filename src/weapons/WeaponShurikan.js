@@ -11,33 +11,32 @@ export default class WeaponShurikan extends WeaponBase {
         this.chainCount = 1;
         this.initialTargets = 1
 
-        this.setupStats();
+        this.setStats();
     }
 
-    setupStats() {
-        if (GameManager.power.shurikanUpgradeA) {
+    setStats() {
+        if (GameManager.upgrades.shurikanUpgradeA) {
             this.chainCount = 5;
         } else {
             this.chainCount = 1;
         }
-        if (GameManager.power.shurikanUpgradeB) {
+        if (GameManager.upgrades.shurikanUpgradeB) {
             this.baseDamage = 2;
         } else {
             this.baseDamage = 1;
         }
-        if (GameManager.power.shurikanUpgradeC) {
+        if (GameManager.upgrades.shurikanUpgradeC) {
             this.initialTargets = 3;
         } else {
             this.initialTargets = 1;
         }
-        console.log(GameManager.power.shurikanUpgradeA)
     }
 
     fire(pointer) {
         if (!this.canFire()) return;
         this.startCooldown();
 
-        const { start, vector } = this.calculateShot(pointer, 1000);
+        const { start, vector, direction } = this.calculateShot(pointer, 1000);
 
         const projectile = new ShurikanProjectile(this.scene, start.x, start.y, this.player, this.chainCount, this.baseDamage, this.initialTargets);
         
@@ -46,6 +45,7 @@ export default class WeaponShurikan extends WeaponBase {
         projectile.setScale(.15);
         projectile.setVelocity(vector.x, vector.y);
 
+        this.player.network.socket.emit('shurikanthrow', { start, direction })
 
         this.playThrowSound();
     }

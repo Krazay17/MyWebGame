@@ -64,7 +64,6 @@ export default class WeaponProjectile extends Phaser.Physics.Arcade.Sprite {
 
     customBounce(scale = 1) {
         const body = this.body;
-        console.log('bounce')
 
         if (!body) return;
 

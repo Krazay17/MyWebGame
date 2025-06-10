@@ -293,6 +293,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 this.slideAnim = true;
                 this.scene.time.delayedCall(900, () => this.slideAnim = false);
                 this.setVelocityX(speed);
+
+                this.network.socket.emit('playerSlideRequest');
             }
 
             if (isRight && this.body.blocked.down) {
@@ -364,7 +366,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             this.speed = 100;
             this.stop();
             this.setFrame(10)
-        this.body.setMaxVelocity(200, 100);
+            this.body.setMaxVelocity(200, 100);
             if (this.healthTick > 1) {
                 this.healthTick = 0;
                 this.health = Math.min(this.healthMax, this.health + 1);
@@ -375,8 +377,22 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         } else {
 
             this.speed = 250;
-        this.body.setMaxVelocity(1000, 1000);
+            this.body.setMaxVelocity(1000, 1000);
         }
+
+        const state = {
+            x: this.x,
+            y: this.y,
+            flipX: this.flipX,
+            frame: this.anims?.getFrameName?.(), // Optional: not always needed
+            anim: this.anims?.currentAnim?.key || null,
+            isCrouching: this.isCrouch,
+            isSliding: this.slideAnim,
+            isJumping: !this.body.blocked.down,
+            isHealing: isUp, // from input
+        };
+
+
     }
 
     lerpHitBox(delta) {

@@ -5,7 +5,7 @@ export default class SunMan extends BaseEnemy {
         super(scene, x, y, 'sunsheet', health)
 
         this.maxaccell = 400;
-        this.damage = 5;
+        this.damage = 3;
 
         if (!scene.anims.get('sunsheet')) {
             scene.anims.create({

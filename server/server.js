@@ -139,12 +139,20 @@ io.on('connection', (socket) => {
     }
   })
 
-  socket.on('shurikanthrow', ({ x, y, d }) => {
+  socket.on('shurikanthrow', (shotInfo) => {
     if (players[socket.id]) {
 
-      socket.broadcast.emit('shurikanthrown', { id: socket.id, x, y, d });
+      socket.broadcast.emit('shurikanthrown', { id: socket.id, shotInfo });
     }
   });
+
+  socket.on('playerSlideRequest', () => {
+    if (players[socket.id]) {
+
+      socket.broadcast.emit('playerSlideUpdate', socket.id);
+    }
+  })
+
 });
 
 const PORT = process.env.PORT || 3000;

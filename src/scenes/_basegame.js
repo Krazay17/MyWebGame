@@ -3,7 +3,6 @@ import NetworkManager from '../things/NetworkManager.js';
 import GameManager from '../things/GameManager.js';
 import SpawnManager from '../things/_spawnmanager.js';
 import WeaponGroup from '../weapons/WeaponGroup.js';
-import GhostPlayer from '../things/GhostPlayer.js';
 
 export default class BaseGame extends Phaser.Scene {
   constructor(key) {
@@ -224,8 +223,8 @@ this.zoom = Phaser.Math.Snap.To(this.zoom, 0.1);
       player.TouchPlatform(walkable);
     }, null, this);
 
-    // this.physics.add.collider(this.weaponGroup, this.staticItemGroup);
-    // this.physics.add.collider(this.weaponGroup, this.walkableGroup);
+    this.physics.add.collider(this.weaponGroup, this.staticItemGroup);
+    this.physics.add.collider(this.weaponGroup, this.walkableGroup);
     this.physics.add.collider(this.itemGroup, this.walkableGroup);
     this.physics.add.collider(this.enemyGroup, this.walkableGroup);
     this.physics.add.collider(this.enemyGroup, this.enemyGroup);

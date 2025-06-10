@@ -26,7 +26,6 @@ export default class EscMenu extends Phaser.Scene {
         this.resetButton = this.add.rectangle(0, 0, 225, 75, 0xFFFFFF, 1)
             .setInteractive()
             .on('pointerdown', () => {
-                console.log('click reset button')
                 this.scene.stop(this.gameScene);
                 this.scene.start('Home');
             });

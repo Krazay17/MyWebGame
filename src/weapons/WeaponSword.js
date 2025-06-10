@@ -41,6 +41,9 @@ export default class WeaponSword extends WeaponBase {
                 ],
             })
         }
+
+        
+        this.setStats();
     }
 
     update(delta) {
@@ -52,8 +55,8 @@ export default class WeaponSword extends WeaponBase {
         }
     }
 
-    setupStats() {
-        if(GameManager.power.swordUpgradeA) {
+    setStats() {
+        if(GameManager.upgrades.swordUpgradeA) {
             this.doesFireWave = true;
         } else {
             this.doesFireWave = false;

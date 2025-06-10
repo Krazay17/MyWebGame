@@ -30,13 +30,7 @@ export default class SpawnManager {
 
     spawnSunMans(x, y, health) {
         const sunMan = new SunMan(this.scene, x, y, health);
-        this.scene.softEnemyGroup.add(sunMan);
-        sunMan.body.allowGravity = false;
-        sunMan.setBounce(1);
-        sunMan.setScale(.4);
-        sunMan.scaleCollision(170, 170);
-        sunMan.setCollideWorldBounds(true);
-        sunMan.body.setMaxSpeed(1000);
+        this.scene.sunmanGroup.add(sunMan);
 
         return sunMan;
     }

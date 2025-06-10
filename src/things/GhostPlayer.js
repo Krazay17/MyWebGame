@@ -48,6 +48,7 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
     this.sprite = this.scene.add.sprite(0, 0, 'dudesheet'); // Position (0,0) is container's center
     this.sprite.setScale(0.35);
     this.sprite.setAlpha(0.6);
+    this.baseTint = '0x00ffff';
     this.sprite.setTint(0x00ffff);
     this.sprite.setOrigin(0.5, 0.5); // Center the sprite on the container's origin
     this.sprite.setDepth(1); // Higher depth than aura
@@ -56,15 +57,15 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
     const spriteHeight = this.sprite.displayHeight;
 
     // Add moneyText as a child of the container
-    this.moneyText = this.scene.add.text(0, -spriteHeight / 2 - 20, this.ranks.getRank(this.money) + '\n' + this.money, {
+    this.moneyText = this.scene.add.text(0, -spriteHeight, this.ranks.getRank(this.money) + '\n' + this.money, {
       fontSize: '12px',
       align: 'center',
-      fill: '#ffffff'
+      fill: '#00FFFF'
     }).setOrigin(0.5).setDepth(2); // Higher depth than sprite
     this.add(this.moneyText);
 
     // Add headName as a child of the container
-    this.headName = this.scene.add.text(0, -spriteHeight / 2 - 40, this.nameText, {
+    this.headName = this.scene.add.text(0, -spriteHeight / 1.25, this.nameText, {
       fontSize: '12px',
       align: 'center',
       fill: this.nameColor,
@@ -94,7 +95,7 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
 
   setGhostState(state) {
     if (!this.sprite) return;
-    const { x, y, f, a, c, j, s, h } = state;
+    const { x, y, f, a, c, j, s, h, d } = state;
     if (this.prevX === undefined) {
       this.prevX = x;
       this.prevY = y;
@@ -118,6 +119,14 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
     this.sprite.flipX = f;
 
 
+    if (d) {
+      this.sprite.setTint('0xFF0000');
+      this.sprite.stop();
+      this.sprite.setFrame(6);
+      return;
+    } else {
+      this.sprite.setTint(this.baseTint);
+    }
     if (s && !j) {
       this.sprite.stop();
       this.sprite.setFrame(9); // Slide frame
@@ -148,6 +157,7 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
       this.sprite.setFrame(0);
     }
 
+
     // if (a) {
     //   this.sprite.play(state.anim, true);
     // } else if (state.frame !== undefined) {
@@ -176,13 +186,12 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
 
     this.healthBar.clear();
 
-    const spriteHeight = this.sprite.displayHeight;
+    const spriteHeight = this.sprite.displayHeight / 1.5;
     const healthBarHeight = 5;
     const healthBarWidth = 50;
-    const paddingAboveName = 5;
 
     // Calculate Y position relative to headName
-    const healthBarY = this.headName.y - paddingAboveName - healthBarHeight;
+    const healthBarY = -spriteHeight;
     const healthBarX = -healthBarWidth / 2; // Centered
 
     // Background

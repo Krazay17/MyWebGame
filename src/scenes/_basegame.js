@@ -3,6 +3,7 @@ import NetworkManager from '../things/NetworkManager.js';
 import GameManager from '../things/GameManager.js';
 import SpawnManager from '../things/_spawnmanager.js';
 import WeaponGroup from '../weapons/WeaponGroup.js';
+import Duck from '../things/enemyDuck.js';
 
 export default class BaseGame extends Phaser.Scene {
   constructor(key) {
@@ -151,7 +152,7 @@ export default class BaseGame extends Phaser.Scene {
       { group: this.walkableGroup = this.physics.add.group({ allowGravity: false, immovable: true }), handler: 'platformHit', zap: false },
       { group: this.enemyGroup = this.physics.add.group(), handler: 'enemyHit', zap: true },
       // { group: this.flyingEnemyGroup = this.physics.add.group({ allowGravity: false }), handler: 'enemyHit' },
-      { group: this.softEnemyGroup = this.physics.add.group(), handler: 'enemyHit', zap: true },
+      { group: this.sunmanGroup = this.physics.add.group({ classType: Duck, runChildUpdate: true, allowGravity: false }), handler: 'enemyHit', zap: true },
       { group: this.staticEnemyGroup = this.physics.add.group({ allowGravity: false, immovable: true }), handler: 'enemyHit', zap: true },
       { group: this.bulletGroup = this.physics.add.group({ allowGravity: false }), handler: 'bulletHit', zap: true },
       { group: this.softBulletGroup = this.physics.add.group({ allowGravity: false }), handler: 'bulletHit', zap: true },
@@ -211,7 +212,7 @@ export default class BaseGame extends Phaser.Scene {
       bullet.playerHit(player, bullet);
     }, null, this);
 
-    this.physics.add.overlap(this.player, this.softEnemyGroup, (player, enemy) => {
+    this.physics.add.overlap(this.player, this.sunmanGroup, (player, enemy) => {
       enemy.playerCollide(player, enemy);
     }, null, this);
 
@@ -228,7 +229,7 @@ export default class BaseGame extends Phaser.Scene {
     this.physics.add.collider(this.itemGroup, this.walkableGroup);
     this.physics.add.collider(this.enemyGroup, this.walkableGroup);
     this.physics.add.collider(this.enemyGroup, this.enemyGroup);
-    this.physics.add.collider(this.softEnemyGroup, this.softEnemyGroup, (enemy1, enemy2) => {
+    this.physics.add.collider(this.sunmanGroup, this.sunmanGroup, (enemy1, enemy2) => {
     }, null, this);
   }
 

@@ -4,6 +4,13 @@ export default class SunMan extends BaseEnemy {
     constructor(scene, x, y, health = 3) {
         super(scene, x, y, 'sunsheet', health)
 
+        
+                this.body.setMaxSpeed(1000);
+                this.setBounce(1);
+                this.setScale(.4);
+                this.scaleCollision(170, 170);
+                this.setCollideWorldBounds(true);
+
         this.maxaccell = 400;
         this.damage = 3;
 

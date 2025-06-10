@@ -47,6 +47,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.canJump = true;
         this.canDash = true;
         this.canResetDash = true;
+        this.dashSpeed = 1000;
         this.canSlide = true;
         this.crouchCD = 0;
         this.wallJump = false;
@@ -176,6 +177,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.healthMax = GameManager.stats.healthMax ?? 25;
         this.health = GameManager.stats.health ?? 25;
         this.emit('updateHealth', this.health, this.healthMax);
+        this.network.socket.emit('updateHealth', this.health, this.healthMax);
     }
 
     Died() {
@@ -246,146 +248,148 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     handleInput(delta) {
-        if (this.stunned || !this.alive) return;
+        if (!this.stunned && this.alive) {
 
-        const { left, right, down, up, jump, dash } = this.controls;
+            const { left, right, down, up, jump, dash } = this.controls;
 
-        const isDown = down.isDown;
-        const isLeft = left.isDown;
-        const isRight = right.isDown;
-        const isUp = up.isDown;
-        const isJump = jump.isDown;
-        const isChatting = this.playerUI.Chatting;
+            const isDown = down.isDown;
+            const isLeft = left.isDown;
+            const isRight = right.isDown;
+            const isUp = up.isDown;
+            const isJump = jump.isDown;
+            const isChatting = this.playerUI.Chatting;
 
-        const WalkLerp = (a, modify) => {
-            if (!modify) modify = this.body.blocked.down ? .5 : .09;
+            const WalkLerp = (a, modify) => {
+                if (!modify) modify = this.body.blocked.down ? .5 : .09;
 
-            modify = Phaser.Math.Clamp(modify * (delta / 16.666), 0, 1);
-            return Phaser.Math.Linear(this.body.velocity.x, a, modify);
-        };
-        if ((isLeft || isRight)) this.syncNetwork(this.x, this.y);
+                modify = Phaser.Math.Clamp(modify * (delta / 16.666), 0, 1);
+                return Phaser.Math.Linear(this.body.velocity.x, a, modify);
+            };
+            if ((isLeft || isRight)) this.syncNetwork(this.x, this.y);
 
-        if (isLeft && !isDown && !isChatting) {
-            this.setVelocityX(WalkLerp(-this.speed));
-            this.flipX = true;
-            if (this.body.blocked.down) {
-                this.play('dudewalk', true);
-            } else {
-                this.setFrame(5);
-            }
-            if (dash.isDown && this.canDash) {
-                this.Dash(-600);
-            }
-        } else if (isRight && !isDown && !isChatting) {
-            this.setVelocityX(WalkLerp(this.speed));
-            this.flipX = false;
-            if (this.body.blocked.down) {
-                this.play('dudewalk', true);
-            } else {
-                this.setFrame(5);
-            }
-            if (dash.isDown && this.canDash) {
-                this.Dash(600);
-            }
-        } else if (isDown && !isChatting) {
-            var crouchSpeed;
-
-            const slideBoost = (speed) => {
-
-                this.canSlide = false;
-                this.slideAnim = true;
-                this.slideAnimTimer = this.scene.time.delayedCall(900, () => this.slideAnim = false);
-                this.setVelocityX(speed);
-            }
-
-            if (isRight && this.body.blocked.down) {
-                crouchSpeed = this.speed * .30;
-                if (!this.slideAnim) this.play('dudecrouch', true);
-                this.flipX = false;
-            } else if (isLeft && this.body.blocked.down) {
-                crouchSpeed = -this.speed * .30;
-                if (!this.slideAnim) this.play('dudecrouch', true);
+            if (isLeft && !isDown && !isChatting) {
+                this.setVelocityX(WalkLerp(-this.speed));
                 this.flipX = true;
+                if (this.body.blocked.down) {
+                    this.play('dudewalk', true);
+                } else {
+                    this.setFrame(5);
+                }
+                if (dash.isDown && this.canDash) {
+                    this.Dash(-this.dashSpeed);
+                }
+            } else if (isRight && !isDown && !isChatting) {
+                this.setVelocityX(WalkLerp(this.speed));
+                this.flipX = false;
+                if (this.body.blocked.down) {
+                    this.play('dudewalk', true);
+                } else {
+                    this.setFrame(5);
+                }
+                if (dash.isDown && this.canDash) {
+                    this.Dash(this.dashSpeed);
+                }
+            } else if (isDown && !isChatting) {
+                var crouchSpeed;
+
+                const slideBoost = (speed) => {
+
+                    this.canSlide = false;
+                    this.slideAnim = true;
+                    this.slideAnimTimer = this.scene.time.delayedCall(900, () => this.slideAnim = false);
+                    this.setVelocityX(speed);
+                }
+
+                if (isRight && this.body.blocked.down) {
+                    crouchSpeed = this.speed * .30;
+                    if (!this.slideAnim) this.play('dudecrouch', true);
+                    this.flipX = false;
+                } else if (isLeft && this.body.blocked.down) {
+                    crouchSpeed = -this.speed * .30;
+                    if (!this.slideAnim) this.play('dudecrouch', true);
+                    this.flipX = true;
+                } else {
+                    this.scene.time.removeEvent(this.slideAnimTimer);
+                    this.slideAnim = false;
+                    this.setFrame(6);
+                    crouchSpeed = 0;
+                }
+                if (this.canSlide && this.body.blocked.down) {
+                    this.stop();
+                    this.setFrame(9)
+                    slideBoost(crouchSpeed * 9);
+                }
+
+                this.setVelocityX(WalkLerp(crouchSpeed, .025));
             } else {
-                this.scene.time.removeEvent(this.slideAnimTimer);
-                this.slideAnim = false;
-                this.setFrame(6);
-                crouchSpeed = 0;
+                // not moving or crouching
+                    this.slideAnim = false;
+                this.setVelocityX(WalkLerp(0));
+                if (this.body.blocked.down) this.setFrame(0);
+                else this.setFrame(2);
             }
-            if (this.canSlide && this.body.blocked.down) {
+
+            if (!isDown && !this.canSlide) {
+                if (this.crouchCD < 1000) {
+                    this.crouchCD += delta;
+                } else {
+                    this.canSlide = true;
+                    this.crouchCD = 0;
+                }
+            }
+
+            if (isJump && this.canJump && !isChatting) {
+                this.setVelocityY(-this.jumpPower);
+                this.jumpPower += delta * 1.8;
                 this.stop();
-                this.setFrame(9)
-                slideBoost(crouchSpeed * 9);
-            }
-
-            this.setVelocityX(WalkLerp(crouchSpeed, .025));
-        } else {
-            // not moving or crouching
-            this.setVelocityX(WalkLerp(0));
-            if (this.body.blocked.down) this.setFrame(0);
-            else this.setFrame(2);
-        }
-
-        if (!isDown && !this.canSlide) {
-            if (this.crouchCD < 1000) {
-                this.crouchCD += delta;
+                this.setFrame(1);
+                if (this.jumpPower >= this.jumpMax) this.canJump = false;
             } else {
-                this.canSlide = true;
-                this.crouchCD = 0;
+                this.canJump = false;
+                this.wallJump = false;
+            }
+
+            if (this.wallJump) {
+                this.setVelocityX(this.wallJumpX);
+                this.jumpMax = 320;
+                this.wallJump = false;
+            }
+
+            if (isDown && !isChatting && !this.isCrouch) {
+                this.isCrouch = true;
+                this.hitBoxSize = { y: 180, yo: 70 };
+                this.setSize(115, 180);
+                this.setOffset(70, 70);
+                this.scene.physics.world.collide(this, this.scene.walkableGroup);
+            } else if (!isDown && this.isCrouch) {
+                this.isCrouch = false;
+            } else if (!isDown && !this.isCrouch && (this.lerpHitBox(delta) === false)) {
+                this.lerpHitBox(delta)
+            }
+
+            if (isUp && !isChatting) {
+                this.healthTick += delta / 300;
+                this.isHealing = true;
+                this.speed = 100;
+                this.stop();
+                this.setFrame(10)
+                this.body.setMaxVelocity(200, 100);
+                if (this.healthTick > 1) {
+                    this.healthTick = 0;
+                    this.health = Math.min(this.healthMax, this.health + 1);
+                    this.updateMoney(-1);
+                    this.emit('updateHealth', this.health, this.healthMax);
+                    this.network.socket.emit('updateHealth', this.health, this.healthMax);
+                }
+            } else {
+                this.isHealing = false;
+                this.speed = 250;
+                this.body.setMaxVelocity(1000, 1000);
             }
         }
 
-        if (isJump && this.canJump && !isChatting) {
-            this.setVelocityY(-this.jumpPower);
-            this.jumpPower += delta * 1.8;
-            this.stop();
-            this.setFrame(1);
-            if (this.jumpPower >= this.jumpMax) this.canJump = false;
-        } else {
-            this.canJump = false;
-            this.wallJump = false;
-        }
 
-        if (this.wallJump) {
-            this.setVelocityX(this.wallJumpX);
-            this.jumpMax = 320;
-            this.wallJump = false;
-        }
-
-        if (isDown && !isChatting && !this.isCrouch) {
-            this.isCrouch = true;
-            this.hitBoxSize = { y: 180, yo: 70 };
-            this.setSize(115, 180);
-            this.setOffset(70, 70);
-            this.scene.physics.world.collide(this, this.scene.walkableGroup);
-        } else if (!isDown && this.isCrouch) {
-            this.isCrouch = false;
-        } else if (!isDown && !this.isCrouch && (this.lerpHitBox(delta) === false)) {
-            this.lerpHitBox(delta)
-        }
-
-        if (isUp && !isChatting) {
-            this.healthTick += delta / 300;
-            this.isHealing = true;
-            this.speed = 100;
-            this.stop();
-            this.setFrame(10)
-            this.body.setMaxVelocity(200, 100);
-            if (this.healthTick > 1) {
-                this.healthTick = 0;
-                this.health = Math.min(this.healthMax, this.health + 1);
-                this.updateMoney(-1);
-                this.emit('updateHealth', this.health, this.healthMax);
-                this.network.socket.emit('updateHealth', this.health, this.healthMax);
-            }
-        } else {
-            this.isHealing = false;
-            this.speed = 250;
-            this.body.setMaxVelocity(1000, 1000);
-        }
-
-
-    this.syncGhost(delta);
+        this.syncGhost(delta);
 
     }
 
@@ -423,7 +427,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     syncGhost(delta) {
-        if(!this.network?.socket) return;
+        if (!this.network?.socket) return;
 
         this.statSyncTimer = (this.statSyncTimer || 0) + delta;
 
@@ -439,19 +443,20 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             c: this.isCrouch ? 1 : 0,
             j: !this.body.blocked.down ? 1 : 0,
             s: this.slideAnim ? 1 : 0,
-            h: this.isHealing ? 1 : 0
+            h: this.isHealing ? 1 : 0,
+            d: this.stunned ? 1 : 0,
         };
 
         if (!this.hasStateChanged(state, this.lastSentState)) return;
 
-        this.lastSentState = {...state};
+        this.lastSentState = { ...state };
 
         this.network.socket.emit('playerStateRequest', state);
     }
 
     hasStateChanged(newState, oldState) {
         for (let key in newState) {
-            if(newState[key] !== oldState[key]) {
+            if (newState[key] !== oldState[key]) {
                 return true;
             }
         }
@@ -478,7 +483,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             this.Died();
         }
 
-
+        this.makeScreenFlash();
         if (this.damageSound) {
             if (this.damageSound.isPlaying)
                 this.damageSound.stop();
@@ -506,7 +511,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     resetDash() {
-        if (this.canResetDash) {
+        if (this.canResetDash && !this.stunned) {
             this.queResetDash = false;
             this.canDash = true;
             this.jumpMax = 425;
@@ -521,8 +526,19 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.canDash = false;
         this.canResetDash = false;
 
-        this.setVelocityX(x);
-        this.setVelocityY(-50);
+        //this.setVelocityX(x);
+        let vel = { x: x }; // start at high speed
+
+        this.scene.add.tween({
+            targets: vel,
+            x: x / 3,           // lower target speed
+            duration: 200,
+            ease: 'Power1',
+            onUpdate: () => {
+                this.body.setVelocity(vel.x, 0); // apply it each frame
+            },
+        });
+
         this.clearTint();
 
         this.scene.time.addEvent({
@@ -589,10 +605,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             this.network.socket.connect();
         }
 
-        this.network.socket.emit('playerSyncRequest', { x: x, y: y, data: { 
-            name: GameManager.name, 
-            power: GameManager.power 
-            } });
+        this.network.socket.emit('playerSyncRequest', {
+            x: x, y: y, data: {
+                name: GameManager.name,
+                power: GameManager.power
+            }
+        });
 
     }
 
@@ -629,5 +647,27 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             this.chatBubble.updateMessage(message, this.scene);
         }
         this.network.socket.emit('playerchatRequest', message)
+    }
+
+    makeScreenFlash() {
+        const cam = this.scene.cameras.main;
+        const screenFlash = this.scene.add.image(cam.centerX, cam.centerY, 'damagescreenflash').setScrollFactor(0).setOrigin(.5);
+        screenFlash.setDisplaySize(cam.displayWidth, cam.displayHeight);
+        this.setTint('0xFF0000');
+
+        this.scene.add.tween({
+            targets: screenFlash,
+            alpha: 0,
+            duration: 400,
+            onComplete: () => {
+                if (!this.alive) return;
+                screenFlash.destroy();
+                if (this.canDash) {
+                    this.setTint(0x66ff33);
+                } else {
+                    this.setTint();
+                }
+            },
+        })
     }
 }

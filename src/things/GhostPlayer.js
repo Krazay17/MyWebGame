@@ -1,4 +1,5 @@
 import AuraSprite from "../weapons/auraSprite.js";
+import ShurikanProjectile from "../weapons/shurikanProjectile.js";
 import RankSystem from "./RankSystem.js";
 import ChatBubble from "./chatBubble.js";
 
@@ -18,6 +19,11 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
     this.nameText = name.text;
     this.nameColor = name.color;
 
+    this.prevPos = new Phaser.Math.Vector2(x, y);
+    this.targetPos = new Phaser.Math.Vector2(x, y);
+    this.lerpTimer = 0;
+    this.lerpDuration = 33;
+
     this.ranks = new RankSystem();
 
     // Add the container itself to the scene's display list
@@ -25,6 +31,10 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
     this.setDepth(8);
 
     this.createVisuals();
+  }
+
+  preUpdate(time, delta) {
+    this.lerpPosition(delta);
   }
 
   createVisuals() {
@@ -67,86 +77,83 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
     this.add(this.healthBar);
   }
 
-  updatePosition(x, y) {
-    const sameX = Math.abs(this.x - x) < 0.05;
-    const sameY = Math.abs(this.y - y) < 0.05;
+  
+  lerpPosition(delta) {
+    if (!this.sprite) return;
 
-    if (sameX && sameY) return;
+    this.lerpTimer += delta;
 
-    this.ghostVelocity(x, y);
-    // Set the container's position; all children will move with it automatically
-    this.setPosition(x, y);
+        const t = Phaser.Math.Clamp(this.lerpTimer / this.lerpDuration, 0, 1);
+    const lerpedX = Phaser.Math.Linear(this.prevPos.x, this.targetPos.x, t);
+    const lerpedY = Phaser.Math.Linear(this.prevPos.y, this.targetPos.y, t);
 
-    // Only adjust chatBubble's relative position if it exists, its absolute position is handled by container
-    if (this.chatBubble) {
-      this.chatBubble.x = 0; // Center bubble
-      this.chatBubble.y = -this.sprite.displayHeight / 2 - 60; // Adjust as needed
-    }
+    this.x = lerpedX;
+    this.y = lerpedY;
+
   }
 
-  ghostVelocity(x, y) {
+  setGhostState(state) {
     if (!this.sprite) return;
-    this.xv = this.x - x;
-    this.yv = this.y - y;
-    const epsilon = .4;
+    const { x, y, f, a, c, j, s, h } = state;
+    if (this.prevX === undefined) {
+      this.prevX = x;
+      this.prevY = y;
+    }
+    const epsilon = .5;
+
+    this.xv = x - this.prevX;
+    this.yv = y - this.prevY;
 
     if (Math.abs(this.xv) < epsilon) this.xv = 0;
     if (Math.abs(this.yv) < epsilon) this.yv = 0;
 
-    if (this.xv > 0) {
-      this.sprite.flipX = true;
-    } else if (this.xv < 0) {
-      this.sprite.flipX = false;
+    this.prevX = x;
+    this.prevY = y;
+    this.lerpTimer= 0;
+    this.prevPos.set(this.x, this.y);
+    this.targetPos.set(x, y);
+
+    // this.x = x;
+    // this.y = y;
+    this.sprite.flipX = f;
+
+
+    if (s && !j) {
+      this.sprite.stop();
+      this.sprite.setFrame(9); // Slide frame
+      return;
     }
 
-    if ((this.yv === 0 && this.xv > 0) || this.xv < 0 && !this.sliding) {
+    if (c) {
+      this.sprite.stop();
+      this.sprite.setFrame(6);
+      return;
+    }
+
+    if (h) {
+      this.sprite.stop();
+      this.sprite.setFrame(10); // Heal frame
+      return;
+    }
+
+    if (j) {
+      this.sprite.stop();
+      this.sprite.setFrame(5); // Jump frame
+      return;
+    }
+    if ((this.xv > 0) || this.xv < 0) {
       this.sprite.play('dudewalk', true);
-    } else if (this.yv == 0 && this.xv == 0 && !this.sliding) {
+    } else {
       this.sprite.stop();
       this.sprite.setFrame(0);
     }
 
-
-    if (this.yv > 0 || this.yv < 0 && !this.sliding) {
-      this.sprite.stop();
-      this.sprite.setFrame(5);
-    }
+    // if (a) {
+    //   this.sprite.play(state.anim, true);
+    // } else if (state.frame !== undefined) {
+    //   this.sprite.setFrame(state.frame);
+    // }
   }
-
-  setGhostState(state) {
-  if (!this.sprite) return;
-
-  this.x = state.x;
-  this.y = state.y;
-  this.sprite.flipX = state.flipX;
-
-  if (state.isSliding) {
-    this.sprite.setFrame(9); // Slide frame
-    return;
-  }
-
-  if (state.isCrouching) {
-    this.sprite.play('dudecrouch', true);
-    return;
-  }
-
-  if (state.isHealing) {
-    this.sprite.setFrame(10); // Heal frame
-    return;
-  }
-
-  if (state.isJumping) {
-    this.sprite.setFrame(5); // Jump frame
-    return;
-  }
-
-  if (state.anim) {
-    this.sprite.play(state.anim, true);
-  } else if (state.frame !== undefined) {
-    this.sprite.setFrame(state.frame);
-  }
-}
-
 
   updateName(text, color) {
     this.nameColor = color;
@@ -199,17 +206,11 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
     const power = data.power || { money: 0, auraLevel: 1 };
     const name = data.name || { text: 'Hunter', color: '#FFFFFF' };
 
-    this.updatePosition(x, y);
     this.updateName(name.text, name.color);
     this.updatePower(power.money, power.auraLevel);
-  }
 
-  slide() {
-    this.sliding = true;
-    this.sprite.stop();
-    this.sprite.setFrame(9);
-    this.scene.time.delayedCall(900, ()=> this.sliding = false);
-    console.log('slide')
+    this.x = x;
+    this.y = y;
   }
 
   getSyncData() {
@@ -229,31 +230,34 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
   // }
 
   ghostShurikan(shotInfo) {
-    const {start, direction} = shotInfo;
+    const { start, direction } = shotInfo;
     const speed = 1000;
 
     const velocity = new Phaser.Math.Vector2(direction.x, direction.y).scale(speed);
 
-    const shurikan = this.scene.physics.add.sprite(start.x, start.y, 'shurikan');
-    shurikan.setScale(0.15);
-    shurikan.setAlpha(0.6);
-    shurikan.setTint(0x00ffff);
-    shurikan.body.allowGravity = false;
+    // const shurikan = this.scene.physics.add.sprite(start.x, start.y, 'shurikan');
+    // shurikan.setScale(0.15);
+    // shurikan.setAlpha(0.6);
+    // shurikan.setTint(0x00ffff);
+    // shurikan.body.allowGravity = false;
+    // shurikan.setVelocity(velocity.x, velocity.y);
+
+    // this.scene.tweens.add({
+    //   targets: shurikan,
+    //   angle: 360,
+    //   duration: 500,
+    //   repeat: -1,
+    //   ease: 'Linear',
+    // });
+
+    // this.scene.time.delayedCall(1000, () => {
+    //   if (shurikan && shurikan.body) {
+    //     shurikan.destroy();
+    //   }
+    // });
+    const shurikan = new ShurikanProjectile(this.scene, start.x, start.y, this.scene.player, 2, 1, 3);
     shurikan.setVelocity(velocity.x, velocity.y);
-
-    this.scene.tweens.add({
-      targets: shurikan,
-      angle: 360,
-      duration: 500,
-      repeat: -1,
-      ease: 'Linear',
-    });
-
-    this.scene.time.delayedCall(1000, () => {
-      if (shurikan && shurikan.body) {
-        shurikan.destroy();
-      }
-    });
+    shurikan.setAlpha(.5);
   }
 
   makeChatBubble(message) {

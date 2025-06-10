@@ -68,6 +68,7 @@ export default class NetworkManager {
         if (id !== this.socket.id) {
           //this.savedOtherPlayers = players;
           this.addOtherPlayer(id, x, y, data);
+          console.log(x, y)
         }
       });
     });
@@ -112,13 +113,20 @@ export default class NetworkManager {
       }
     });
 
-    // Position update
-    this.socket.on('playerMoved', ({ id, x, y }) => {
+    this.socket.on('playerStateUpdate', ({id, state}) => {
       const player = this.otherPlayers[id];
       if (player) {
-        player.updatePosition(x, y);
+        player.setGhostState(state);
       }
-    });
+    })
+
+    // Position update
+    // this.socket.on('playerMoved', ({ id, x, y }) => {
+    //   const player = this.otherPlayers[id];
+    //   if (player) {
+    //     player.updatePosition(x, y);
+    //   }
+    // });
 
     // Level update
     this.socket.on('playerLeveled', ({ id, money, auraLevel }) => {
@@ -147,13 +155,6 @@ export default class NetworkManager {
       const player = this.otherPlayers[id];
       if (player) {
         player.updateHealth(health, max);
-      }
-    })
-
-    this.socket.on('playerSlideUpdate', (id) => {
-      const player = this.otherPlayers[id];
-      if (player) {
-        player.slide();
       }
     })
 

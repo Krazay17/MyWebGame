@@ -40,12 +40,11 @@ io.on('connection', (socket) => {
   //   delete players[socket.id];
   // }
 
-  // Send list of already connected players to the new player
-  socket.emit('existingPlayers',
-    Object.entries(players)
-      .filter(([id]) => id !== socket.id)
-      .map(([id, player]) => ({ id, ...player }))
-  );
+  // socket.emit('existingPlayers',
+  //   Object.entries(players)
+  //     .filter(([id]) => id !== socket.id)
+  //     .map(([id, player]) => ({ id, ...player }))
+  // );
 
   // // Tell other players about this new one
   // socket.broadcast.emit('playerJoined', {
@@ -81,6 +80,10 @@ io.on('connection', (socket) => {
         y,
         data
       });
+
+      const existing = Object.entries(players).map(([id, pdata]) => ({ id, ...pdata }));
+
+      socket.emit('existingPlayers', existing);
     } else {
       socket.broadcast.emit('playerSyncUpdate', {
         id: socket.id,
@@ -92,20 +95,30 @@ io.on('connection', (socket) => {
   });
 
   socket.on('pingCheck', () => {
-    if(players[socket.id]) {
+    if (players[socket.id]) {
       players[socket.id].lastPing = Date.now();
     }
   });
 
-  // Optional partial updates (position only, etc.)
-  socket.on('playerMove', ({ x, y }) => {
+  socket.on('playerStateRequest', (state) => {
     if (players[socket.id]) {
-      players[socket.id].x = x;
-      players[socket.id].y = y;
 
-      socket.broadcast.emit('playerMoved', { id: socket.id, x, y });
+      socket.broadcast.emit('playerStateUpdate', { id: socket.id, state });
     }
-  });
+  })
+
+  // Optional partial updates (position only, etc.)
+  // socket.on('playerMove', ({ x, y }) => {
+  //   if (players[socket.id]) {
+  //     if (players[socket.id].x != x || players[socket.id].y != y) {
+  //       players[socket.id].x = x;
+  //       players[socket.id].y = y;
+
+  //       socket.broadcast.emit('playerMoved', { id: socket.id, x, y });
+  //     }
+
+  //   }
+  // });
 
   socket.on('playerName', ({ text, color }) => {
     if (players[socket.id]) {
@@ -128,7 +141,7 @@ io.on('connection', (socket) => {
     if (players[socket.id]) {
       players[socket.id].health = health;
 
-      socket.broadcast.emit('updateHealthUpdate', {id: socket.id, health, max});
+      socket.broadcast.emit('updateHealthUpdate', { id: socket.id, health, max });
     }
   })
 
@@ -146,12 +159,6 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('playerSlideRequest', () => {
-    if (players[socket.id]) {
-
-      socket.broadcast.emit('playerSlideUpdate', socket.id);
-    }
-  })
 
 });
 

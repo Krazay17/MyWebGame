@@ -19,12 +19,12 @@ export default class BaseGame extends Phaser.Scene {
   update(time, delta) {
     if (this.player) this.player.handleInput(delta);
 
-    if (this.network) {
-      this.network.socket.emit('playerMove', {
-        x: this.player.x,
-        y: this.player.y
-      });
-    }
+    // if (this.network) {
+    //   this.network.socket.emit('playerMove', {
+    //     x: this.player.x,
+    //     y: this.player.y
+    //   });
+    // }
   }
 
   setupWorld(xleft = -1600, ytop = 0, width = 3200, height = 900) {
@@ -37,13 +37,13 @@ export default class BaseGame extends Phaser.Scene {
     this.input.on('wheel', (wheel) => {
       if (!this.zoom) this.zoom = 1;
       // Step 1: Adjust zoom
-this.zoom -= wheel.deltaY / 1000;
+      this.zoom -= wheel.deltaY / 1000;
 
-// Step 2: Clamp
-this.zoom = Phaser.Math.Clamp(this.zoom, 0.6, 3);
+      // Step 2: Clamp
+      this.zoom = Phaser.Math.Clamp(this.zoom, 0.6, 3);
 
-// Step 3: Snap to nearest 0.2
-this.zoom = Phaser.Math.Snap.To(this.zoom, 0.1);
+      // Step 3: Snap to nearest 0.2
+      this.zoom = Phaser.Math.Snap.To(this.zoom, 0.1);
 
 
       this.sky1.setScale(1 / this.zoom);
@@ -73,7 +73,7 @@ this.zoom = Phaser.Math.Snap.To(this.zoom, 0.1);
     this.network.refreshScene(this);
   }
 
-  setupSky(a = 'purplesky0', ao = { x: this.scale.width /2 , y: this.scale.height / 2 }, b = 'purplesky1', bo = { x: 800, y: 600 }, c = 'purplesky2', co = { x: 600, y: 500 }) {
+  setupSky(a = 'purplesky0', ao = { x: this.scale.width / 2, y: this.scale.height / 2 }, b = 'purplesky1', bo = { x: 800, y: 600 }, c = 'purplesky2', co = { x: 600, y: 500 }) {
     this.sky1 = this.add.image(ao.x, ao.y, a).setOrigin(.5)
       .setDisplaySize(this.scale.width, this.scale.height).setScrollFactor(0);
     this.sky2 = this.add.image(bo.x, bo.y, b).setScale(1).setScrollFactor(.2);
@@ -175,7 +175,7 @@ this.zoom = Phaser.Math.Snap.To(this.zoom, 0.1);
       this.tilemapColliders.forEach(({ walls, handler }) => {
         this.physics.add.collider(this.weaponGroup, walls, null, (weapon, wall) => {
           weapon[handler]?.(wall);
-          
+
           if (weapon.ignoreWall) {
             return false;
           }
@@ -313,7 +313,7 @@ this.zoom = Phaser.Math.Snap.To(this.zoom, 0.1);
   resizeSky(gameSize) {
     const width = gameSize.width;
     const height = gameSize.height;
-    this.sky1.setPosition(width /2 , height / 2);
+    this.sky1.setPosition(width / 2, height / 2);
   }
 
   spawnSunman(x, y) {

@@ -10,6 +10,11 @@ export default class ShurikanProjectile extends WeaponProjectile {
         this.destroyOnHit = false;
         this.shrinkCollision(this, this.width/1.6, this.height/1.6)
 
+        
+        this.setBounce(.8);
+        this.allowGravity = false;
+        this.setScale(.15);
+
         // Spin tween
         this.scene.tweens.add({
             targets: this,

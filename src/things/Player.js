@@ -20,6 +20,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
 
         this.setupAnimation();
+        this.syncNetwork(x, y)
+
+        this.lastSentState = {};
 
         this.damageSound = this.scene.sound.add('playerHit');
 
@@ -260,7 +263,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             modify = Phaser.Math.Clamp(modify * (delta / 16.666), 0, 1);
             return Phaser.Math.Linear(this.body.velocity.x, a, modify);
         };
-        if ((isLeft || isRight)) this.syncNetwork();
+        if ((isLeft || isRight)) this.syncNetwork(this.x, this.y);
 
         if (isLeft && !isDown && !isChatting) {
             this.setVelocityX(WalkLerp(-this.speed));
@@ -291,10 +294,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
                 this.canSlide = false;
                 this.slideAnim = true;
-                this.scene.time.delayedCall(900, () => this.slideAnim = false);
+                this.slideAnimTimer = this.scene.time.delayedCall(900, () => this.slideAnim = false);
                 this.setVelocityX(speed);
-
-                this.network.socket.emit('playerSlideRequest');
             }
 
             if (isRight && this.body.blocked.down) {
@@ -306,6 +307,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 if (!this.slideAnim) this.play('dudecrouch', true);
                 this.flipX = true;
             } else {
+                this.scene.time.removeEvent(this.slideAnimTimer);
+                this.slideAnim = false;
                 this.setFrame(6);
                 crouchSpeed = 0;
             }
@@ -363,6 +366,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
         if (isUp && !isChatting) {
             this.healthTick += delta / 300;
+            this.isHealing = true;
             this.speed = 100;
             this.stop();
             this.setFrame(10)
@@ -375,23 +379,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 this.network.socket.emit('updateHealth', this.health, this.healthMax);
             }
         } else {
-
+            this.isHealing = false;
             this.speed = 250;
             this.body.setMaxVelocity(1000, 1000);
         }
 
-        const state = {
-            x: this.x,
-            y: this.y,
-            flipX: this.flipX,
-            frame: this.anims?.getFrameName?.(), // Optional: not always needed
-            anim: this.anims?.currentAnim?.key || null,
-            isCrouching: this.isCrouch,
-            isSliding: this.slideAnim,
-            isJumping: !this.body.blocked.down,
-            isHealing: isUp, // from input
-        };
 
+    this.syncGhost(delta);
 
     }
 
@@ -426,6 +420,42 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.jumpPower = this.baseJumpPower;
         this.canJump = true;
 
+    }
+
+    syncGhost(delta) {
+        if(!this.network?.socket) return;
+
+        this.statSyncTimer = (this.statSyncTimer || 0) + delta;
+
+        if (this.statSyncTimer < 15) return;
+
+        this.statSyncTimer = 0;
+
+        const state = {
+            x: this.x,
+            y: this.y,
+            f: this.flipX ? 1 : 0,
+            a: this.anims?.currentAnim?.key || '',
+            c: this.isCrouch ? 1 : 0,
+            j: !this.body.blocked.down ? 1 : 0,
+            s: this.slideAnim ? 1 : 0,
+            h: this.isHealing ? 1 : 0
+        };
+
+        if (!this.hasStateChanged(state, this.lastSentState)) return;
+
+        this.lastSentState = {...state};
+
+        this.network.socket.emit('playerStateRequest', state);
+    }
+
+    hasStateChanged(newState, oldState) {
+        for (let key in newState) {
+            if(newState[key] !== oldState[key]) {
+                return true;
+            }
+        }
+        return false;
     }
 
     TakeDamage(x, y, damage = 1, stunDuration = 300) {
@@ -550,7 +580,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     }
 
-    syncNetwork() {
+    syncNetwork(x, y) {
         if (this.tryingToSync) return;
         this.tryingToSync = true;
         setTimeout(() => this.tryingToSync = false, 500);
@@ -559,7 +589,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             this.network.socket.connect();
         }
 
-        this.network.socket.emit('playerSyncRequest', { x: this.x, y: this.y, data: { name: GameManager.name, power: GameManager.power } });
+        this.network.socket.emit('playerSyncRequest', { x: x, y: y, data: { 
+            name: GameManager.name, 
+            power: GameManager.power 
+            } });
 
     }
 

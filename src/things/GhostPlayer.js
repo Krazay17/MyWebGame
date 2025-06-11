@@ -268,9 +268,9 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
     //     shurikan.destroy();
     //   }
     // });
-    const shurikan = new ShurikanProjectile(this.scene, start.x, start.y, this.scene.player, 2, 1, 3);
-    shurikan.setVelocity(velocity.x, velocity.y);
-    shurikan.setAlpha(.5);
+    // const shurikan = new ShurikanProjectile(this.scene, start.x, start.y, this.scene.player, 2, 1, 3);
+    // shurikan.setVelocity(velocity.x, velocity.y);
+    // shurikan.setAlpha(.5);
   }
 
   makeChatBubble(message) {

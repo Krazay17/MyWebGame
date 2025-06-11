@@ -25,7 +25,9 @@ export default class Level1 extends BaseGame {
 
   create() {
     this.setupSave();
-    this.setupSky('redsky0', { x: 0, y: 0 }, 'redsky1', { x: 600, y: 400 }, 'redsky2', { x: 600, y: 400 });
+    this.setupSky({ sky1: 'redsky0', sky2: false, sky3: false });
+    this.sky2 = this.add.image(600, 400, 'redsky1').setScale(1).setScrollFactor(.3);
+    this.sky3 = this.add.image(600, 400, 'redsky2').setScale(1).setScrollFactor(.6);
     this.setupWorld();
     this.setupMusic('music');
     this.setupPlayer(-1100, 300);
@@ -48,13 +50,13 @@ export default class Level1 extends BaseGame {
     ];
 
     moveingPlatformPos.forEach(pos => this.walkableGroup.create(pos[0], pos[1], 'platform')
-  .setVelocityY(20));
+      .setVelocityY(20));
 
     this.time.addEvent({
       delay: Phaser.Math.Between(2000, 5000),
       callback: () => {
         if (this.itemGroup.countActive() < 9)
-        this.spawnManager.SpawnCoin(Phaser.Math.Between(-1100, 1100), 0);
+          this.spawnManager.SpawnCoin(Phaser.Math.Between(-1100, 1100), 0);
       },
       loop: true
     });
@@ -63,11 +65,7 @@ export default class Level1 extends BaseGame {
     this.spawnManager.spawnSunMans(2000, 400);
     this.time.addEvent({
       delay: Phaser.Math.Between(2000, 10000),
-      callback: () => {
-        if (this.softEnemyGroup.countActive() < 4)
-          this.spawnManager.spawnSunMans(1900, 0)
-      },
-      loop: true
+      loop: true,
     });
 
     this.spawnManager.spawnBullets(1900, 50, 8);

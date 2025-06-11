@@ -224,6 +224,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
         if (this.body.blocked.left) {
             this.resetJump();
+            if (this.dashTween) {
+                this.dashTween.stop();
+                this.isDashing = false;
+            }
             this.wallJump = true;
             this.wallJumpX = 400;
         }
@@ -231,6 +235,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             this.resetJump();
             this.wallJump = true;
             this.wallJumpX = -400;
+            if (this.dashTween) {
+                this.dashTween.stop();
+                this.isDashing = false;
+            }
         }
     }
 
@@ -267,6 +275,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             };
             if ((isLeft || isRight)) this.syncNetwork(this.x, this.y);
 
+            if (this.isDashing) return;
             if (isLeft && !isDown && !isChatting) {
                 this.setVelocityX(WalkLerp(-this.speed));
                 this.flipX = true;
@@ -323,7 +332,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 this.setVelocityX(WalkLerp(crouchSpeed, .025));
             } else {
                 // not moving or crouching
-                    this.slideAnim = false;
+                this.slideAnim = false;
                 this.setVelocityX(WalkLerp(0));
                 if (this.body.blocked.down) this.setFrame(0);
                 else this.setFrame(2);
@@ -390,6 +399,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
 
         this.syncGhost(delta);
+
+    }
+
+    animChooser() {
 
     }
 
@@ -525,11 +538,14 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.iFrame = true;
         this.canDash = false;
         this.canResetDash = false;
+        this.isDashing = true;
+        this.stop();
+        this.setFrame(11);
 
         //this.setVelocityX(x);
         let vel = { x: x }; // start at high speed
 
-        this.scene.add.tween({
+        this.dashTween = this.scene.add.tween({
             targets: vel,
             x: x / 3,           // lower target speed
             duration: 200,
@@ -537,6 +553,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             onUpdate: () => {
                 this.body.setVelocity(vel.x, 0); // apply it each frame
             },
+            onComplete: () => {
+                this.isDashing = false;
+            }
         });
 
         this.clearTint();

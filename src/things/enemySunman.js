@@ -11,7 +11,7 @@ export default class SunMan extends BaseEnemy {
         this.setCollideWorldBounds(true);
 
         this.maxaccell = 400;
-        this.damage = 3;
+        this.damage = 4;
 
         if (!scene.anims.get('sunsheet')) {
             scene.anims.create({

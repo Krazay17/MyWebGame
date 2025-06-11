@@ -95,7 +95,7 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
 
   setGhostState(state) {
     if (!this.sprite) return;
-    const { x, y, f, a, c, j, s, h, d } = state;
+    const { x, y, f, a, c, j, s, h, t, d } = state;
     if (this.prevX === undefined) {
       this.prevX = x;
       this.prevY = y;
@@ -118,8 +118,12 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
     // this.y = y;
     this.sprite.flipX = f;
 
-
     if (d) {
+      this.sprite.stop();
+      this.sprite.setFrame(11);
+      return;
+    }
+    if (t) {
       this.sprite.setTint('0xFF0000');
       this.sprite.stop();
       this.sprite.setFrame(6);

@@ -256,7 +256,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     handleInput(delta) {
-        if (!this.stunned && this.alive) {
+        if (!this.stunned && this.alive && !this.isDashing) {
 
             const { left, right, down, up, jump, dash } = this.controls;
 
@@ -275,7 +275,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             };
             if ((isLeft || isRight)) this.syncNetwork(this.x, this.y);
 
-            if (this.isDashing) return;
             if (isLeft && !isDown && !isChatting) {
                 this.setVelocityX(WalkLerp(-this.speed));
                 this.flipX = true;
@@ -403,7 +402,63 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     animChooser() {
+                const state = {
+            x: this.x,
+            y: this.y,
+            f: this.flipX ? 1 : 0,
+            a: this.anims?.currentAnim?.key || '',
+            c: this.isCrouch ? 1 : 0,
+            j: !this.body.blocked.down ? 1 : 0,
+            s: this.slideAnim ? 1 : 0,
+            h: this.isHealing ? 1 : 0,
+            t: this.stunned ? 1 : 0,
+            d: this.isDashing ? 1 : 0,
 
+        };
+        
+        if (d) {
+            this.sprite.stop();
+            this.sprite.setFrame(11);
+            return;
+        }
+        if (t) {
+            this.sprite.setTint('0xFF0000');
+            this.sprite.stop();
+            this.sprite.setFrame(6);
+            return;
+        } else {
+            this.sprite.setTint(this.baseTint);
+        }
+        if (s && !j) {
+            this.sprite.stop();
+            this.sprite.setFrame(9); // Slide frame
+            return;
+        }
+
+        if (c) {
+            this.sprite.stop();
+            this.sprite.setFrame(6);
+            return;
+        }
+
+        if (h) {
+            this.sprite.stop();
+            this.sprite.setFrame(10); // Heal frame
+            return;
+        }
+
+        if (j) {
+            this.sprite.stop();
+            this.sprite.setFrame(5); // Jump frame
+            return;
+        }
+
+        if ((this.xv > 0) || this.xv < 0) {
+            this.sprite.play('dudewalk', true);
+        } else {
+            this.sprite.stop();
+            this.sprite.setFrame(0);
+        }
     }
 
     lerpHitBox(delta) {
@@ -457,7 +512,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             j: !this.body.blocked.down ? 1 : 0,
             s: this.slideAnim ? 1 : 0,
             h: this.isHealing ? 1 : 0,
-            d: this.stunned ? 1 : 0,
+            t: this.stunned ? 1 : 0,
+            d: this.isDashing ? 1 : 0,
+
         };
 
         if (!this.hasStateChanged(state, this.lastSentState)) return;

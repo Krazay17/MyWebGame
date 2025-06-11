@@ -15,7 +15,7 @@ export default class WeaponProjectile extends Phaser.Physics.Arcade.Sprite {
         this.baseDamage = 1;
         this.hitTargets = [];
         this.destroyOnHit = true;
-        this.damageScale = weapon?.damageScaling()?? 1;
+        this.damageScale = weapon.damageScaling?.() || 1;
 
     }
 

@@ -38,7 +38,7 @@ export default class Level1 extends BaseGame {
 
 
     // this.physics.add.collider(this.player, this.turrets, (player, turret) => {
-    //   this.player.TouchPlatform()
+    //   this.player.touchWall()
     // }, null, this);
 
     // Spawns
@@ -54,10 +54,7 @@ export default class Level1 extends BaseGame {
 
     this.time.addEvent({
       delay: Phaser.Math.Between(2000, 5000),
-      callback: () => {
-        if (this.itemGroup.countActive() < 9)
-          this.spawnManager.SpawnCoin(Phaser.Math.Between(-1100, 1100), 0);
-      },
+      callback: () => this.spawnManager.SpawnCoin(Phaser.Math.Between(-1100, 1100), 0),
       loop: true
     });
 

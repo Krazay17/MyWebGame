@@ -26,8 +26,8 @@ export default class Level3 extends BaseGame {
         this.sky2 = this.add.image(1000, 900, 'purplesky1').setScale(1.1).setScrollFactor(.15);
         this.sky3 = this.add.image(1200, 600, 'skybluestreaks').setScale(.8).setScrollFactor(.3);
         this.setupWorld(0, 0, 6400, 6400)
-        this.setupGroups();
         this.setupPlayer(3200, 6200);
+        this.setupGroups();
         this.setupTileMap('tilemap2');
         this.setupCollisions();
         this.setupMusic('music2');

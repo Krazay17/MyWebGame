@@ -38,13 +38,14 @@ export default class WeaponShurikan extends WeaponBase {
 
         const { start, vector, direction } = this.calculateShot(pointer, 1000);
 
-        const projectile = new ShurikanProjectile(this.scene, start.x, start.y, this.player, this.chainCount, this.baseDamage, this.initialTargets);
+        const projectile = new ShurikanProjectile(this.scene, start.x, start.y, this.player,
+            this,
+            this.chainCount, 
+            this.baseDamage,
+            this.initialTargets, 
+            this.damageScaling()
+        );
         projectile.setVelocity(vector.x, vector.y);
-
-        // projectile.setBounce(.8);
-        // projectile.allowGravity = false;
-        // projectile.setScale(.15);
-        // projectile.setVelocity(vector.x, vector.y);
 
         this.player.network.socket.emit('shurikanthrow', { start, direction })
 

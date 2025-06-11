@@ -2,9 +2,10 @@ import { playHitSound } from "../things/soundUtils.js";
 import WeaponProjectile from "./_baseWeaponProjectile.js";
 
 export default class ShurikanProjectile extends WeaponProjectile {
-    constructor(scene, x, y, player, chainCount = 0, damage = 1, maxTargets = 1) {
-        super(scene, x, y, 'shurikan', player, damage);
+    constructor(scene, x, y, player, weapon, chainCount = 0, initialDamage = 1, maxTargets = 1) {
+        super(scene, x, y, 'shurikan', player, weapon);
 
+        this.baseDamage = initialDamage;
         this.maxTargets = maxTargets;
         this.chainCount = chainCount;
         this.destroyOnHit = false;
@@ -34,8 +35,9 @@ export default class ShurikanProjectile extends WeaponProjectile {
 
         const velocity = this.body.velocity;
 
-        if (enemy.TakeDamage(this.player, this.baseDamage, stagger? velocity : null)) {
+        if (enemy.TakeDamage(this.player, this.damage(), stagger? velocity : null)) {
             playHitSound(this.scene, this.hitSoundId)
+            console.log(this.damage());
         }
 
         if ((this.chainCount > 0)) {
@@ -69,7 +71,7 @@ export default class ShurikanProjectile extends WeaponProjectile {
         super.itemHit(item);
     }
 
-    TouchPlatform() {
+    touchWall() {
         this.customBounce();
     }
 
@@ -107,7 +109,7 @@ export default class ShurikanProjectile extends WeaponProjectile {
         for (let i = 0; i < Math.min(validTargets.length, this.maxTargets); i++) {
             const { target, handler, pos } = validTargets[i];
             this.chainCount--;
-            const chainShurikan = new ShurikanProjectile(this.scene, thisPos.x, thisPos.y, this.player, this.chainCount)
+            const chainShurikan = new ShurikanProjectile(this.scene, thisPos.x, thisPos.y, this.player, this.weapon, this.chainCount, 1, 1, this.damageScale)
             chainShurikan.hitTargets.push(enemy);
             this.scene.weaponGroup.add(chainShurikan);
             const direction = pos.subtract(thisPos).normalize().scale(1000);

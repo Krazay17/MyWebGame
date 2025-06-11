@@ -5,7 +5,7 @@ export default class Bullet extends Phaser.Physics.Arcade.Sprite {
         scene.physics.add.existing(this);
     }
 
-    playerHit(player, bullet) {
+    playerCollide(bullet, player) {
         if (player.TakeDamage(-500, -150))
             bullet.destroy();
     }

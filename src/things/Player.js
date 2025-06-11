@@ -216,7 +216,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
 
-    TouchPlatform(player, platform) {
+    touchWall(player, platform) {
         if (this.body.blocked.down) {
             this.resetJump();
             this.resetDash();
@@ -275,50 +275,54 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             };
             if ((isLeft || isRight)) this.syncNetwork(this.x, this.y);
 
-            if (isLeft && !isDown && !isChatting) {
+            if (isLeft && !this.isCrouch && !isChatting) {
                 this.setVelocityX(WalkLerp(-this.speed));
                 this.flipX = true;
                 if (this.body.blocked.down) {
+                    this.isWalking = true;
                     this.play('dudewalk', true);
                 } else {
+                    this.isWalking = false;
                     this.setFrame(5);
                 }
                 if (dash.isDown && this.canDash) {
                     this.Dash(-this.dashSpeed);
                 }
-            } else if (isRight && !isDown && !isChatting) {
+            } else if (isRight && !this.isCrouch && !isChatting) {
                 this.setVelocityX(WalkLerp(this.speed));
                 this.flipX = false;
                 if (this.body.blocked.down) {
+                    this.isWalking = true;
                     this.play('dudewalk', true);
                 } else {
+                    this.isWalking = false;
                     this.setFrame(5);
                 }
                 if (dash.isDown && this.canDash) {
                     this.Dash(this.dashSpeed);
                 }
-            } else if (isDown && !isChatting) {
+            } else if (this.isCrouch && !isChatting) {
                 var crouchSpeed;
 
                 const slideBoost = (speed) => {
 
                     this.canSlide = false;
-                    this.slideAnim = true;
-                    this.slideAnimTimer = this.scene.time.delayedCall(900, () => this.slideAnim = false);
+                    this.isSliding = true;
+                    this.isSlidingTimer = this.scene.time.delayedCall(900, () => this.isSliding = false);
                     this.setVelocityX(speed);
                 }
 
                 if (isRight && this.body.blocked.down) {
                     crouchSpeed = this.speed * .30;
-                    if (!this.slideAnim) this.play('dudecrouch', true);
+                    if (!this.isSliding) this.play('dudecrouch', true);
                     this.flipX = false;
                 } else if (isLeft && this.body.blocked.down) {
                     crouchSpeed = -this.speed * .30;
-                    if (!this.slideAnim) this.play('dudecrouch', true);
+                    if (!this.isSliding) this.play('dudecrouch', true);
                     this.flipX = true;
                 } else {
-                    this.scene.time.removeEvent(this.slideAnimTimer);
-                    this.slideAnim = false;
+                    this.scene.time.removeEvent(this.isSlidingTimer);
+                    this.isSliding = false;
                     this.setFrame(6);
                     crouchSpeed = 0;
                 }
@@ -331,13 +335,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 this.setVelocityX(WalkLerp(crouchSpeed, .025));
             } else {
                 // not moving or crouching
-                this.slideAnim = false;
+                this.isSliding = false;
                 this.setVelocityX(WalkLerp(0));
                 if (this.body.blocked.down) this.setFrame(0);
                 else this.setFrame(2);
             }
 
-            if (!isDown && !this.canSlide) {
+            if (!this.isCrouch && !this.canSlide) {
                 if (this.crouchCD < 1000) {
                     this.crouchCD += delta;
                 } else {
@@ -370,7 +374,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 this.setOffset(70, 70);
                 this.scene.physics.world.collide(this, this.scene.walkableGroup);
             } else if (!isDown && this.isCrouch) {
-                this.isCrouch = false;
+                this.tryUncrouch();
             } else if (!isDown && !this.isCrouch && (this.lerpHitBox(delta) === false)) {
                 this.lerpHitBox(delta)
             }
@@ -402,20 +406,21 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     animChooser() {
-                const state = {
+        const state = {
             x: this.x,
             y: this.y,
             f: this.flipX ? 1 : 0,
             a: this.anims?.currentAnim?.key || '',
             c: this.isCrouch ? 1 : 0,
             j: !this.body.blocked.down ? 1 : 0,
-            s: this.slideAnim ? 1 : 0,
+            s: this.isSliding ? 1 : 0,
             h: this.isHealing ? 1 : 0,
             t: this.stunned ? 1 : 0,
             d: this.isDashing ? 1 : 0,
+            w: this.isWalking ? 1 : 0,
 
         };
-        
+
         if (d) {
             this.sprite.stop();
             this.sprite.setFrame(11);
@@ -453,7 +458,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             return;
         }
 
-        if ((this.xv > 0) || this.xv < 0) {
+        if (w) {
             this.sprite.play('dudewalk', true);
         } else {
             this.sprite.stop();
@@ -510,7 +515,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             a: this.anims?.currentAnim?.key || '',
             c: this.isCrouch ? 1 : 0,
             j: !this.body.blocked.down ? 1 : 0,
-            s: this.slideAnim ? 1 : 0,
+            s: this.isSliding ? 1 : 0,
             h: this.isHealing ? 1 : 0,
             t: this.stunned ? 1 : 0,
             d: this.isDashing ? 1 : 0,
@@ -745,5 +750,31 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 }
             },
         })
+    }
+
+tryUncrouch() {
+  const body = this.body;
+  const buffer = 12; // extra safety padding
+
+  // Coordinates at top-left and top-right just above the player
+  const leftX = body.x + buffer;
+  const rightX = body.right - buffer;
+  const checkY = body.y - 25; // just above the head
+
+  const tileLeft = this.scene.walls?.hasTileAtWorldXY(leftX, checkY);
+  const tileRight = this.scene.walls?.hasTileAtWorldXY(rightX, checkY);
+
+  if (!tileLeft && !tileRight) {
+    this.uncrouch(); // safe to stand
+  } else {
+    // blocked, do nothing or stay crouched
+  }
+}
+
+
+    uncrouch() {
+        this.isCrouch = false;
+        console.log('uncrouch')
+
     }
 }

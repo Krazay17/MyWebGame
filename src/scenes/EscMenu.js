@@ -28,6 +28,7 @@ export default class EscMenu extends Phaser.Scene {
             .on('pointerdown', () => {
                 this.scene.stop(this.gameScene);
                 this.scene.start('Home');
+                GameManager.power.money = 0;
             });
         const resetText = this.add.text(0, 0, 'RESET', {
             font: '32px',

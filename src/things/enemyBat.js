@@ -8,6 +8,8 @@ export default class Bat extends BaseEnemy {
         this.maxHealth = 2;
         this.health = 2;
         this.flying = true;
+        
+        this.body.setBounce(1);
 
         this.accelToPlayer(100, 600);
 

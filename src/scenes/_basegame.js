@@ -74,7 +74,7 @@ export default class BaseGame extends Phaser.Scene {
     this.network.refreshScene(this);
   }
 
-  setupSky({sky1 = 'purplesky0', sky2 = true, sky3 = true} = {}) {
+  setupSky({ sky1 = 'purplesky0', sky2 = true, sky3 = true } = {}) {
     this.sky1 = this.add.image(this.scale.width / 2, this.scale.height / 2, sky1)
       .setOrigin(.5).setDisplaySize(this.scale.width, this.scale.height).setScrollFactor(0);
 
@@ -137,7 +137,7 @@ export default class BaseGame extends Phaser.Scene {
     this.walls.setCollisionByExclusion([-1]); // excludes only empty tiles
     walls2.setCollisionByExclusion([-1]); // excludes only empty tiles
     this.tilemapColliders = [
-      { walls: this.walls, handler: 'TouchPlatform' },
+      { walls: this.walls, handler: 'touchWall' },
       { walls: walls2, handler: 'touchFireWall' },
     ];
 
@@ -149,34 +149,61 @@ export default class BaseGame extends Phaser.Scene {
 
   setupGroups() {
     this.weaponGroup = new WeaponGroup(this, this.player);
+    this.spawnManager.setupGroups();
+    this.walkableGroup = this.physics.add.group({ allowGravity: false, immovable: true });
+
+    const spawnGroups = this.spawnManager.getGroups();
 
     this.attackableGroups = [
-      { group: this.walkableGroup = this.physics.add.group({ allowGravity: false, immovable: true }), handler: 'platformHit', zap: false },
-      { group: this.enemyGroup = this.physics.add.group(), handler: 'enemyHit', zap: true },
-      // { group: this.flyingEnemyGroup = this.physics.add.group({ allowGravity: false }), handler: 'enemyHit' },
-      { group: this.sunmanGroup = this.physics.add.group({ classType: Duck, runChildUpdate: true, allowGravity: false }), handler: 'enemyHit', zap: true },
-      { group: this.staticEnemyGroup = this.physics.add.group({ allowGravity: false, immovable: true }), handler: 'enemyHit', zap: true },
-      { group: this.bulletGroup = this.physics.add.group({ allowGravity: false }), handler: 'bulletHit', zap: true },
-      { group: this.softBulletGroup = this.physics.add.group({ allowGravity: false }), handler: 'bulletHit', zap: true },
-      { group: this.itemGroup = this.physics.add.group(), handler: 'itemHit', zap: false },
-      { group: this.staticItemGroup = this.physics.add.group({ allowGravity: false, immovable: true }), handler: 'itemHit', zap: false }
-    ];
+      { group: this.walkableGroup, handler: 'platformHit', zap: false },
+      ...spawnGroups,
+    ]
+
+    this.walkingGroups = [
+      { group: this.player },
+      ...spawnGroups.filter(({ walls }) => walls ?? true),
+    ]
+    console.log(this.walkingGroups)
+
+    // this.attackableGroups = [
+    //   { group: this.walkableGroup = this.physics.add.group({ allowGravity: false, immovable: true }), handler: 'platformHit', zap: false },
+    //   { group: this.enemyGroup = this.physics.add.group(), handler: 'enemyHit', zap: true },
+    //   // { group: this.flyingEnemyGroup = this.physics.add.group({ allowGravity: false }), handler: 'enemyHit' },
+    //   { group: this.sunmanGroup = this.physics.add.group({ classType: Duck, runChildUpdate: true, allowGravity: false }), handler: 'enemyHit', zap: true },
+    //   { group: this.staticEnemyGroup = this.physics.add.group({ allowGravity: false, immovable: true }), handler: 'enemyHit', zap: true },
+    //   { group: this.bulletGroup = this.physics.add.group({ allowGravity: false }), handler: 'bulletHit', zap: true },
+    //   { group: this.softBulletGroup = this.physics.add.group({ allowGravity: false }), handler: 'bulletHit', zap: true },
+    //   { group: this.itemGroup = this.physics.add.group(), handler: 'itemHit', zap: false },
+    //   { group: this.staticItemGroup = this.physics.add.group({ allowGravity: false, immovable: true }), handler: 'itemHit', zap: false }
+    // ];
   }
 
   setupCollisions() {
+    const spawnGroups = this.spawnManager.getGroups();
+
     this.attackableGroups.forEach(({ group, handler }) =>
-      this.physics.add.overlap(
-        this.weaponGroup,
-        group,
-        (weapon, target) => weapon[handler]?.(target),
+      this.physics.add.overlap(group, this.weaponGroup, (target, weapon) => {
+        weapon[handler]?.(target);
+      },
         null,
         this
       ));
 
-    // Explicitly add wall collisions
+    spawnGroups.forEach(({ group }) =>
+      this.physics.add.overlap(this.player, group, (player, entity) => {
+        entity.playerCollide?.(entity, player);
+      }, null, this));
+
+
+    this.walkingGroups.forEach(({ group }) =>
+      this.physics.add.collider(group, this.walkableGroup, (entity, wall) => {
+        entity.touchWall?.(wall);
+      }, null, this));
+
+    // TileMap wall collisions
     if (this.tilemapColliders?.length) {
       this.tilemapColliders.forEach(({ walls, handler }) => {
-        this.physics.add.collider(this.weaponGroup, walls, null, (weapon, wall) => {
+        this.physics.add.collider(walls, this.weaponGroup, null, (wall, weapon) => {
           weapon[handler]?.(wall);
 
           if (weapon.ignoreWall) {
@@ -185,54 +212,53 @@ export default class BaseGame extends Phaser.Scene {
           return true;
         }, this);
 
-        this.physics.add.collider(this.player, walls, (player, wall) => {
-          player[handler]?.(wall);
-        }, null, this);
-        this.physics.add.collider(this.enemyGroup, walls);
-        this.physics.add.collider(this.itemGroup, walls);
+        this.walkingGroups.forEach(({ group }) =>
+          this.physics.add.collider(group, walls, (entity, wall) => {
+            entity[handler]?.(wall);
+          }, null, this));
       });
     }
 
-    this.walkableCollider = this.physics.add.collider(this.player, this.walkableGroup, (player, walkable) => {
-      player.TouchPlatform(walkable);
-    }, null, this);
+    // this.walkableCollider = this.physics.add.collider(this.player, this.walkableGroup, (player, walkable) => {
+    //   player.touchWall(walkable);
+    // }, null, this);
 
-    this.physics.add.collider(this.player, this.staticEnemyGroup, (player, walkable) => {
-      player.TouchPlatform(walkable);
-    }, null, this);
+    // this.physics.add.collider(this.player, this.staticEnemyGroup, (player, walkable) => {
+    //   player.touchWall(walkable);
+    // }, null, this);
 
-    this.physics.add.overlap(this.player, this.enemyGroup, (player, enemy) => {
-      enemy.playerCollide(player, enemy);
-    }, null, this);
+    // this.physics.add.overlap(this.player, this.enemyGroup, (player, enemy) => {
+    //   enemy.playerCollide(player, enemy);
+    // }, null, this);
 
-    this.physics.add.overlap(this.player, this.flyingEnemyGroup, (player, enemy) => {
-      enemy.playerCollide(player, enemy);
-    }, null, this);
+    // this.physics.add.overlap(this.player, this.flyingEnemyGroup, (player, enemy) => {
+    //   enemy.playerCollide(player, enemy);
+    // }, null, this);
 
 
-    this.physics.add.overlap(this.player, this.softBulletGroup, (player, bullet) => {
-      bullet.playerHit(player, bullet);
-    }, null, this);
+    // this.physics.add.overlap(this.player, this.softBulletGroup, (player, bullet) => {
+    //   bullet.playerHit(player, bullet);
+    // }, null, this);
 
-    this.physics.add.overlap(this.player, this.sunmanGroup, (player, enemy) => {
-      enemy.playerCollide(player, enemy);
-    }, null, this);
+    // this.physics.add.overlap(this.player, this.sunmanGroup, (player, enemy) => {
+    //   enemy.playerCollide(player, enemy);
+    // }, null, this);
 
-    this.physics.add.overlap(this.player, this.itemGroup, (player, pickup) => {
-      pickup.pickup?.(player, pickup);
-    }, null, this);
+    // this.physics.add.overlap(this.player, this.itemGroup, (player, pickup) => {
+    //   pickup.pickup?.(player, pickup);
+    // }, null, this);
 
-    this.physics.add.collider(this.player, this.staticItemGroup, (player, walkable) => {
-      player.TouchPlatform(walkable);
-    }, null, this);
+    // this.physics.add.collider(this.player, this.staticItemGroup, (player, walkable) => {
+    //   player.touchWall(walkable);
+    // }, null, this);
 
-    this.physics.add.collider(this.weaponGroup, this.staticItemGroup);
-    this.physics.add.collider(this.weaponGroup, this.walkableGroup);
-    this.physics.add.collider(this.itemGroup, this.walkableGroup);
-    this.physics.add.collider(this.enemyGroup, this.walkableGroup);
-    this.physics.add.collider(this.enemyGroup, this.enemyGroup);
-    this.physics.add.collider(this.sunmanGroup, this.sunmanGroup, (enemy1, enemy2) => {
-    }, null, this);
+    // this.physics.add.collider(this.weaponGroup, this.staticItemGroup);
+    // this.physics.add.collider(this.weaponGroup, this.walkableGroup);
+    // this.physics.add.collider(this.itemGroup, this.walkableGroup);
+    // this.physics.add.collider(this.enemyGroup, this.walkableGroup);
+    // this.physics.add.collider(this.enemyGroup, this.enemyGroup);
+    // this.physics.add.collider(this.sunmanGroup, this.sunmanGroup, (enemy1, enemy2) => {
+    // }, null, this);
   }
 
   setupMusic(key = 'music1', volume = 1) {

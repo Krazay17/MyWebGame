@@ -102,7 +102,7 @@ export default class WeaponSword extends WeaponBase {
 
     fireWave({end, direction}, angleDeg) {
         const speed = direction.clone().scale(400);
-        this.wave = new SwordWave( this.scene, end.x, end.y, this.player );
+        this.wave = new SwordWave( this.scene, end.x, end.y, this.player, this );
         this.wave.setAngle(angleDeg);
         this.wave.setFlipY( angleDeg > 90 || angleDeg < -90 );
         this.wave.setVelocity(speed.x, speed.y)

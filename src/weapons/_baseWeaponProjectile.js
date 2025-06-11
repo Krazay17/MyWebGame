@@ -1,20 +1,27 @@
 import { playHitSound } from "../things/soundUtils.js";
 
 export default class WeaponProjectile extends Phaser.Physics.Arcade.Sprite {
-    constructor(scene, x, y, id = 'shurikan', player, damage = 1) {
+    constructor(scene, x, y, id = 'shurikan', player, weapon) {
         super(scene, x, y, id);
         this.scene = scene;
         this.player = player;
+        this.weapon = weapon;
 
         scene.add.existing(this);
         scene.physics.add.existing(this);
         this.scene.weaponGroup.add(this);
 
         this.hitSoundId = 'shurikanhit';
-        this.baseDamage = damage;
+        this.baseDamage = 1;
         this.hitTargets = [];
         this.destroyOnHit = true;
+        this.damageScale = weapon.damageScaling();
 
+    }
+
+    damage() {
+        const scale = this.damageScale ?? 1;
+        return this.baseDamage * scale;
     }
 
     bulletHit(bullet) {
@@ -27,14 +34,14 @@ export default class WeaponProjectile extends Phaser.Physics.Arcade.Sprite {
         if (this.destroyOnHit) this.destroy();
     }
 
-    TouchPlatform() { }
+    touchWall() { }
 
     enemyHit(enemy, stagger = true) {
         if (!this.canHit(enemy)) return;
 
         const velocity = this.body.velocity;
 
-        if (enemy.TakeDamage(this.player, this.baseDamage, stagger ? velocity : null)) {
+        if (enemy.TakeDamage(this.player, this.damage(), stagger ? velocity : null)) {
             playHitSound(this.scene, this.hitSoundId);
             return;
         }

@@ -1,3 +1,4 @@
+import GameManager from "../things/GameManager.js";
 import { playHitSound } from "../things/soundUtils.js";
 
 export default class WeaponBase {
@@ -27,7 +28,24 @@ export default class WeaponBase {
     }
 
     damage() {
-        return this.baseDamage;
+        return this.baseDamage * this.damageScaling();
+    }
+
+    damageScaling() {
+        const money = GameManager.power.money;
+        if(!money) return 1;
+
+        if (money < 1000) {
+            return 1;
+        } else if (money < 5000) {
+            return 1 + money /5000;
+        } else if (money < 15000) {
+            return 2 + money /15000;
+        } else if (money < 100000){
+            return 3 + money /100000;
+        } else {
+            return 5;
+        }
     }
 
     update(delta) {
@@ -45,7 +63,7 @@ export default class WeaponBase {
         }
     }
 
-    setStats() {}
+    setStats() { }
 
     canFire() {
         return !this.cooldown;
@@ -69,7 +87,7 @@ export default class WeaponBase {
         // any other cleanup here
     }
 
-    onBlur() {}
+    onBlur() { }
 
     calculateShot(pointer, scale = 1, rayThickness = 26) {
         const headOffset = 10;

@@ -7,6 +7,8 @@ export default class Duck extends BaseEnemy
         super(scene, x, y, id);
         this.maxHealth = health;
         this.health = health;
+        
+        this.body.setBounce(.7);
 
     }
 
@@ -16,7 +18,7 @@ export default class Duck extends BaseEnemy
         this.chasePlayer(time);
     }
 
-    playerCollide(player, enemy) {
+    playerCollide(enemy, player) {
         const direction = new Phaser.Math.Vector2(player.x - enemy.x, player.y - enemy.y);
         const knockback = direction.normalize().scale(600);
         

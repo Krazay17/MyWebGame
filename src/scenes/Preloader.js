@@ -7,7 +7,7 @@ export default class Preloader extends Phaser.Scene {
 
     preload() {
         this.loadingBar();
-        
+
         this.load.image('purplesky0', 'assets/PurpleSky0.webp');
         this.load.image('tilesheet', 'assets/tilesheet.png')
         this.load.image('bullet', 'assets/bullet.png');
@@ -17,14 +17,8 @@ export default class Preloader extends Phaser.Scene {
         this.load.image('purplesky1', 'assets/PurpleSky1.webp');
         this.load.image('purplesky2', 'assets/PurpleSky2.webp');
         this.load.image('skybluestreaks', 'assets/SkyBlueStreaks.webp');
-        this.load.audio('playerHit', 'assets/PlayerGotHit.wav');
-        this.load.audio('shurikanthrow', 'assets/Whip1.wav');
-        this.load.audio('shurikanhit', 'assets/shurikan.wav');
-        this.load.audio('pickup', 'assets/SuccessBeep.wav');
-        this.load.audio('music1', 'assets/music1.mp3');
         this.load.image('shurikan', 'assets/shurikan.png');
         this.load.image('shurikanicon', 'assets/shurikan.png');
-        this.load.audio('energysound', 'assets/EnergySound.wav');
         this.load.image('coin', 'assets/SourceCoin.png');
         this.load.image('platform', 'assets/platform.png');
         this.load.image('platformwide', 'assets/platformwide.png');
@@ -36,6 +30,14 @@ export default class Preloader extends Phaser.Scene {
         this.load.image('auraicon', 'assets/AuraIcon.png');
         this.load.image('auraicondesat', 'assets/AuraIconDesat.png');
         this.load.image('bottomplat', 'assets/BottomPlat.png');
+
+        this.load.audio('music1', 'assets/music1.mp3');
+        this.load.audio('energysound', 'assets/EnergySound.wav');
+        this.load.audio('playerHit', 'assets/PlayerGotHit.wav');
+        this.load.audio('shurikanthrow', 'assets/Whip1.wav');
+        this.load.audio('shurikanhit', 'assets/shurikan.wav');
+        this.load.audio('pickup', 'assets/SuccessBeep.wav');
+
         this.load.spritesheet('dudesheet', 'assets/DudeSheet.png', {
             frameWidth: 256,
             frameHeight: 256,

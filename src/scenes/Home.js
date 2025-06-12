@@ -12,6 +12,10 @@ export default class Home extends BaseGame {
         this.load.image('portal0', 'assets/Portal1.png');
         this.load.image('portal1', 'assets/Portal2.png');
         this.load.image('largeplatform', 'assets/LargePlatform.webp');
+        this.load.spritesheet('portal3', 'assets/greenPortal.png', {
+            frameWidth: 1024,
+            frameHeight: 1024,
+        })
     }
 
     create() {
@@ -47,7 +51,6 @@ export default class Home extends BaseGame {
     }
 
     setupPortals() {
-        this.portalList = [];
 
         this.portals = this.physics.add.staticGroup();
 
@@ -55,11 +58,21 @@ export default class Home extends BaseGame {
         const portal02 = this.add.image(800, 400, 'portal0');
         portal02.flipX = true;
         const portal1 = this.portals.create(-800, 400, 'portal1');
-        const portal2 = this.portals.create(-600, 900, 'door0').setScale(.3);
+        const portal2 = this.portals.create(-700, 800, 'door0').setScale(.3);
+
+        this.anims.create({
+            key: 'portal3',
+            frameRate: 6,
+            frames: this.anims.generateFrameNumbers('portal3', {start: 0, end: 5}),
+            repeat: -1,
+        });
+
+        const portal3 = this.portals.create(700, 800, 'portal3').setScale(.2).play('portal3');
 
         this.shrinkCollision(portal0, 150, 150);
         this.shrinkCollision(portal1, 150, 150);
         this.shrinkCollision(portal2, 150, 150);
+        this.shrinkCollision(portal3, 150, 150);
 
         const portalsToSpin = [
             { sprite: portal0, angle: -360, duration: 1500 },
@@ -93,8 +106,7 @@ export default class Home extends BaseGame {
         portal0.targetScene = 'Level1';
         portal1.targetScene = 'Level3';
         portal2.targetScene = 'level2';
-
-        this.portalList.push(portal0, portal1);
+        portal3.targetScene = 'level4';
 
         this.physics.add.overlap(this.player, this.portals, (player, portal) => {
             if (portal.targetScene && this.scene.key !== portal.targetScene) {

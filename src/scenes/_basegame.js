@@ -28,7 +28,7 @@ export default class BaseGame extends Phaser.Scene {
     // }
   }
 
-  setupWorld(xleft = -1600, ytop = 0, width = 3200, height = 900) {
+  setupWorld(xleft = -1600, ytop = 0, width = 6400, height = 6400) {
     this.physics.world.setBounds(xleft, ytop, width, height);
     this.bounds = this.physics.world.bounds;
     this.cameras.main.setBounds(xleft, ytop, width, height);
@@ -123,6 +123,10 @@ export default class BaseGame extends Phaser.Scene {
       this.escMenu = this.scene.get('EscMenu');
       this.escMenu.init({ gameScene: this, playerUI: this.playerUI })
     }
+  }
+
+  spawnPlayer(x, y) {
+    this.player.setPosition(x, y);
   }
 
 
@@ -288,6 +292,7 @@ export default class BaseGame extends Phaser.Scene {
     this.setupSky();
     this.setupSave();
     this.setupWorld();
+    this.setupTileMap()
     this.setupPlayer(x, y);
     this.setupGroups();
     this.setupCollisions();

@@ -229,12 +229,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 this.isDashing = false;
             }
             this.wallJump = true;
-            this.wallJumpX = 400;
+            this.wallJumpX = 550;
         }
         if (this.body.blocked.right) {
             this.resetJump();
             this.wallJump = true;
-            this.wallJumpX = -400;
+            this.wallJumpX = -550;
             if (this.dashTween) {
                 this.dashTween.stop();
                 this.isDashing = false;

@@ -7,14 +7,14 @@ export default class level2 extends BaseGame {
 
     preload() {
         super.preload();
-        this.load.tilemapTiledJSON('tilemap1', 'assets/tilemap1.json')
+        this.load.tilemapTiledJSON('tilemap1', 'assets/tilemap3.json')
     }
 
     create() {
         this.setupSky();
         this.setupSave();
         this.setupWorld(0, 0, 6400, 6400);
-        this.setupPlayer(1030, 573);
+        this.setupPlayer();
         this.setupGroups();
         this.setupTileMap();
         this.setupCollisions();

@@ -228,17 +228,19 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 this.dashTween.stop();
                 this.isDashing = false;
             }
+            
             this.wallJump = true;
-            this.wallJumpX = 550;
+            this.wallJumpX = 400;
         }
         if (this.body.blocked.right) {
             this.resetJump();
-            this.wallJump = true;
-            this.wallJumpX = -550;
             if (this.dashTween) {
                 this.dashTween.stop();
                 this.isDashing = false;
             }
+
+            this.wallJump = true;
+            this.wallJumpX = -400;
         }
     }
 
@@ -268,7 +270,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             const isChatting = this.playerUI.Chatting;
 
             const WalkLerp = (a, modify) => {
-                if (!modify) modify = this.body.blocked.down ? .5 : .09;
+                if (!modify) modify = this.body.blocked.down ? .5 : .06;
 
                 modify = Phaser.Math.Clamp(modify * (delta / 16.666), 0, 1);
                 return Phaser.Math.Linear(this.body.velocity.x, a, modify);
@@ -754,7 +756,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
 tryUncrouch() {
   const body = this.body;
-  const buffer = 12; // extra safety padding
+  const buffer = 16; // extra safety padding
 
   // Coordinates at top-left and top-right just above the player
   const leftX = body.x + buffer;

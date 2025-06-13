@@ -22,7 +22,7 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
     this.prevPos = new Phaser.Math.Vector2(x, y);
     this.targetPos = new Phaser.Math.Vector2(x, y);
     this.lerpTimer = 0;
-    this.lerpDuration = 33;
+    this.lerpDuration = 15;
 
     this.ranks = new RankSystem();
 
@@ -78,13 +78,13 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
     this.add(this.healthBar);
   }
 
-  
+
   lerpPosition(delta) {
     if (!this.sprite) return;
 
     this.lerpTimer += delta;
 
-        const t = Phaser.Math.Clamp(this.lerpTimer / this.lerpDuration, 0, 1);
+    const t = Phaser.Math.Clamp(this.lerpTimer / this.lerpDuration, 0, 1);
     const lerpedX = Phaser.Math.Linear(this.prevPos.x, this.targetPos.x, t);
     const lerpedY = Phaser.Math.Linear(this.prevPos.y, this.targetPos.y, t);
 
@@ -95,7 +95,7 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
 
   setGhostState(state) {
     if (!this.sprite) return;
-    const { x, y, f, a, c, j, s, h, t, d } = state;
+    const { x, y, f, a, c, j, s, h, t, d, w, wj, wr, ws, slam, m } = state;
     if (this.prevX === undefined) {
       this.prevX = x;
       this.prevY = y;
@@ -110,7 +110,7 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
 
     this.prevX = x;
     this.prevY = y;
-    this.lerpTimer= 0;
+    this.lerpTimer = 0;
     this.prevPos.set(this.x, this.y);
     this.targetPos.set(x, y);
 
@@ -118,11 +118,35 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
     // this.y = y;
     this.sprite.flipX = f;
 
+
+    if (wj) {
+      this.sprite.stop();
+      this.sprite.setFrame(11);
+      return;
+    }
+
+    if (m) {
+      this.sprite.play('dudemantle', true);
+      return;
+    }
+
+    if (wr) {
+      this.sprite.play('dudeclimb', true);
+      return;
+    }
+
+    if (ws) {
+      this.sprite.stop();
+      this.sprite.setFrame(12);
+      return;
+    }
+
     if (d) {
       this.sprite.stop();
       this.sprite.setFrame(11);
       return;
     }
+
     if (t) {
       this.sprite.setTint('0xFF0000');
       this.sprite.stop();
@@ -131,11 +155,13 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
     } else {
       this.sprite.setTint(this.baseTint);
     }
+
     if (s && !j) {
       this.sprite.stop();
-      this.sprite.setFrame(9); // Slide frame
+      this.sprite.setFrame(9);
       return;
     }
+
 
     if (c) {
       this.sprite.stop();
@@ -145,21 +171,95 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
 
     if (h) {
       this.sprite.stop();
-      this.sprite.setFrame(10); // Heal frame
+      this.sprite.setFrame(10);
+      return;
+    }
+
+    if (slam) {
+      this.sprite.stop();
+      this.sprite.setFrame(15);
       return;
     }
 
     if (j) {
       this.sprite.stop();
-      this.sprite.setFrame(5); // Jump frame
+      this.sprite.setFrame(5);
       return;
     }
-    if ((this.xv > 0) || this.xv < 0) {
+
+    if (w) {
       this.sprite.play('dudewalk', true);
     } else {
       this.sprite.stop();
       this.sprite.setFrame(0);
     }
+
+
+    // const { x, y, f, a, c, j, s, h, t, d } = state;
+    // if (this.prevX === undefined) {
+    //   this.prevX = x;
+    //   this.prevY = y;
+    // }
+    // const epsilon = .5;
+
+    // this.xv = x - this.prevX;
+    // this.yv = y - this.prevY;
+
+    // if (Math.abs(this.xv) < epsilon) this.xv = 0;
+    // if (Math.abs(this.yv) < epsilon) this.yv = 0;
+
+    // this.prevX = x;
+    // this.prevY = y;
+    // this.lerpTimer= 0;
+    // this.prevPos.set(this.x, this.y);
+    // this.targetPos.set(x, y);
+
+    // // this.x = x;
+    // // this.y = y;
+    // this.sprite.flipX = f;
+
+    // if (d) {
+    //   this.sprite.stop();
+    //   this.sprite.setFrame(11);
+    //   return;
+    // }
+    // if (t) {
+    //   this.sprite.setTint('0xFF0000');
+    //   this.sprite.stop();
+    //   this.sprite.setFrame(6);
+    //   return;
+    // } else {
+    //   this.sprite.setTint(this.baseTint);
+    // }
+    // if (s && !j) {
+    //   this.sprite.stop();
+    //   this.sprite.setFrame(9); // Slide frame
+    //   return;
+    // }
+
+    // if (c) {
+    //   this.sprite.stop();
+    //   this.sprite.setFrame(6);
+    //   return;
+    // }
+
+    // if (h) {
+    //   this.sprite.stop();
+    //   this.sprite.setFrame(10); // Heal frame
+    //   return;
+    // }
+
+    // if (j) {
+    //   this.sprite.stop();
+    //   this.sprite.setFrame(5); // Jump frame
+    //   return;
+    // }
+    // if ((this.xv > 0) || this.xv < 0) {
+    //   this.sprite.play('dudewalk', true);
+    // } else {
+    //   this.sprite.stop();
+    //   this.sprite.setFrame(0);
+    // }
 
 
     // if (a) {

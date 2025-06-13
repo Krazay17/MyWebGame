@@ -16,7 +16,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         scene.physics.add.existing(this);
 
         this.body.setMaxSpeed(1000);
-        this.body.setMaxVelocity(1000, 1000);
+        this.body.setMaxVelocity(1000, 850);
 
 
         this.setupAnimation();
@@ -149,7 +149,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     preUpdate(time, delta) {
         super.preUpdate(time, delta);
-        this.animChooser();
         if (this.aura) this.aura.update?.(delta);
         if (this.chatBubble) this.chatBubble.setPosition(this.x, this.y - 100);
         if (this.playerContainer) this.playerContainer.setPosition(this.x, this.y);
@@ -183,7 +182,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         let prevY = this.y;
 
         // After update:
-        if (this.body.velocity.y > 800 && this.body.blocked.down) {
+        if (this.body.velocity.y > 700 && this.body.blocked.down) {
             this.y = Math.min(this.y, prevY); // crude correction
             this.body.velocity.y = 0;
         }
@@ -289,7 +288,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             }
         }
 
-        this.syncGhost(delta);
+        this.animChooser(delta);
     }
 
     decideState(input) {
@@ -299,12 +298,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         if (heal) return this.setState('heal');
         if (jump && this.canJump) return this.setState('jump', input);
         if ((slam && !this.slamCD && !this.body.blocked.down)) return this.setState('slam', input);
-        if ((crouch && this.body.blocked.down)) return this.setState('crouch', input);
+        if ((crouch)) return this.setState('crouch', input);
         if (!this.body.blocked.down) return this.setState('fall', input);
         if (left || right) return this.setState('walk', input);
         return this.setState('idle', input);
     }
-
 
     getInput() {
         return {
@@ -360,9 +358,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     this.resetJump();
                     this.tryUncrouch();
                     this.isSlamming = 0;
-
-                    this.stop();
-                    this.setFrame(0);
                 },
                 update: (delta) => {
                     this.setVelocityX(this.walkLerp(delta, 0));
@@ -375,8 +370,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     this.resetJump();
                     this.tryUncrouch();
                     this.isSlamming = 0;
-
-                    //this.play('dudewalk', true);
                     this.isWalking = true;
                 },
                 update: (delta, input) => {
@@ -414,13 +407,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     }
 
                     if (this.body.blocked.left) {
-                        this.bufferLeftWallJump = this.scene.time.now + 100;
-                        this.wallRunRight = 400;
+                        this.bufferLeftWallJump = this.scene.time.now + 125;
+                        this.wallRunRight = 500;
                     }
 
                     if (this.body.blocked.right) {
-                        this.bufferRightWallJump = this.scene.time.now + 100;
-                        this.wallRunLeft = 400;
+                        this.bufferRightWallJump = this.scene.time.now + 125;
+                        this.wallRunLeft = 500;
                     }
 
                     if (!jump || (!this.body.blocked.right && !this.body.blocked.left)) {
@@ -462,7 +455,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                                 this.wallRunLeft = 0;
                                 this.wallRunning = false;
                             }
-                        } else if (left && (this.bufferLeftWallJump > this.scene.time.now) && this.wallRunLeft) {
+                        } else if (left && !right && (this.bufferLeftWallJump > this.scene.time.now) && this.wallRunLeft) {
                             this.setVelocity(-25);
                             this.isMantling = this.scene.time.now;
                         }
@@ -482,7 +475,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                                 this.wallRunRight = 0;
                                 this.wallRunning = false;
                             }
-                        } else if (right && (this.bufferRightWallJump > this.scene.time.now) && this.wallRunRight) {
+                        } else if (right && !left && (this.bufferRightWallJump > this.scene.time.now) && this.wallRunRight) {
                             this.setVelocityY(-25);
                             this.isMantling = this.scene.time.now;
                         }
@@ -529,6 +522,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
                     if (this.body.blocked.down) {
                         this.resetJump();
+                        this.isSlamming = 0;
 
                         if ((left || right) && !this.slideCD) {
                             this.setState('slide');
@@ -547,8 +541,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     this.isSlamming = this.scene.time.now;
                     const { left, right } = input;
                     const move = (left ? -1 : right ? 1 : 0) * (this.speed);
-                    this.slamCD = 1000;
-                    this.setVelocity(move * 1.5, 400);
+                    this.slamCD = 800;
+                    this.setVelocity(move * 1.2, 350);
                 },
                 update: () => { },
                 exit: () => { },
@@ -556,13 +550,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
             slide: {
                 enter: () => {
-                    const speed = 600 * this.dir;
+                    const speed = 550 * this.dir;
 
                     this.isSliding = true;
                     this.canSlide = false;
                     this.setVelocityX(speed);
 
-                    this.slideCD = 1000;
+                    this.slideCD = 800;
                     this.slideTime = this.scene.time.now + 500;
                     this.stateLockout = this.slideTime;
 
@@ -695,6 +689,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     if (this.healCD >= 1) {
                         this.healCD = 0;
                         this.health++;
+                        GameManager.stats.health = this.health;
                         this.updateMoney(-1);
                         this.emit('updateHealth', this.health, this.healthMax);
                         this.network.socket.emit('updateHealth', this.health, this.healthMax);
@@ -702,15 +697,16 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 },
                 exit: () => {
                     this.isHealing = false;
-                    this.setMaxVelocity(1000, 1000);
+                    this.setMaxVelocity(1000, 850);
                 },
             },
         }
     }
+
     resetJump(dash = true) {
         this.canJump = true;
-        this.wallRunLeft = 400;
-        this.wallRunRight = 400;
+        this.wallRunLeft = 500;
+        this.wallRunRight = 500;
         this.reachApex = true;
 
         if (!dash) return;
@@ -750,154 +746,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         return done;
     }
 
-    // handleInput(delta) {
-    //     if (!this.stunned && this.alive && !this.isDashing) {
-
-    //         const { left, right, down, up, jump, dash } = this.controls;
-
-    //         const isDown = down.isDown;
-    //         const isLeft = left.isDown;
-    //         const isRight = right.isDown;
-    //         const isUp = up.isDown;
-    //         const isJump = jump.isDown;
-    //         const isChatting = this.playerUI.Chatting;
-
-    //         // const WalkLerp = (a, modify) => {
-    //         //     if (!modify) modify = this.body.blocked.down ? .5 : .06;
-
-    //         //     modify = Phaser.Math.Clamp(modify * (delta / 16.666), 0, 1);
-    //         //     return Phaser.Math.Linear(this.body.velocity.x, a, modify);
-    //         // };
-    //         if ((isLeft || isRight)) this.syncNetwork(this.x, this.y);
-
-    //         if (isLeft && !this.isCrouch && !isChatting) {
-    //             this.setVelocityX(WalkLerp(-this.speed));
-    //             this.flipX = true;
-    //             if (this.body.blocked.down) {
-    //                 this.isWalking = true;
-    //                 this.play('dudewalk', true);
-    //             } else {
-    //                 this.isWalking = false;
-    //                 this.setFrame(5);
-    //             }
-    //             if (dash.isDown && this.canDash) {
-    //                 this.Dash(-this.dashSpeed);
-    //             }
-    //         } else if (isRight && !this.isCrouch && !isChatting) {
-    //             this.setVelocityX(WalkLerp(this.speed));
-    //             this.flipX = false;
-    //             if (this.body.blocked.down) {
-    //                 this.isWalking = true;
-    //                 this.play('dudewalk', true);
-    //             } else {
-    //                 this.isWalking = false;
-    //                 this.setFrame(5);
-    //             }
-    //             if (dash.isDown && this.canDash) {
-    //                 this.Dash(this.dashSpeed);
-    //             }
-    //         } else if (this.isCrouch && !isChatting) {
-    //             var crouchSpeed;
-
-    //             const slideBoost = (speed) => {
-
-    //                 this.canSlide = false;
-    //                 this.isSliding = true;
-    //                 this.isSlidingTimer = this.scene.time.delayedCall(900, () => this.isSliding = false);
-    //                 this.setVelocityX(speed);
-    //             }
-
-    //             if (isRight && this.body.blocked.down) {
-    //                 crouchSpeed = this.speed * .30;
-    //                 if (!this.isSliding) this.play('dudecrouch', true);
-    //                 this.flipX = false;
-    //             } else if (isLeft && this.body.blocked.down) {
-    //                 crouchSpeed = -this.speed * .30;
-    //                 if (!this.isSliding) this.play('dudecrouch', true);
-    //                 this.flipX = true;
-    //             } else {
-    //                 this.scene.time.removeEvent(this.isSlidingTimer);
-    //                 this.isSliding = false;
-    //                 this.setFrame(6);
-    //                 crouchSpeed = 0;
-    //             }
-    //             if (this.canSlide && this.body.blocked.down) {
-    //                 this.stop();
-    //                 this.setFrame(9)
-    //                 slideBoost(crouchSpeed * 9);
-    //             }
-
-    //             this.setVelocityX(WalkLerp(crouchSpeed, .025));
-    //         } else {
-    //             // not moving or crouching
-    //             this.isSliding = false;
-    //             this.setVelocityX(WalkLerp(0));
-    //             if (this.body.blocked.down) this.setFrame(0);
-    //             else this.setFrame(2);
-    //         }
-
-    //         if (!this.isCrouch && !this.canSlide) {
-    //             if (this.crouchCD < 1000) {
-    //                 this.crouchCD += delta;
-    //             } else {
-    //                 this.canSlide = true;
-    //                 this.crouchCD = 0;
-    //             }
-    //         }
-
-    //         if (isJump && this.canJump && !isChatting) {
-    //             this.setVelocityY(-this.jumpPower);
-    //             this.jumpPower += delta * 1.8;
-    //             this.stop();
-    //             this.setFrame(1);
-    //             if (this.jumpPower >= this.jumpMax) this.canJump = false;
-    //         } else {
-    //             this.canJump = false;
-    //             this.wallJump = false;
-    //         }
-
-    //         if (this.wallJump) {
-    //             this.setVelocityX(this.wallJumpX);
-    //             this.jumpMax = 320;
-    //             this.wallJump = false;
-    //         }
-
-    //         if (isDown && !isChatting && !this.isCrouch) {
-    //             this.isCrouch = true;
-    //             this.hitBoxSize = { y: 180, yo: 70 };
-    //             this.setSize(115, 180);
-    //             this.setOffset(70, 70);
-    //             this.scene.physics.world.collide(this, this.scene.walkableGroup);
-    //         } else if (!isDown && this.isCrouch) {
-    //             this.tryUncrouch();
-    //         } else if (!isDown && !this.isCrouch && (this.lerpHitBox(delta) === false)) {
-    //             this.lerpHitBox(delta)
-    //         }
-
-    //         if (isUp && !isChatting) {
-    //             this.healthTick += delta / 300;
-    //             this.isHealing = true;
-    //             this.speed = 100;
-    //             this.stop();
-    //             this.setFrame(10)
-    //             this.body.setMaxVelocity(200, 100);
-    //             if (this.healthTick > 1) {
-    //                 this.healthTick = 0;
-    //                 this.health = Math.min(this.healthMax, this.health + 1);
-    //                 this.updateMoney(-1);
-    //                 this.emit('updateHealth', this.health, this.healthMax);
-    //                 this.network.socket.emit('updateHealth', this.health, this.healthMax);
-    //             }
-    //         } else {
-    //             this.isHealing = false;
-    //             this.speed = 250;
-    //             this.body.setMaxVelocity(1000, 1000);
-    //         }
-    //     }
-    //     this.syncGhost(delta);
-    // }
-
-    animChooser() {
+    animChooser(delta) {
         const state = {
             x: this.x,
             y: this.y,
@@ -917,6 +766,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             m: this.isMantling > (this.scene.time.now - 200) ? 1 : 0,
 
         };
+        this.syncGhost(delta, state);
 
         const { x, y, f, a, c, j, s, h, t, d, w, wj, wr, ws, slam, m } = state;
 
@@ -961,6 +811,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             return;
         }
 
+        if (slam) {
+            this.stop();
+            this.setFrame(15);
+            return;
+        }
 
         if (c) {
             this.stop();
@@ -974,11 +829,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             return;
         }
 
-        if (slam) {
-            this.stop();
-            this.setFrame(15);
-            return;
-        }
 
         if (j) {
             this.stop();
@@ -994,7 +844,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-    syncGhost(delta) {
+    syncGhost(delta, state) {
         if (!this.network?.socket) return;
 
         this.statSyncTimer = (this.statSyncTimer || 0) + delta;
@@ -1003,19 +853,18 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
         this.statSyncTimer = 0;
 
-        const state = {
-            x: this.x,
-            y: this.y,
-            f: this.flipX ? 1 : 0,
-            a: this.anims?.currentAnim?.key || '',
-            c: this.isCrouch ? 1 : 0,
-            j: !this.body.blocked.down ? 1 : 0,
-            s: this.isSliding ? 1 : 0,
-            h: this.isHealing ? 1 : 0,
-            t: this.stunned ? 1 : 0,
-            d: this.isDashing ? 1 : 0,
-
-        };
+        // const state = {
+        //     x: this.x,
+        //     y: this.y,
+        //     f: this.flipX ? 1 : 0,
+        //     a: this.anims?.currentAnim?.key || '',
+        //     c: this.isCrouch ? 1 : 0,
+        //     j: !this.body.blocked.down ? 1 : 0,
+        //     s: this.isSliding ? 1 : 0,
+        //     h: this.isHealing ? 1 : 0,
+        //     t: this.stunned ? 1 : 0,
+        //     d: this.isDashing ? 1 : 0,
+        // };
 
         if (!this.hasStateChanged(state, this.lastSentState)) return;
 

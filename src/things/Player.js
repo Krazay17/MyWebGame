@@ -149,6 +149,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     preUpdate(time, delta) {
         super.preUpdate(time, delta);
+        this.animChooser();
         if (this.aura) this.aura.update?.(delta);
         if (this.chatBubble) this.chatBubble.setPosition(this.x, this.y - 100);
         if (this.playerContainer) this.playerContainer.setPosition(this.x, this.y);
@@ -182,7 +183,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         let prevY = this.y;
 
         // After update:
-        if (this.body.velocity.y > 1000 && this.body.blocked.down) {
+        if (this.body.velocity.y > 800 && this.body.blocked.down) {
             this.y = Math.min(this.y, prevY); // crude correction
             this.body.velocity.y = 0;
         }
@@ -358,6 +359,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 enter: () => {
                     this.resetJump();
                     this.tryUncrouch();
+                    this.isSlamming = 0;
 
                     this.stop();
                     this.setFrame(0);
@@ -372,26 +374,31 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 enter: () => {
                     this.resetJump();
                     this.tryUncrouch();
+                    this.isSlamming = 0;
 
-                    this.play('dudewalk', true);
+                    //this.play('dudewalk', true);
                     this.isWalking = true;
                 },
                 update: (delta, input) => {
                     const { left, right } = input;
                     const dir = this.speed * this.dir;
+                    this.tryUncrouch();
 
                     this.setVelocityX(this.walkLerp(delta, dir));
                 },
-                exit: () => { },
+                exit: () => {
+                    this.isWalking = false;
+                },
             },
 
             fall: {
                 enter: () => {
                     this.canJump = false;
                     this.tryUncrouch();
+                    this.falling = true;
 
-                    this.stop();
-                    this.setFrame(5);
+                    // this.stop();
+                    // this.setFrame(5);
                 },
                 update: (delta, input) => {
                     const { left, right, jump } = input;
@@ -417,23 +424,28 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     }
 
                     if (!jump || (!this.body.blocked.right && !this.body.blocked.left)) {
-                        this.stop();
-                        this.setFrame(5);
+                        this.wallRunning = false;
+                        this.wallSlide = false;
+
                     } else if (!this.wallRunLeft || !this.wallRunRight) {
-                        this.stop();
-                        this.setFrame(12)
+                        this.wallSlide = true;
+                        this.wallRunning = false;
                     }
 
                     if (jump) {
                         if (!right && (this.bufferRightWallJump > this.scene.time.now)) {
                             this.setVelocity(-350, -this.wallRunRight);
-                            this.wallJumpAnim = this.scene.time.now + 200;
-                            this.setFrame(11);
+                            this.wallRunning = false;
+                            this.wallJumpAnim = this.scene.time.now;
+                        this.isMantling = 0;
+                            //this.setFrame(11);
                         }
                         if (!left && (this.bufferLeftWallJump > this.scene.time.now)) {
                             this.setVelocity(350, -this.wallRunLeft);
-                            this.wallJumpAnim = this.scene.time.now + 200;
-                            this.setFrame(11);
+                            this.wallRunning = false;
+                            this.wallJumpAnim = this.scene.time.now;
+                        this.isMantling = 0;
+                            //this.setFrame(11);
                         }
 
                         if (this.wallRunLeft && this.body.blocked.left) {
@@ -442,14 +454,17 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                             }
                             this.setVelocityY(-this.wallRunLeft);
                             this.wallRunLeft = Math.max(0, this.wallRunLeft -= delta * 1.5);
+                            this.wallRunning = true;
+
+                            //this.play('dudeclimb', true);
+
                             if (this.body.blocked.up) {
                                 this.wallRunLeft = 0;
+                                this.wallRunning = false;
                             }
-
-                            this.play('dudeclimb', true);
-
                         } else if (left && (this.bufferLeftWallJump > this.scene.time.now) && this.wallRunLeft) {
                             this.setVelocity(-25);
+                            this.isMantling = this.scene.time.now;
                         }
 
 
@@ -459,18 +474,26 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                             }
                             this.setVelocityY(-this.wallRunRight);
                             this.wallRunRight = Math.max(0, this.wallRunRight -= delta * 1.5);
+                            this.wallRunning = true;
+
+                            //this.play('dudeclimb', true);
+
                             if (this.body.blocked.up) {
                                 this.wallRunRight = 0;
+                                this.wallRunning = false;
                             }
-
-                            this.play('dudeclimb', true);
-
                         } else if (right && (this.bufferRightWallJump > this.scene.time.now) && this.wallRunRight) {
                             this.setVelocityY(-25);
+                            this.isMantling = this.scene.time.now;
                         }
                     }
                 },
-                exit: () => { },
+                exit: () => {
+                    this.falling = false;
+                    this.isMantling = false;
+                    this.wallRunning = false;
+                    this.wallSlide = false;
+                },
             },
 
             wallRun: {
@@ -521,9 +544,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
             slam: {
                 enter: (input) => {
+                    this.isSlamming = this.scene.time.now;
                     const { left, right } = input;
                     const move = (left ? -1 : right ? 1 : 0) * (this.speed);
-                    this.slamCD = 900;
+                    this.slamCD = 1000;
                     this.setVelocity(move * 1.5, 400);
                 },
                 update: () => { },
@@ -538,8 +562,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     this.canSlide = false;
                     this.setVelocityX(speed);
 
-                    this.slideCD = 900;
-                    this.slideTime = this.scene.time.now + 300;
+                    this.slideCD = 1000;
+                    this.slideTime = this.scene.time.now + 500;
                     this.stateLockout = this.slideTime;
 
                     this.stop();
@@ -581,7 +605,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     this.isJumping = true;
                     this.reachApex = false;
                     this.jumpPower = 200;
-                    this.jumpMax = 450;
+                    this.jumpMax = 425;
+                    this.isSlamming = 0;
                     this.setVelocityY(-this.jumpPower);
                     this.tryUncrouch();
 
@@ -594,7 +619,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     this.setVelocityY(-this.jumpPower);
                     this.setVelocityX(this.walkLerp(delta, move, .33))
                     this.jumpPower += delta * 1.5;
-                    console.log(jump);
 
                     if (this.jumpPower >= this.jumpMax) {
                         this.canJump = false;
@@ -658,9 +682,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
             heal: {
                 enter: () => {
+                    this.isHealing = true;
                     this.setMaxVelocity(100, 100);
-                    this.stop();
-                    this.setFrame(10)
                     this.tryUncrouch();
                 },
                 update: (delta, input) => {
@@ -678,6 +701,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     }
                 },
                 exit: () => {
+                    this.isHealing = false;
                     this.setMaxVelocity(1000, 1000);
                 },
             },
@@ -886,51 +910,87 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             t: this.stunned ? 1 : 0,
             d: this.isDashing ? 1 : 0,
             w: this.isWalking ? 1 : 0,
+            wj: this.wallJumpAnim > (this.scene.time.now - 50) ? 1 : 0,
+            wr: this.wallRunning ? 1 : 0,
+            ws: this.wallSlide ? 1 : 0,
+            slam: this.isSlamming > (this.scene.time.now - 550) ? 1 : 0,
+            m: this.isMantling > (this.scene.time.now - 200) ? 1 : 0,
 
         };
 
-        if (d) {
-            this.sprite.stop();
-            this.sprite.setFrame(11);
-            return;
-        }
-        if (t) {
-            this.sprite.setTint('0xFF0000');
-            this.sprite.stop();
-            this.sprite.setFrame(6);
-            return;
-        } else {
-            this.sprite.setTint(this.baseTint);
-        }
-        if (s && !j) {
-            this.sprite.stop();
-            this.sprite.setFrame(9); // Slide frame
+        const { x, y, f, a, c, j, s, h, t, d, w, wj, wr, ws, slam, m } = state;
+
+
+        if (wj) {
+            this.stop();
+            this.setFrame(11);
             return;
         }
 
+        if (m) {
+            this.play('dudemantle', true);
+            return;
+        }
+
+        if (wr) {
+            this.play('dudeclimb', true);
+            return;
+        }
+
+        if (ws) {
+            this.stop();
+            this.setFrame(12);
+            return;
+        }
+
+        if (d) {
+            this.stop();
+            this.setFrame(11);
+            return;
+        }
+
+        if (t) {
+            this.stop();
+            this.setFrame(6);
+            return;
+        }
+
+        if (s && !j) {
+            this.stop();
+            this.setFrame(9);
+            return;
+        }
+
+
         if (c) {
-            this.sprite.stop();
-            this.sprite.setFrame(6);
+            this.stop();
+            this.setFrame(6);
             return;
         }
 
         if (h) {
-            this.sprite.stop();
-            this.sprite.setFrame(10); // Heal frame
+            this.stop();
+            this.setFrame(10);
+            return;
+        }
+
+        if (slam) {
+            this.stop();
+            this.setFrame(15);
             return;
         }
 
         if (j) {
-            this.sprite.stop();
-            this.sprite.setFrame(5); // Jump frame
+            this.stop();
+            this.setFrame(5);
             return;
         }
 
         if (w) {
-            this.sprite.play('dudewalk', true);
+            this.play('dudewalk', true);
         } else {
-            this.sprite.stop();
-            this.sprite.setFrame(0);
+            this.stop();
+            this.setFrame(0);
         }
     }
 
@@ -1109,12 +1169,24 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         if (!this.scene.anims.get('dudeclimb')) {
             this.scene.anims.create({
                 key: 'dudeclimb',
-                frames: this.anims.generateFrameNumbers('dudesheet', { start: 12, end: 15 }),
+                frames: this.anims.generateFrameNumbers('dudesheet', { start: 12, end: 14 }),
                 frameRate: 11,
                 yoyo: true,
                 repeat: -1,
             });
         }
+
+        if (!this.scene.anims.get('dudemantle')) {
+            this.scene.anims.create({
+                key: 'dudemantle',
+                frames: [
+                    { key: 'dudesheet', frame: 16, duration: 50 },
+                    { key: 'dudesheet', frame: 17, duration: 100 },
+                    { key: 'dudesheet', frame: 16, duration: 50 },
+                ],
+            });
+        }
+
 
     }
 
@@ -1194,6 +1266,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     tryUncrouch() {
+        if (!this.isCrouch) {
+            return;
+        }
         const body = this.body;
         const buffer = 16; // extra safety padding
 

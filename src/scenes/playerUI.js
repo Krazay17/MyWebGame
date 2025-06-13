@@ -156,6 +156,7 @@ export default class PlayerUI extends Phaser.Scene {
         if (this.Chatting) return;
 
         this.Chatting = true;
+        //this.emit('chatting');
 
         if (!this.cache.html.exists('textchat')) {
             this.textBox = this.add.dom(this.textBoxX, this.textBoxY).createFromHTML(`
@@ -175,6 +176,7 @@ export default class PlayerUI extends Phaser.Scene {
         if (!input) {
             console.error('Input element not found!');
             this.Chatting = false;
+            //this.emit('doneChatting');
             return;
         }
 

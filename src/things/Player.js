@@ -47,7 +47,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.canJump = true;
         this.canDash = true;
         this.canResetDash = true;
-        this.dashSpeed = 1000;
+        this.dashSpeed = 900;
         this.canSlide = true;
         this.crouchCD = 0;
         this.wallJump = false;
@@ -127,6 +127,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 this.scene.scene.start('Home')
             }
         });
+
+        // this.playerUI.on('chatting', () => {
+        //     this.chatting = true;
+        // })
+        // this.playerUI.on('doneChatting', () => {
+        //     this.chatting = false;
+        // })
         // this.scene.input.keyboard.on('keydown-R', () => {
         //     if (!this.playerUI.Chatting) {
         //         this.Died();
@@ -134,9 +141,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         //     }
         // });
 
-        this.setStats();
+
+        this.setupStates();
         this.resetJump();
-        this.resetDash();
+        this.setStats();
     }
 
     preUpdate(time, delta) {
@@ -170,6 +178,17 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             } else {
                 this.knockbackVelocity.set(0, 0);
             }
+        }
+        let prevY = this.y;
+
+        // After update:
+        if (this.body.velocity.y > 1000 && this.body.blocked.down) {
+            this.y = Math.min(this.y, prevY); // crude correction
+            this.body.velocity.y = 0;
+        }
+
+        if (!this.isCrouch) {
+            this.lerpHitBox(delta);
         }
     }
 
@@ -215,34 +234,26 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         GameManager.save();
     }
 
+    // touchWall(player, platform) {
+    //     if (this.body.blocked.down) {
+    //         this.resetJump();
+    //         this.resetDash();
+    //     }
 
-    touchWall(player, platform) {
-        if (this.body.blocked.down) {
-            this.resetJump();
-            this.resetDash();
-        }
+    //     if (this.body.blocked.left || this.body.blocked.right) {
+    //         this.resetJump(200);
+    //         this.wallJumpX = this.body.blocked.left ? 400 : -400;
+    //         this.wallJump = true;
+    //         this.setMaxVelocity(1000, 50);
 
-        if (this.body.blocked.left) {
-            this.resetJump();
-            if (this.dashTween) {
-                this.dashTween.stop();
-                this.isDashing = false;
-            }
-            
-            this.wallJump = true;
-            this.wallJumpX = 400;
-        }
-        if (this.body.blocked.right) {
-            this.resetJump();
-            if (this.dashTween) {
-                this.dashTween.stop();
-                this.isDashing = false;
-            }
+    //         console.log('touching wall')
 
-            this.wallJump = true;
-            this.wallJumpX = -400;
-        }
-    }
+    //         if (this.dashTween) {
+    //             this.dashTween.stop();
+    //             this.isDashing = false;
+    //         }
+    //     }
+    // }
 
     touchFireWall(wall) {
         const tileWorldX = wall.getCenterX();
@@ -258,154 +269,608 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     handleInput(delta) {
-        if (!this.stunned && this.alive && !this.isDashing) {
+        if (this.stunned || !this.alive || this.chatting) return;
 
-            const { left, right, down, up, jump, dash } = this.controls;
-
-            const isDown = down.isDown;
-            const isLeft = left.isDown;
-            const isRight = right.isDown;
-            const isUp = up.isDown;
-            const isJump = jump.isDown;
-            const isChatting = this.playerUI.Chatting;
-
-            const WalkLerp = (a, modify) => {
-                if (!modify) modify = this.body.blocked.down ? .5 : .06;
-
-                modify = Phaser.Math.Clamp(modify * (delta / 16.666), 0, 1);
-                return Phaser.Math.Linear(this.body.velocity.x, a, modify);
-            };
-            if ((isLeft || isRight)) this.syncNetwork(this.x, this.y);
-
-            if (isLeft && !this.isCrouch && !isChatting) {
-                this.setVelocityX(WalkLerp(-this.speed));
-                this.flipX = true;
-                if (this.body.blocked.down) {
-                    this.isWalking = true;
-                    this.play('dudewalk', true);
-                } else {
-                    this.isWalking = false;
-                    this.setFrame(5);
-                }
-                if (dash.isDown && this.canDash) {
-                    this.Dash(-this.dashSpeed);
-                }
-            } else if (isRight && !this.isCrouch && !isChatting) {
-                this.setVelocityX(WalkLerp(this.speed));
-                this.flipX = false;
-                if (this.body.blocked.down) {
-                    this.isWalking = true;
-                    this.play('dudewalk', true);
-                } else {
-                    this.isWalking = false;
-                    this.setFrame(5);
-                }
-                if (dash.isDown && this.canDash) {
-                    this.Dash(this.dashSpeed);
-                }
-            } else if (this.isCrouch && !isChatting) {
-                var crouchSpeed;
-
-                const slideBoost = (speed) => {
-
-                    this.canSlide = false;
-                    this.isSliding = true;
-                    this.isSlidingTimer = this.scene.time.delayedCall(900, () => this.isSliding = false);
-                    this.setVelocityX(speed);
-                }
-
-                if (isRight && this.body.blocked.down) {
-                    crouchSpeed = this.speed * .30;
-                    if (!this.isSliding) this.play('dudecrouch', true);
-                    this.flipX = false;
-                } else if (isLeft && this.body.blocked.down) {
-                    crouchSpeed = -this.speed * .30;
-                    if (!this.isSliding) this.play('dudecrouch', true);
-                    this.flipX = true;
-                } else {
-                    this.scene.time.removeEvent(this.isSlidingTimer);
-                    this.isSliding = false;
-                    this.setFrame(6);
-                    crouchSpeed = 0;
-                }
-                if (this.canSlide && this.body.blocked.down) {
-                    this.stop();
-                    this.setFrame(9)
-                    slideBoost(crouchSpeed * 9);
-                }
-
-                this.setVelocityX(WalkLerp(crouchSpeed, .025));
-            } else {
-                // not moving or crouching
-                this.isSliding = false;
-                this.setVelocityX(WalkLerp(0));
-                if (this.body.blocked.down) this.setFrame(0);
-                else this.setFrame(2);
-            }
-
-            if (!this.isCrouch && !this.canSlide) {
-                if (this.crouchCD < 1000) {
-                    this.crouchCD += delta;
-                } else {
-                    this.canSlide = true;
-                    this.crouchCD = 0;
-                }
-            }
-
-            if (isJump && this.canJump && !isChatting) {
-                this.setVelocityY(-this.jumpPower);
-                this.jumpPower += delta * 1.8;
-                this.stop();
-                this.setFrame(1);
-                if (this.jumpPower >= this.jumpMax) this.canJump = false;
-            } else {
-                this.canJump = false;
-                this.wallJump = false;
-            }
-
-            if (this.wallJump) {
-                this.setVelocityX(this.wallJumpX);
-                this.jumpMax = 320;
-                this.wallJump = false;
-            }
-
-            if (isDown && !isChatting && !this.isCrouch) {
-                this.isCrouch = true;
-                this.hitBoxSize = { y: 180, yo: 70 };
-                this.setSize(115, 180);
-                this.setOffset(70, 70);
-                this.scene.physics.world.collide(this, this.scene.walkableGroup);
-            } else if (!isDown && this.isCrouch) {
-                this.tryUncrouch();
-            } else if (!isDown && !this.isCrouch && (this.lerpHitBox(delta) === false)) {
-                this.lerpHitBox(delta)
-            }
-
-            if (isUp && !isChatting) {
-                this.healthTick += delta / 300;
-                this.isHealing = true;
-                this.speed = 100;
-                this.stop();
-                this.setFrame(10)
-                this.body.setMaxVelocity(200, 100);
-                if (this.healthTick > 1) {
-                    this.healthTick = 0;
-                    this.health = Math.min(this.healthMax, this.health + 1);
-                    this.updateMoney(-1);
-                    this.emit('updateHealth', this.health, this.healthMax);
-                    this.network.socket.emit('updateHealth', this.health, this.healthMax);
-                }
-            } else {
-                this.isHealing = false;
-                this.speed = 250;
-                this.body.setMaxVelocity(1000, 1000);
-            }
+        const input = this.getInput();
+        if (input.left) {
+            this.flipX = true;
+            this.dir = -1;
+        } else if (input.right) {
+            this.flipX = false;
+            this.dir = 1;
         }
 
+        this.decideState(input);       // decide what state to be in based on input
+        this.states[this.currentState].update(delta, input); // update current state logic
+        if ((this.slamCD || this.slideCD) && !this.isSliding && !this.isCrouch) {
+            this.slideCD = Math.max(0, this.slideCD -= delta);
+            this.slamCD = Math.max(0, this.slamCD -= delta);
+        }
 
         this.syncGhost(delta);
-
     }
+
+    decideState(input) {
+        const { left, right, jump, dash, crouch, heal, slam } = input;
+
+        if (dash && this.canDash) return this.setState('dash', input);
+        if (heal) return this.setState('heal');
+        if (jump && this.canJump) return this.setState('jump', input);
+        if ((slam && !this.slamCD && !this.body.blocked.down)) return this.setState('slam', input);
+        if ((crouch && this.body.blocked.down)) return this.setState('crouch', input);
+        if (!this.body.blocked.down) return this.setState('fall', input);
+        if (left || right) return this.setState('walk', input);
+        return this.setState('idle', input);
+    }
+
+
+    getInput() {
+        return {
+            left: this.controls.left.isDown,
+            right: this.controls.right.isDown,
+            jump: this.controls.jump.isDown,
+            dash: this.controls.dash.isDown,
+            crouch: this.controls.down.isDown,
+            heal: this.controls.up.isDown,
+            slam: Phaser.Input.Keyboard.JustDown(this.controls.down),
+        };
+    }
+
+    setState(newState, input) {
+        if (this.scene.time.now < this.stateLockout) return;
+        if (newState === this.currentState) return;
+
+        if (newState === 'idle' && !this.body.blocked.down) {
+            newState = 'fall';
+        }
+        this.states[this.currentState].exit();
+        this.currentState = newState;
+        this.states[this.currentState].enter(input);
+        console.log(this.currentState);
+    }
+
+    walkLerp(delta, a, modify) {
+        if (!modify) modify = this.body.blocked.down ? .5 : .06;
+
+        modify = Phaser.Math.Clamp(modify * (delta / 16.666), 0, 1);
+        return Phaser.Math.Linear(this.body.velocity.x, a, modify);
+    }
+
+    setupStates() {
+        this.currentState = 'idle';
+        this.stateLockout = 0;
+        this.slideCD = 0;
+        this.slamCD = 0;
+        this.healCD = 0;
+        // idle: {
+        //     enter: () => { },
+        //     update: () => { },
+        //     exit: () => { },
+        // },
+
+        function lerp(start, end, t) {
+            return start + (end - start) * t;
+        }
+
+        this.states = {
+            idle: {
+                enter: () => {
+                    this.resetJump();
+                    this.tryUncrouch();
+
+                    this.stop();
+                    this.setFrame(0);
+                },
+                update: (delta) => {
+                    this.setVelocityX(this.walkLerp(delta, 0));
+                },
+                exit: () => { },
+            },
+
+            walk: {
+                enter: () => {
+                    this.resetJump();
+                    this.tryUncrouch();
+
+                    this.play('dudewalk', true);
+                    this.isWalking = true;
+                },
+                update: (delta, input) => {
+                    const { left, right } = input;
+                    const dir = this.speed * this.dir;
+
+                    this.setVelocityX(this.walkLerp(delta, dir));
+                },
+                exit: () => { },
+            },
+
+            fall: {
+                enter: () => {
+                    this.canJump = false;
+                    this.tryUncrouch();
+
+                    this.stop();
+                    this.setFrame(5);
+                },
+                update: (delta, input) => {
+                    const { left, right, jump } = input;
+                    const dir = left ? -this.speed : this.speed;
+
+                    if (this.body.velocity.y >= 0) {
+                        this.reachApex = true;
+                    }
+                    if (left || right) {
+                        this.setVelocityX(this.walkLerp(delta, dir, .075));
+                    } else {
+                        this.setVelocityX(this.walkLerp(delta, 0, .02));
+                    }
+
+                    if (this.body.blocked.left) {
+                        this.bufferLeftWallJump = this.scene.time.now + 100;
+                        this.wallRunRight = 400;
+                    }
+
+                    if (this.body.blocked.right) {
+                        this.bufferRightWallJump = this.scene.time.now + 100;
+                        this.wallRunLeft = 400;
+                    }
+
+                    if (!jump || (!this.body.blocked.right && !this.body.blocked.left)) {
+                        this.stop();
+                        this.setFrame(5);
+                    } else if (!this.wallRunLeft || !this.wallRunRight) {
+                        this.stop();
+                        this.setFrame(12)
+                    }
+
+                    if (jump) {
+                        if (!right && (this.bufferRightWallJump > this.scene.time.now)) {
+                            this.setVelocity(-350, -this.wallRunRight);
+                            this.wallJumpAnim = this.scene.time.now + 200;
+                            this.setFrame(11);
+                        }
+                        if (!left && (this.bufferLeftWallJump > this.scene.time.now)) {
+                            this.setVelocity(350, -this.wallRunLeft);
+                            this.wallJumpAnim = this.scene.time.now + 200;
+                            this.setFrame(11);
+                        }
+
+                        if (this.wallRunLeft && this.body.blocked.left) {
+                            if (this.wallRunLeft < (-this.body.velocity.y)) {
+                                this.wallRunLeft = (-this.body.velocity.y)
+                            }
+                            this.setVelocityY(-this.wallRunLeft);
+                            this.wallRunLeft = Math.max(0, this.wallRunLeft -= delta * 1.5);
+                            if (this.body.blocked.up) {
+                                this.wallRunLeft = 0;
+                            }
+
+                            this.play('dudeclimb', true);
+
+                        } else if (left && (this.bufferLeftWallJump > this.scene.time.now) && this.wallRunLeft) {
+                            this.setVelocity(-25);
+                        }
+
+
+                        if (this.wallRunRight && this.body.blocked.right) {
+                            if (this.wallRunRight < (-this.body.velocity.y)) {
+                                this.wallRunRight = (-this.body.velocity.y)
+                            }
+                            this.setVelocityY(-this.wallRunRight);
+                            this.wallRunRight = Math.max(0, this.wallRunRight -= delta * 1.5);
+                            if (this.body.blocked.up) {
+                                this.wallRunRight = 0;
+                            }
+
+                            this.play('dudeclimb', true);
+
+                        } else if (right && (this.bufferRightWallJump > this.scene.time.now) && this.wallRunRight) {
+                            this.setVelocityY(-25);
+                        }
+                    }
+                },
+                exit: () => { },
+            },
+
+            wallRun: {
+                enter: () => { },
+                update: () => { },
+                exit: () => { },
+            },
+
+            wallJump: {
+                enter: () => { },
+                update: () => { },
+                exit: () => { },
+            },
+
+            crouch: {
+                enter: (input) => {
+                    const { left, right } = input;
+                    this.isCrouch = true;
+                    this.hitBoxSize = { y: 180, yo: 70 };
+                    this.setSize(115, 180);
+                    this.setOffset(70, 70);
+
+                    if (this.body.blocked.down && (!left && !right)) {
+                        this.slideCD = 1;
+                    }
+
+                    this.stop();
+                    this.setFrame(6);
+                },
+                update: (delta, input) => {
+                    const { left, right, crouch } = input;
+                    const move = (left ? -1 : right ? 1 : 0) * (this.speed);
+
+                    if (this.body.blocked.down) {
+                        this.resetJump();
+
+                        if ((left || right) && !this.slideCD) {
+                            this.setState('slide');
+                            return;
+                        }
+                    }
+
+                    this.setVelocityX(this.walkLerp(delta, move * 0.33, .03));
+                },
+                exit: () => {
+                },
+            },
+
+            slam: {
+                enter: (input) => {
+                    const { left, right } = input;
+                    const move = (left ? -1 : right ? 1 : 0) * (this.speed);
+                    this.slamCD = 900;
+                    this.setVelocity(move * 1.5, 400);
+                },
+                update: () => { },
+                exit: () => { },
+            },
+
+            slide: {
+                enter: () => {
+                    const speed = 600 * this.dir;
+
+                    this.isSliding = true;
+                    this.canSlide = false;
+                    this.setVelocityX(speed);
+
+                    this.slideCD = 900;
+                    this.slideTime = this.scene.time.now + 300;
+                    this.stateLockout = this.slideTime;
+
+                    this.stop();
+                    this.setFrame(9);
+                },
+                update: (delta, input) => {
+                    if (!input.crouch) {
+                        this.stateLockout = 0;
+                        this.setState('idle');
+                        return;
+                    }
+
+                    if (input.jump && this.canJump) {
+                        this.stateLockout = 0;
+                        this.setState('jump', input);
+                        return;
+                    }
+
+                    if (this.slideTime <= this.scene.time.now && input.crouch) {
+                        this.stateLockout = 0;
+                        this.setState('crouch');
+                        return;
+                    }
+
+
+                    if (input.dash && this.canDash) {
+                        this.stateLockout = 0;
+                        this.setState('dash', input);
+                        return;
+                    }
+                },
+                exit: () => {
+                    this.isSliding = false;
+                },
+            },
+
+            jump: {
+                enter: (input) => {
+                    this.isJumping = true;
+                    this.reachApex = false;
+                    this.jumpPower = 200;
+                    this.jumpMax = 450;
+                    this.setVelocityY(-this.jumpPower);
+                    this.tryUncrouch();
+
+                    this.stop();
+                    this.setFrame(5);
+                },
+                update: (delta, input) => {
+                    const { left, right, jump } = input;
+                    const move = (left ? -1 : right ? 1 : 0) * this.speed;
+                    this.setVelocityY(-this.jumpPower);
+                    this.setVelocityX(this.walkLerp(delta, move, .33))
+                    this.jumpPower += delta * 1.5;
+                    console.log(jump);
+
+                    if (this.jumpPower >= this.jumpMax) {
+                        this.canJump = false;
+                    }
+                    if (this.body.velocity.y > -100) {
+                        this.setState('idle');
+                    }
+                },
+                exit: () => {
+                    this.isJumping = false;
+                },
+            },
+
+            dash: {
+                enter: () => {
+                    this.dashDuration = 250;
+                    this.stateLockout = this.scene.time.now + this.dashDuration;
+
+                    this.canDash = false;
+                    this.canResetDash = false;
+                    this.isDashing = true;
+                    this.iFrame = true;
+                    this.body.setAllowGravity(false);
+                    this.tryUncrouch();
+
+                    this.dashTime = 0;
+                    this.startDash = this.dashSpeed * this.dir;
+                    this.endDash = this.startDash / 3;
+
+                    this.scene.time.addEvent({
+                        delay: 650,
+                        callback: () => {
+                            this.canResetDash = true;
+                            if (this.queResetDash) this.resetDash();
+                        }
+                    });
+
+                    this.stop();
+                    this.setFrame(11);
+                    this.clearTint();
+                },
+                update: (delta) => {
+                    this.dashTime += delta;
+
+                    const t = Phaser.Math.Clamp((this.dashTime * 2) / this.dashDuration, 0, 1);
+                    const currentSpeed = lerp(this.startDash, this.endDash, t)
+                    this.setVelocityX(currentSpeed);
+                    this.setVelocityY(0);
+
+                    if (this.body.blocked.left || this.body.blocked.right) {
+                        this.stateLockout = 0;
+                        this.setState('idle');
+                    }
+                },
+                exit: () => {
+                    this.body.setAllowGravity(true);
+                    this.isDashing = false;
+                    this.iFrame = false;
+                },
+            },
+
+            heal: {
+                enter: () => {
+                    this.setMaxVelocity(100, 100);
+                    this.stop();
+                    this.setFrame(10)
+                    this.tryUncrouch();
+                },
+                update: (delta, input) => {
+                    const { left, right } = input;
+                    const move = (left ? -1 : right ? 1 : 0) * (this.speed);
+                    this.setVelocityX(this.walkLerp(delta, move))
+                    this.healCD += delta / 500;
+
+                    if (this.healCD >= 1) {
+                        this.healCD = 0;
+                        this.health++;
+                        this.updateMoney(-1);
+                        this.emit('updateHealth', this.health, this.healthMax);
+                        this.network.socket.emit('updateHealth', this.health, this.healthMax);
+                    }
+                },
+                exit: () => {
+                    this.setMaxVelocity(1000, 1000);
+                },
+            },
+        }
+    }
+    resetJump(dash = true) {
+        this.canJump = true;
+        this.wallRunLeft = 400;
+        this.wallRunRight = 400;
+        this.reachApex = true;
+
+        if (!dash) return;
+        if (this.canResetDash) {
+            this.queResetDash = false;
+            this.canDash = true;
+            this.setTint(0x66ff33);
+        } else {
+            this.queResetDash = true;
+        }
+    }
+
+    lerpHitBox(delta) {
+        if (!this.hitBoxSize) return;
+        let done = true;
+
+        // Interpolate height
+        if (Math.abs(this.hitBoxSize.y - this.baseHitBoxSize.y) > 1) {
+            this.hitBoxSize.y = Phaser.Math.Linear(this.hitBoxSize.y, this.baseHitBoxSize.y, delta / 100); // smoothing factor
+            this.setSize(115, this.hitBoxSize.y);
+            done = false;
+        } else {
+            this.hitBoxSize.y = this.baseHitBoxSize.y;
+            this.setSize(115, this.hitBoxSize.y);
+        }
+
+        // Interpolate offset
+        if (Math.abs(this.hitBoxSize.yo - this.baseHitBoxSize.yo) > 1) {
+            this.hitBoxSize.yo = Phaser.Math.Linear(this.hitBoxSize.yo, this.baseHitBoxSize.yo, delta / 100);
+            this.setOffset(70, this.hitBoxSize.yo);
+            done = false;
+        } else {
+            this.hitBoxSize.yo = this.baseHitBoxSize.yo;
+            this.setOffset(70, this.hitBoxSize.yo);
+        }
+
+        return done;
+    }
+
+    // handleInput(delta) {
+    //     if (!this.stunned && this.alive && !this.isDashing) {
+
+    //         const { left, right, down, up, jump, dash } = this.controls;
+
+    //         const isDown = down.isDown;
+    //         const isLeft = left.isDown;
+    //         const isRight = right.isDown;
+    //         const isUp = up.isDown;
+    //         const isJump = jump.isDown;
+    //         const isChatting = this.playerUI.Chatting;
+
+    //         // const WalkLerp = (a, modify) => {
+    //         //     if (!modify) modify = this.body.blocked.down ? .5 : .06;
+
+    //         //     modify = Phaser.Math.Clamp(modify * (delta / 16.666), 0, 1);
+    //         //     return Phaser.Math.Linear(this.body.velocity.x, a, modify);
+    //         // };
+    //         if ((isLeft || isRight)) this.syncNetwork(this.x, this.y);
+
+    //         if (isLeft && !this.isCrouch && !isChatting) {
+    //             this.setVelocityX(WalkLerp(-this.speed));
+    //             this.flipX = true;
+    //             if (this.body.blocked.down) {
+    //                 this.isWalking = true;
+    //                 this.play('dudewalk', true);
+    //             } else {
+    //                 this.isWalking = false;
+    //                 this.setFrame(5);
+    //             }
+    //             if (dash.isDown && this.canDash) {
+    //                 this.Dash(-this.dashSpeed);
+    //             }
+    //         } else if (isRight && !this.isCrouch && !isChatting) {
+    //             this.setVelocityX(WalkLerp(this.speed));
+    //             this.flipX = false;
+    //             if (this.body.blocked.down) {
+    //                 this.isWalking = true;
+    //                 this.play('dudewalk', true);
+    //             } else {
+    //                 this.isWalking = false;
+    //                 this.setFrame(5);
+    //             }
+    //             if (dash.isDown && this.canDash) {
+    //                 this.Dash(this.dashSpeed);
+    //             }
+    //         } else if (this.isCrouch && !isChatting) {
+    //             var crouchSpeed;
+
+    //             const slideBoost = (speed) => {
+
+    //                 this.canSlide = false;
+    //                 this.isSliding = true;
+    //                 this.isSlidingTimer = this.scene.time.delayedCall(900, () => this.isSliding = false);
+    //                 this.setVelocityX(speed);
+    //             }
+
+    //             if (isRight && this.body.blocked.down) {
+    //                 crouchSpeed = this.speed * .30;
+    //                 if (!this.isSliding) this.play('dudecrouch', true);
+    //                 this.flipX = false;
+    //             } else if (isLeft && this.body.blocked.down) {
+    //                 crouchSpeed = -this.speed * .30;
+    //                 if (!this.isSliding) this.play('dudecrouch', true);
+    //                 this.flipX = true;
+    //             } else {
+    //                 this.scene.time.removeEvent(this.isSlidingTimer);
+    //                 this.isSliding = false;
+    //                 this.setFrame(6);
+    //                 crouchSpeed = 0;
+    //             }
+    //             if (this.canSlide && this.body.blocked.down) {
+    //                 this.stop();
+    //                 this.setFrame(9)
+    //                 slideBoost(crouchSpeed * 9);
+    //             }
+
+    //             this.setVelocityX(WalkLerp(crouchSpeed, .025));
+    //         } else {
+    //             // not moving or crouching
+    //             this.isSliding = false;
+    //             this.setVelocityX(WalkLerp(0));
+    //             if (this.body.blocked.down) this.setFrame(0);
+    //             else this.setFrame(2);
+    //         }
+
+    //         if (!this.isCrouch && !this.canSlide) {
+    //             if (this.crouchCD < 1000) {
+    //                 this.crouchCD += delta;
+    //             } else {
+    //                 this.canSlide = true;
+    //                 this.crouchCD = 0;
+    //             }
+    //         }
+
+    //         if (isJump && this.canJump && !isChatting) {
+    //             this.setVelocityY(-this.jumpPower);
+    //             this.jumpPower += delta * 1.8;
+    //             this.stop();
+    //             this.setFrame(1);
+    //             if (this.jumpPower >= this.jumpMax) this.canJump = false;
+    //         } else {
+    //             this.canJump = false;
+    //             this.wallJump = false;
+    //         }
+
+    //         if (this.wallJump) {
+    //             this.setVelocityX(this.wallJumpX);
+    //             this.jumpMax = 320;
+    //             this.wallJump = false;
+    //         }
+
+    //         if (isDown && !isChatting && !this.isCrouch) {
+    //             this.isCrouch = true;
+    //             this.hitBoxSize = { y: 180, yo: 70 };
+    //             this.setSize(115, 180);
+    //             this.setOffset(70, 70);
+    //             this.scene.physics.world.collide(this, this.scene.walkableGroup);
+    //         } else if (!isDown && this.isCrouch) {
+    //             this.tryUncrouch();
+    //         } else if (!isDown && !this.isCrouch && (this.lerpHitBox(delta) === false)) {
+    //             this.lerpHitBox(delta)
+    //         }
+
+    //         if (isUp && !isChatting) {
+    //             this.healthTick += delta / 300;
+    //             this.isHealing = true;
+    //             this.speed = 100;
+    //             this.stop();
+    //             this.setFrame(10)
+    //             this.body.setMaxVelocity(200, 100);
+    //             if (this.healthTick > 1) {
+    //                 this.healthTick = 0;
+    //                 this.health = Math.min(this.healthMax, this.health + 1);
+    //                 this.updateMoney(-1);
+    //                 this.emit('updateHealth', this.health, this.healthMax);
+    //                 this.network.socket.emit('updateHealth', this.health, this.healthMax);
+    //             }
+    //         } else {
+    //             this.isHealing = false;
+    //             this.speed = 250;
+    //             this.body.setMaxVelocity(1000, 1000);
+    //         }
+    //     }
+    //     this.syncGhost(delta);
+    // }
 
     animChooser() {
         const state = {
@@ -466,39 +931,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             this.sprite.stop();
             this.sprite.setFrame(0);
         }
-    }
-
-    lerpHitBox(delta) {
-        if (!this.hitBoxSize) return;
-        let done = true;
-
-        // Interpolate height
-        if (Math.abs(this.hitBoxSize.y - this.baseHitBoxSize.y) > 1) {
-            this.hitBoxSize.y = Phaser.Math.Linear(this.hitBoxSize.y, this.baseHitBoxSize.y, delta / 100); // smoothing factor
-            this.setSize(115, this.hitBoxSize.y);
-            done = false;
-        } else {
-            this.hitBoxSize.y = this.baseHitBoxSize.y;
-            this.setSize(115, this.hitBoxSize.y);
-        }
-
-        // Interpolate offset
-        if (Math.abs(this.hitBoxSize.yo - this.baseHitBoxSize.yo) > 1) {
-            this.hitBoxSize.yo = Phaser.Math.Linear(this.hitBoxSize.yo, this.baseHitBoxSize.yo, delta / 100);
-            this.setOffset(70, this.hitBoxSize.yo);
-            done = false;
-        } else {
-            this.hitBoxSize.yo = this.baseHitBoxSize.yo;
-            this.setOffset(70, this.hitBoxSize.yo);
-        }
-
-        return done;
-    }
-
-    resetJump() {
-        this.jumpPower = this.baseJumpPower;
-        this.canJump = true;
-
     }
 
     syncGhost(delta) {
@@ -576,6 +1008,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             delay: stunDuration,
             callback: () => {
                 this.stunned = false;
+                this.setFrame(5);
             }
         });
 
@@ -591,14 +1024,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         if (this.canResetDash && !this.stunned) {
             this.queResetDash = false;
             this.canDash = true;
-            this.jumpMax = 425;
             this.setTint(0x66ff33);
         } else {
             this.queResetDash = true;
         }
     }
 
-    Dash(x) {
+    dash(x) {
         this.iFrame = true;
         this.canDash = false;
         this.canResetDash = false;
@@ -639,10 +1071,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         });
     }
 
-    CarryPlayer(player, floor) {
-        player.setVelocityX(floor.body.velocity.x);
-    }
-
     PickupItem(money = 0) {
         if (money > 0) {
             this.updateMoney(money);
@@ -673,6 +1101,16 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 key: 'dudecrouch',
                 frames: this.anims.generateFrameNumbers('dudesheet', { start: 6, end: 8 }),
                 frameRate: 8,
+                repeat: -1,
+            });
+        }
+
+        if (!this.scene.anims.get('dudeclimb')) {
+            this.scene.anims.create({
+                key: 'dudeclimb',
+                frames: this.anims.generateFrameNumbers('dudesheet', { start: 12, end: 15 }),
+                frameRate: 11,
+                yoyo: true,
                 repeat: -1,
             });
         }
@@ -754,29 +1192,47 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         })
     }
 
-tryUncrouch() {
-  const body = this.body;
-  const buffer = 16; // extra safety padding
+    tryUncrouch() {
+        const body = this.body;
+        const buffer = 16; // extra safety padding
 
-  // Coordinates at top-left and top-right just above the player
-  const leftX = body.x + buffer;
-  const rightX = body.right - buffer;
-  const checkY = body.y - 25; // just above the head
+        // Coordinates at top-left and top-right just above the player
+        const leftX = body.x + buffer;
+        const rightX = body.right - buffer;
+        const checkY = body.y - 25; // just above the head
 
-  const tileLeft = this.scene.walls?.hasTileAtWorldXY(leftX, checkY);
-  const tileRight = this.scene.walls?.hasTileAtWorldXY(rightX, checkY);
+        const tileLeft = this.scene.walls?.hasTileAtWorldXY(leftX, checkY);
+        const tileRight = this.scene.walls?.hasTileAtWorldXY(rightX, checkY);
 
-  if (!tileLeft && !tileRight) {
-    this.uncrouch(); // safe to stand
-  } else {
-    // blocked, do nothing or stay crouched
-  }
-}
-
+        if (!tileLeft && !tileRight) {
+            this.uncrouch(); // safe to stand
+        } else {
+            // blocked, do nothing or stay crouched
+        }
+    }
 
     uncrouch() {
-        this.isCrouch = false;
-        console.log('uncrouch')
+        if (!this.isCrouch) {
+            return;
+        }
 
+        this.isCrouch = false;
+
+        // const oldHeight = this.body.height;
+        // const newHeight = this.baseHitBoxSize.y;
+        // const heightDifference = newHeight - oldHeight;
+
+        // // Shift body up to keep feet fixed
+        // this.body.y -= heightDifference;
+
+        // this.setSize(115, newHeight);
+        // this.setOffset(70, this.baseHitBoxSize.yo);
+
+        // // Force immediate collision resolution with the floor
+        // this.scene.physics.world.collide(this, this.scene.walls);
+
+        // this.body.updateFromGameObject();
     }
+
+
 }

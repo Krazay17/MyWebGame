@@ -222,6 +222,8 @@ export default class BaseGame extends Phaser.Scene {
           }, null, this));
       });
     }
+    
+    this.physics.add.collider(this.weaponGroup, this.walkableGroup);
 
     // this.walkableCollider = this.physics.add.collider(this.player, this.walkableGroup, (player, walkable) => {
     //   player.touchWall(walkable);

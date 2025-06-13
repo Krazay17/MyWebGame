@@ -78,6 +78,7 @@ export default class Inventory extends Phaser.Scene {
     }
 
     setupButton(x = 1200, y = 200, icon = 'auraicon', scale = 1, tint = '0xFFFFFF', tooltip = '') {
+
         const button = this.add.image(x, y, icon)
             .setScale(scale)
             .setInteractive()
@@ -85,7 +86,8 @@ export default class Inventory extends Phaser.Scene {
             .on('pointerover', (pointer) => {
                 button.setTint(0x7d7d7d);
                 // tooltip
-                this.tooltipText.setText(tooltip);
+                const text = typeof tooltip === 'function' ? tooltip() : tooltip;
+                this.tooltipText.setText(text);
                 this.tooltipText.setPosition(pointer.x, pointer.y);
                 this.tooltipText.setAlpha(1);
             })
@@ -115,12 +117,17 @@ export default class Inventory extends Phaser.Scene {
 
     setupTalents() {
         weaponUpgrades.forEach((upgrade) => {
-            const { id, x, y, icon, tint, cost, maxRank, tooltip, apply } = upgrade;
-            const realCost = typeof cost === 'function' ? cost() : cost;
-            const costTooltip = `Cost: ${realCost}\n${tooltip}`;
+            const { id, x, y, icon, tint, cost, maxRank, tooltip } = upgrade;
+            // const realCost = typeof cost === 'function' ? cost() : cost;
+            // const costTooltip = `Cost: ${realCost}\n${tooltip}`;
             const currentRank = GameManager.upgrades[id];
             const maxed = currentRank === maxRank;
-            const button = this.setupButton(x, y, icon, 1, tint, costTooltip)
+            const tooltipFunc = () => {
+                const currentCost = typeof cost === 'function' ? cost() : cost;
+                return `Cost: ${currentCost}\n${tooltip}`;
+            };
+
+            const button = this.setupButton(x, y, icon, 1, tint, tooltipFunc)
                 .on('pointerdown', () => {
                     this.purchaseUpgrade(upgrade, button)
                 })
@@ -157,9 +164,14 @@ export default class Inventory extends Phaser.Scene {
             this.player.leftWeapon.setStats();
             this.player.rightWeapon.setStats();
             this.player.aura.setStats();
+            const tooltipFunc = () => {
+                const currentCost = typeof cost === 'function' ? cost() : cost;
+                return `Cost: ${currentCost}\n${tooltip}`;
+            };
 
             if (id === 'auraUpgradeLevel') {
 
+                this.tooltipText.setText(tooltipFunc);
                 this.auraText.setText('Aura level: ' + GameManager.power.auraLevel);
                 this.auraCostText.setText('Cost: ' + this.player.aura.getCost());
             }
@@ -168,7 +180,7 @@ export default class Inventory extends Phaser.Scene {
     }
 
     disableButton(id, active = false) {
-            console.log(id)
+        console.log(id)
         const entry = this.upgradeButtons.find(b => b.id === id);
         const tint = active ? 0xFFFFFF : 0x333333
         if (entry) {

@@ -30,6 +30,7 @@ export const weaponUpgrades = [
         tooltip: `Level up aura`,
         apply: () => {
             GameManager.power.auraLevel++;
+            GameManager.save();
         },
         reset: () => {
             GameManager.power.auraLevel = 1;

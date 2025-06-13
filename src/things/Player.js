@@ -269,22 +269,23 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     handleInput(delta) {
-        if (this.stunned || !this.alive || this.chatting) return;
+        if (!this.stunned && this.alive && !this.chatting) {
 
-        const input = this.getInput();
-        if (input.left) {
-            this.flipX = true;
-            this.dir = -1;
-        } else if (input.right) {
-            this.flipX = false;
-            this.dir = 1;
-        }
+            const input = this.getInput();
+            if (input.left) {
+                this.flipX = true;
+                this.dir = -1;
+            } else if (input.right) {
+                this.flipX = false;
+                this.dir = 1;
+            }
 
-        this.decideState(input);       // decide what state to be in based on input
-        this.states[this.currentState].update(delta, input); // update current state logic
-        if ((this.slamCD || this.slideCD) && !this.isSliding && !this.isCrouch) {
-            this.slideCD = Math.max(0, this.slideCD -= delta);
-            this.slamCD = Math.max(0, this.slamCD -= delta);
+            this.decideState(input);       // decide what state to be in based on input
+            this.states[this.currentState].update(delta, input); // update current state logic
+            if ((this.slamCD || this.slideCD) && !this.isSliding && !this.isCrouch) {
+                this.slideCD = Math.max(0, this.slideCD -= delta);
+                this.slamCD = Math.max(0, this.slamCD -= delta);
+            }
         }
 
         this.syncGhost(delta);
@@ -666,7 +667,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     const { left, right } = input;
                     const move = (left ? -1 : right ? 1 : 0) * (this.speed);
                     this.setVelocityX(this.walkLerp(delta, move))
-                    this.healCD += delta / 500;
+                    this.healCD += delta / 250;
 
                     if (this.healCD >= 1) {
                         this.healCD = 0;

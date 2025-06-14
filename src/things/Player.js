@@ -434,6 +434,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                         if (!right && (this.bufferRightWallJump > this.scene.time.now) && !this.isWallJumping) {
                             this.setVelocity(-350, Phaser.Math.Clamp(-this.wallRunRight, -500, -250));
                             this.isWallJumping = true;
+                            this.flipX = true;
                             this.bufferRightWallJump = 0;
                             this.wallRunning = false;
                             this.wallJumpTimer = this.scene.time.now;
@@ -444,6 +445,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                         if (!left && (this.bufferLeftWallJump > this.scene.time.now) && !this.isWallJumping) {
                             this.setVelocity(350, Phaser.Math.Clamp(-this.wallRunLeft, -500, -250));
                             this.isWallJumping = true;
+                            this.flipX = false;
                             this.bufferLeftWallJump = 0;
                             this.wallRunning = false;
                             this.wallJumpTimer = this.scene.time.now;

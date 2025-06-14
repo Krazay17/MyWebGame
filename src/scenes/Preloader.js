@@ -39,6 +39,7 @@ export default class Preloader extends Phaser.Scene {
         this.load.audio('shurikanhit', 'assets/shurikan.wav');
         this.load.audio('pickup', 'assets/SuccessBeep.wav');
         this.load.audio('clinksound', 'assets/Clink1.wav');
+        this.load.audio('clinksound2', 'assets/Clink2.wav');
 
         this.load.spritesheet('dudesheet', 'assets/DudeSheet.png', {
             frameWidth: 256,

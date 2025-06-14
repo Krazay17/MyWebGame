@@ -82,6 +82,7 @@ export default class Inventory extends Phaser.Scene {
                     ? 0
                     : 1;
                 this.player.equipWeapon(weapon, slot)
+                        this.sound.play('clinksound2');
             });
 
         return button;

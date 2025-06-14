@@ -18,7 +18,7 @@ export default class Inventory extends Phaser.Scene {
         this.scene.setActive(false);
         this.upgradeButtons = [];
 
-        this.bg = this.add.rectangle(1200, 300, 800, 800, 0x000000, 0.5);
+        this.bg = this.add.rectangle(1200, 300, 800, 1200, 0x000000, 0.5);
         this.shurikanButton = this.setupWeaponButton(900, 100, 'shurikan', 'shurikan', .4);
         this.swordButton = this.setupWeaponButton(1100, 100, 'sword', 'swordicon', .5);
         this.darkorbButton = this.setupWeaponButton(1300, 100, 'darkorb', 'darkorb', 1, 0);
@@ -41,8 +41,18 @@ export default class Inventory extends Phaser.Scene {
         }).setOrigin(0.5);
 
 
+        this.auraText2 = this.add.text(1200, 600, '<-Choose->', {
+            fontSize: '12px',
+            fontStyle: 'bold',
+        }).setOrigin(0.5);
+        this.auraText3 = this.add.text(1200, 700, '<-Choose->', {
+            fontSize: '12px',
+            fontStyle: 'bold',
+        }).setOrigin(0.5);
 
-        this.resetPowerButton = this.setupButton(1200, 800, 'auraicondesat', 1, '0xFF0000', 'Reset all power')
+
+
+        this.resetPowerButton = this.setupButton(1200, 800, { icon: 'auraicondesat', tint: '0xFF0000', cost: 'Half of Source spent refunded',tooltip: '\nReset all power' })
             .on('pointerdown', () => {
                 this.resetAllUpgrades();
             });
@@ -77,43 +87,54 @@ export default class Inventory extends Phaser.Scene {
         return button;
     }
 
-    setupButton(x = 1200, y = 200, icon = 'auraicon', scale = 1, tint = '0xFFFFFF', tooltip = '') {
+    setupButton(x = 1200, y = 200, upgrade) {
+        const { icon, tint, cost, tooltip } = upgrade;
+
+        const tooltipFunc = () => {
+            const currentCost = typeof cost === 'function' ? cost() : cost;
+            return `Cost: ${currentCost}\n${tooltip}`;
+        };
 
         const button = this.add.image(x, y, icon)
-            .setScale(scale)
             .setInteractive()
-            .setTint(tint)
-            .on('pointerover', (pointer) => {
-                button.setTint(0x7d7d7d);
-                // tooltip
-                const text = typeof tooltip === 'function' ? tooltip() : tooltip;
-                this.tooltipText.setText(text);
-                this.tooltipText.setPosition(pointer.x, pointer.y);
-                this.tooltipText.setAlpha(1);
-            })
-            .on('pointerout', () => {
-                button.setTint(tint)
+            .setTint(tint);
 
-                this.tooltipText.setText('');
-                this.tooltipText.setAlpha(0);
-            })
+        // Store base and previous tint safely
         button.baseTint = tint;
+        button.prevTint = tint;
+
+        button.on('pointerover', (pointer) => {
+            button.setTint(0x7d7d7d);  // grey-ish hover tint
+
+            this.tooltipText.setText(tooltipFunc());
+            this.tooltipText.setPosition(pointer.x, pointer.y);
+            this.tooltipText.setAlpha(1);
+        });
+
+        button.on('pointerout', () => {
+            button.setTint(button.prevTint);
+
+            this.tooltipText.setText('');
+            this.tooltipText.setAlpha(0);
+        });
+
         return button;
     }
 
-    selectUpgrade(upgradeKey, cost, button) {
-        if (!GameManager.upgrades[upgradeKey] && (GameManager.power.money > cost)) {
-            this.player.updateMoney(-cost);
-            GameManager.upgrades[upgradeKey] = true;
-            GameManager.power.spent += cost;
-            this.player.leftWeapon.setStats();
-            this.player.rightWeapon.setStats();
-            button.disableInteractive();
-            button.setTint(0xFFFFFF);
-            this.tooltipText.setText('');
-            this.tooltipText.setAlpha(0);
-        }
-    }
+
+    // selectUpgrade(upgradeKey, cost, button) {
+    //     if (!GameManager.upgrades[upgradeKey] && (GameManager.power.money > cost)) {
+    //         this.player.updateMoney(-cost);
+    //         GameManager.upgrades[upgradeKey] = true;
+    //         GameManager.power.spent += cost;
+    //         this.player.leftWeapon.setStats();
+    //         this.player.rightWeapon.setStats();
+    //         //button.disableInteractive();
+    //         button.setTint(0xFFFFFF);
+    //         this.tooltipText.setText('');
+    //         this.tooltipText.setAlpha(0);
+    //     }
+    // }
 
     setupTalents() {
         weaponUpgrades.forEach((upgrade) => {
@@ -122,12 +143,8 @@ export default class Inventory extends Phaser.Scene {
             // const costTooltip = `Cost: ${realCost}\n${tooltip}`;
             const currentRank = GameManager.upgrades[id];
             const maxed = currentRank === maxRank;
-            const tooltipFunc = () => {
-                const currentCost = typeof cost === 'function' ? cost() : cost;
-                return `Cost: ${currentCost}\n${tooltip}`;
-            };
 
-            const button = this.setupButton(x, y, icon, 1, tint, tooltipFunc)
+            const button = this.setupButton(x, y, upgrade)
                 .on('pointerdown', () => {
                     this.purchaseUpgrade(upgrade, button)
                 })
@@ -146,15 +163,18 @@ export default class Inventory extends Phaser.Scene {
     }
 
     purchaseUpgrade(upgrade, button) {
-        const { id, cost, maxRank, apply, disables } = upgrade;
+        const { id, cost, maxRank, tooltip, apply, disables } = upgrade;
         const realCost = typeof cost === 'function' ? cost() : cost;
-        if (!GameManager.upgrades[id] && GameManager.power.money > realCost) {
+        let currentRank = GameManager.upgrades[id];
+        let maxed = currentRank === maxRank;
+
+        if (!maxed && GameManager.power.money > realCost) {
             this.player.updateMoney(-realCost);
             GameManager.power.spent += realCost;
-
             apply(this);
-            const currentRank = GameManager.upgrades[id];
-            const maxed = currentRank === maxRank;
+
+            currentRank = GameManager.upgrades[id];
+            maxed = currentRank === maxRank;
 
             if (maxed) this.disableButton(id, true);
             if (disables) {
@@ -164,28 +184,27 @@ export default class Inventory extends Phaser.Scene {
             this.player.leftWeapon.setStats();
             this.player.rightWeapon.setStats();
             this.player.aura.setStats();
-            const tooltipFunc = () => {
-                const currentCost = typeof cost === 'function' ? cost() : cost;
-                return `Cost: ${currentCost}\n${tooltip}`;
-            };
 
             if (id === 'auraUpgradeLevel') {
-
-                this.tooltipText.setText(tooltipFunc);
+                const realCostAfter = typeof cost === 'function' ? cost() : cost;
+                this.tooltipText.setText(`Cost: ${realCostAfter}\n${tooltip}`);
                 this.auraText.setText('Aura level: ' + GameManager.power.auraLevel);
                 this.auraCostText.setText('Cost: ' + this.player.aura.getCost());
             }
 
+            this.sound.play('pickup');
+        } else {
+            this.sound.play('clinksound');
         }
     }
 
     disableButton(id, active = false) {
-        console.log(id)
         const entry = this.upgradeButtons.find(b => b.id === id);
-        const tint = active ? 0xFFFFFF : 0x333333
+        const tint = active ? 0xFFFFFF : 0x333333;
         if (entry) {
-            entry.button.disableInteractive();
+            //entry.button.disableInteractive();
             entry.button.setTint(tint);
+            entry.button.prevTint = tint;
             if (this.tooltipText) {
                 this.tooltipText.setText('');
                 this.tooltipText.setAlpha(0);
@@ -203,7 +222,7 @@ export default class Inventory extends Phaser.Scene {
         this.auraText.setText('Aura level: ' + GameManager.power.auraLevel);
         this.auraCostText.setText('Cost: ' + this.player.aura.getCost());
 
-
+        //Refund spent money
         this.player.updateMoney(GameManager.power.spent / 2)
         GameManager.power.spent = 0;
 

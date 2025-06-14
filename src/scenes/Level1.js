@@ -20,7 +20,6 @@ export default class Level1 extends BaseGame {
       frameWidth: 66,
       frameHeight: 26
     });
-    this.load.audio('music', 'assets/music0.mp3');
   }
 
   create() {
@@ -29,7 +28,7 @@ export default class Level1 extends BaseGame {
     this.sky2 = this.add.image(600, 400, 'redsky1').setScale(1).setScrollFactor(.3);
     this.sky3 = this.add.image(600, 400, 'redsky2').setScale(1).setScrollFactor(.6);
     this.setupWorld();
-    this.setupMusic('music');
+    this.setupMusic('music0');
     this.setupPlayer(-1100, 300);
 
     this.setupGroups();

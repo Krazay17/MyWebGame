@@ -18,7 +18,7 @@ export default class level2 extends BaseGame {
         this.setupGroups();
         this.setupTileMap();
         this.setupCollisions();
-        this.setupMusic();
+        this.setupMusic('music0');
 
     }
 

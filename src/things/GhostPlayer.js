@@ -95,7 +95,7 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
 
   setGhostState(state) {
     if (!this.sprite) return;
-    const { x, y, f, a, c, j, s, h, t, d, w, wj, wr, ws, slam, m } = state;
+    const { x, y, f, a, c, j, jp, s, h, t, d, w, wj, wr, ws, slam, m, dead } = state;
     if (this.prevX === undefined) {
       this.prevX = x;
       this.prevY = y;
@@ -119,9 +119,26 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
     this.sprite.flipX = f;
 
 
-    if (wj) {
+    if (dead) {
+      this.sprite.setTint('0xFF0000');
       this.sprite.stop();
-      this.sprite.setFrame(11);
+      this.sprite.setFrame(22);
+      return;
+    }else {
+      this.sprite.setTint(this.baseTint);
+    }
+
+    if (t) {
+      this.sprite.setTint('0xFF0000');
+      this.sprite.stop();
+      this.sprite.setFrame(16);
+      return;
+    } else {
+      this.sprite.setTint(this.baseTint);
+    }
+
+    if (wj) {
+      this.sprite.play('dudetwist', true);
       return;
     }
 
@@ -147,26 +164,22 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
       return;
     }
 
-    if (t) {
-      this.sprite.setTint('0xFF0000');
-      this.sprite.stop();
-      this.sprite.setFrame(6);
-      return;
-    } else {
-      this.sprite.setTint(this.baseTint);
-    }
-
     if (s && !j) {
       this.sprite.stop();
       this.sprite.setFrame(9);
       return;
     }
+
     if (slam) {
       this.sprite.stop();
       this.sprite.setFrame(15);
       return;
     }
 
+    if (jp) {
+      this.sprite.play('dudejump', true);
+      return;
+    }
 
     if (c) {
       this.sprite.stop();

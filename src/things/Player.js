@@ -190,8 +190,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         if (!this.isCrouch) {
             this.lerpHitBox(delta);
         }
-
-        console.log(this.isCrouch)
     }
 
     setStats() {
@@ -269,7 +267,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
         const x = this.body.blocked.left ? 1 : this.body.blocked.right ? -1 : 0;
         const y = this.body.blocked.down ? -1 : this.body.blocked.up ? 1 : 0;
-        this.TakeDamage(x * 600, y* 600, 5, 300);
+        this.TakeDamage(x * 600, y * 600, 5, 300);
 
 
     }
@@ -278,10 +276,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         if (!this.stunned && this.alive && !this.chatting) {
 
             const input = this.getInput();
-            if (input.left) {
+            if (input.left && !input.right) {
                 this.flipX = true;
                 this.dir = -1;
-            } else if (input.right) {
+            } else if (input.right && !input.left) {
                 this.flipX = false;
                 this.dir = 1;
             }
@@ -403,7 +401,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     if (this.body.velocity.y >= 0) {
                         this.reachApex = true;
                     }
-                    if (left || right) {
+                    if ((left && !right) || (!left && right)) {
                         this.setVelocityX(this.walkLerp(delta, dir, .075));
                     } else {
                         this.setVelocityX(this.walkLerp(delta, 0, .02));
@@ -411,39 +409,47 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
                     if (this.body.blocked.left) {
                         this.bufferLeftWallJump = this.scene.time.now + 55;
-                            this.isWallJumping = false;
+                        this.isWallJumping = false;
                         this.wallRunRight = 540;
                     }
 
                     if (this.body.blocked.right) {
                         this.bufferRightWallJump = this.scene.time.now + 55;
-                            this.isWallJumping = false;
+                        this.isWallJumping = false;
                         this.wallRunLeft = 540;
                     }
 
                     if (!jump || (!this.body.blocked.right && !this.body.blocked.left)) {
                         this.wallRunning = false;
                         this.wallSlide = false;
+                        this.setMaxVelocity(1000, 850);
 
                     } else if (!this.wallRunLeft || !this.wallRunRight) {
                         this.wallSlide = true;
                         this.wallRunning = false;
+                        this.setMaxVelocity(1000, 200);
                     }
 
                     if (jump) {
-                        if (!right && (this.bufferRightWallJump > this.scene.time.now)) {
-                            this.setVelocity(-350, Phaser.Math.Clamp(-this.wallRunRight, -500, -200));
+                        if (!right && (this.bufferRightWallJump > this.scene.time.now) && !this.isWallJumping) {
+                            this.setVelocity(-350, Phaser.Math.Clamp(-this.wallRunRight, -500, -250));
+                            this.isWallJumping = true;
+                            this.bufferRightWallJump = 0;
                             this.wallRunning = false;
                             this.wallJumpTimer = this.scene.time.now;
-                            this.isWallJumping = true;
+                            this.wallRunRight /= 4;
                             this.isMantling = 0;
+                            console.log(this.wallRunRight);
                         }
-                        if (!left && (this.bufferLeftWallJump > this.scene.time.now)) {
-                            this.setVelocity(350, Phaser.Math.Clamp(-this.wallRunLeft, -500, -200));
+                        if (!left && (this.bufferLeftWallJump > this.scene.time.now) && !this.isWallJumping) {
+                            this.setVelocity(350, Phaser.Math.Clamp(-this.wallRunLeft, -500, -250));
+                            this.isWallJumping = true;
+                            this.bufferLeftWallJump = 0;
                             this.wallRunning = false;
                             this.wallJumpTimer = this.scene.time.now;
-                            this.isWallJumping = true;
+                            this.wallRunLeft /= 4;
                             this.isMantling = 0;
+                            console.log(this.wallRunLeft);
                         }
 
                         if (this.wallRunLeft && this.body.blocked.left) {
@@ -451,14 +457,14 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                                 this.wallRunLeft = (-this.body.velocity.y)
                             }
                             this.setVelocityY(-this.wallRunLeft);
-                            this.wallRunLeft = Math.max(0, this.wallRunLeft -= delta * 1.5);
+                            this.wallRunLeft = Math.max(0, this.wallRunLeft -= delta * 1.3);
                             this.wallRunning = true;
 
                             if (this.body.blocked.up) {
                                 this.wallRunLeft = 0;
                                 this.wallRunning = false;
                             }
-                        } else if (left && !right && (this.bufferLeftWallJump > this.scene.time.now) && this.wallRunLeft && !this.isWallJumping) {
+                        } else if ((left && !right) && (this.bufferLeftWallJump > this.scene.time.now) && this.wallRunLeft && !this.isWallJumping) {
                             this.setVelocity(-25);
                             this.isMantling = this.scene.time.now;
                         }
@@ -468,14 +474,14 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                                 this.wallRunRight = (-this.body.velocity.y)
                             }
                             this.setVelocityY(-this.wallRunRight);
-                            this.wallRunRight = Math.max(0, this.wallRunRight -= delta * 1.5);
+                            this.wallRunRight = Math.max(0, this.wallRunRight -= delta * 1.3);
                             this.wallRunning = true;
 
                             if (this.body.blocked.up) {
                                 this.wallRunRight = 0;
                                 this.wallRunning = false;
                             }
-                        } else if (right && !left && (this.bufferRightWallJump > this.scene.time.now) && this.wallRunRight && !this.isWallJumping) {
+                        } else if ((right && !left) && (this.bufferRightWallJump > this.scene.time.now) && this.wallRunRight && !this.isWallJumping) {
                             this.setVelocityY(-25);
                             this.isMantling = this.scene.time.now;
                         }
@@ -486,6 +492,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     this.isMantling = false;
                     this.wallRunning = false;
                     this.wallSlide = false;
+                    this.setMaxVelocity(1000, 850);
                 },
             },
 
@@ -752,26 +759,38 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             a: this.anims?.currentAnim?.key || '',
             c: this.isCrouch ? 1 : 0,
             j: !this.body.blocked.down ? 1 : 0,
+            jp: this.isJumping ? 1 : 0,
             s: this.isSliding ? 1 : 0,
             h: this.isHealing ? 1 : 0,
             t: this.stunned ? 1 : 0,
             d: this.isDashing ? 1 : 0,
             w: this.isWalking ? 1 : 0,
-            wj: this.wallJumpTimer > (this.scene.time.now - 50) ? 1 : 0,
+            wj: this.wallJumpTimer > (this.scene.time.now - 200) ? 1 : 0,
             wr: this.wallRunning ? 1 : 0,
             ws: this.wallSlide ? 1 : 0,
             slam: this.isSlamming > (this.scene.time.now - 550) ? 1 : 0,
             m: this.isMantling > (this.scene.time.now - 200) ? 1 : 0,
+            dead: !this.alive ? 1 : 0,
 
         };
         this.syncGhost(delta, state);
 
-        const { x, y, f, a, c, j, s, h, t, d, w, wj, wr, ws, slam, m } = state;
+        const { x, y, f, a, c, j, jp, s, h, t, d, w, wj, wr, ws, slam, m, dead } = state;
 
+        if (dead) {
+            this.stop();
+            this.setFrame(22);
+            return;
+        }
+
+        if (t) {
+            this.stop();
+            this.setFrame(16);
+            return;
+        }
 
         if (wj) {
-            this.stop();
-            this.setFrame(11);
+            this.play('dudetwist', true);
             return;
         }
 
@@ -797,12 +816,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             return;
         }
 
-        if (t) {
-            this.stop();
-            this.setFrame(6);
-            return;
-        }
-
         if (s && !j) {
             this.stop();
             this.setFrame(9);
@@ -812,6 +825,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         if (slam) {
             this.stop();
             this.setFrame(15);
+            return;
+        }
+
+        if (jp) {
+            this.play('dudejump', true);
             return;
         }
 
@@ -1030,6 +1048,29 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     { key: 'dudesheet', frame: 16, duration: 50 },
                     { key: 'dudesheet', frame: 17, duration: 100 },
                     { key: 'dudesheet', frame: 16, duration: 50 },
+                ],
+            });
+        }
+        if (!this.scene.anims.get('dudejump')) {
+            this.scene.anims.create({
+                key: 'dudejump',
+                frames: [
+                    { key: 'dudesheet', frame: 7, duration: 100 },
+                    { key: 'dudesheet', frame: 2, duration: 100 },
+                    { key: 'dudesheet', frame: 5, duration: 100 },
+                ],
+            });
+        }
+        if (!this.scene.anims.get('dudetwist')) {
+            this.scene.anims.create({
+                key: 'dudetwist',
+                duration: 200,
+                frames: [
+                    { key: 'dudesheet', frame: 17 },
+                    { key: 'dudesheet', frame: 18 },
+                    { key: 'dudesheet', frame: 19 },
+                    { key: 'dudesheet', frame: 20 },
+                    { key: 'dudesheet', frame: 21 },
                 ],
             });
         }

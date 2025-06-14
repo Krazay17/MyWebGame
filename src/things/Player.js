@@ -123,7 +123,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         });
 
         this.scene.input.keyboard.on('keydown-T', () => {
-            if (this.scene.scene.key !== 'Home' && this.body.blocked.down && !this.playerUI.Chatting) {
+            if (this.scene.scene.key !== 'Home' && this.body.blocked.down && !this.playerUI.Chatting || !this.alive) {
                 this.scene.scene.start('Home')
             }
         });
@@ -190,6 +190,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         if (!this.isCrouch) {
             this.lerpHitBox(delta);
         }
+
+        console.log(this.isCrouch)
     }
 
     setStats() {
@@ -391,15 +393,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             fall: {
                 enter: () => {
                     this.canJump = false;
-                    this.tryUncrouch();
                     this.falling = true;
-
-                    // this.stop();
-                    // this.setFrame(5);
                 },
                 update: (delta, input) => {
                     const { left, right, jump } = input;
                     const dir = (left ? -1 : right ? 1 : 0) * (this.speed);
+                    this.tryUncrouch();
 
                     if (this.body.velocity.y >= 0) {
                         this.reachApex = true;
@@ -612,14 +611,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     const { left, right, jump } = input;
                     const move = (left ? -1 : right ? 1 : 0) * this.speed;
                     this.setVelocityY(-this.jumpPower);
-                    this.setVelocityX(this.walkLerp(delta, move, .33))
+                    this.setVelocityX(this.walkLerp(delta, move, .2))
                     this.jumpPower += delta * 1.5;
 
                     if (this.jumpPower >= this.jumpMax) {
                         this.canJump = false;
-                    }
-                    if (this.body.velocity.y > -100) {
-                        this.setState('idle');
                     }
                 },
                 exit: () => {

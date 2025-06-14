@@ -161,6 +161,11 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
       this.sprite.setFrame(9);
       return;
     }
+    if (slam) {
+      this.sprite.stop();
+      this.sprite.setFrame(15);
+      return;
+    }
 
 
     if (c) {
@@ -175,11 +180,6 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
       return;
     }
 
-    if (slam) {
-      this.sprite.stop();
-      this.sprite.setFrame(15);
-      return;
-    }
 
     if (j) {
       this.sprite.stop();

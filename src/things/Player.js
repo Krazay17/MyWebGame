@@ -256,15 +256,19 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     // }
 
     touchFireWall(wall) {
-        const tileWorldX = wall.getCenterX();
-        const tileWorldY = wall.getCenterY();
-        const rawDirection = new Phaser.Math.Vector2(this.x - tileWorldX, this.y - tileWorldY);
-        const angle = Phaser.Math.Snap.To(rawDirection.angle(), Phaser.Math.DegToRad(90)); // Snap to 90°
-        const direction = new Phaser.Math.Vector2(Math.cos(angle), Math.sin(angle));
-        //this.knockbackVelocity = direction.scale(50);
+        // const tileWorldX = wall.getCenterX();
+        // const tileWorldY = wall.getCenterY();
+        // const rawDirection = new Phaser.Math.Vector2(this.x - tileWorldX, this.y - tileWorldY);
+        // const angle = Phaser.Math.Snap.To(rawDirection.angle(), Phaser.Math.DegToRad(90)); // Snap to 90°
+        // const direction = new Phaser.Math.Vector2(Math.cos(angle), Math.sin(angle));
+        // this.knockbackVelocity = direction.scale(50);
+        // const velocity = direction.scale(600);
+        // this.TakeDamage(velocity.x, velocity.y, 5, 300);
 
-        const velocity = direction.scale(600);
-        this.TakeDamage(velocity.x, velocity.y, 5, 300);
+        const x = this.body.blocked.left ? 1 : this.body.blocked.right ? -1 : 0;
+        const y = this.body.blocked.down ? -1 : this.body.blocked.up ? 1 : 0;
+        this.TakeDamage(x * 600, y* 600, 5, 300);
+
 
     }
 
@@ -395,7 +399,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 },
                 update: (delta, input) => {
                     const { left, right, jump } = input;
-                    const dir = left ? -this.speed : this.speed;
+                    const dir = (left ? -1 : right ? 1 : 0) * (this.speed);
 
                     if (this.body.velocity.y >= 0) {
                         this.reachApex = true;
@@ -407,13 +411,15 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     }
 
                     if (this.body.blocked.left) {
-                        this.bufferLeftWallJump = this.scene.time.now + 125;
-                        this.wallRunRight = 500;
+                        this.bufferLeftWallJump = this.scene.time.now + 55;
+                            this.isWallJumping = false;
+                        this.wallRunRight = 540;
                     }
 
                     if (this.body.blocked.right) {
-                        this.bufferRightWallJump = this.scene.time.now + 125;
-                        this.wallRunLeft = 500;
+                        this.bufferRightWallJump = this.scene.time.now + 55;
+                            this.isWallJumping = false;
+                        this.wallRunLeft = 540;
                     }
 
                     if (!jump || (!this.body.blocked.right && !this.body.blocked.left)) {
@@ -427,15 +433,17 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
                     if (jump) {
                         if (!right && (this.bufferRightWallJump > this.scene.time.now)) {
-                            this.setVelocity(-350, -this.wallRunRight);
+                            this.setVelocity(-350, Phaser.Math.Clamp(-this.wallRunRight, -500, -200));
                             this.wallRunning = false;
-                            this.wallJumpAnim = this.scene.time.now;
+                            this.wallJumpTimer = this.scene.time.now;
+                            this.isWallJumping = true;
                             this.isMantling = 0;
                         }
                         if (!left && (this.bufferLeftWallJump > this.scene.time.now)) {
-                            this.setVelocity(350, -this.wallRunLeft);
+                            this.setVelocity(350, Phaser.Math.Clamp(-this.wallRunLeft, -500, -200));
                             this.wallRunning = false;
-                            this.wallJumpAnim = this.scene.time.now;
+                            this.wallJumpTimer = this.scene.time.now;
+                            this.isWallJumping = true;
                             this.isMantling = 0;
                         }
 
@@ -451,7 +459,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                                 this.wallRunLeft = 0;
                                 this.wallRunning = false;
                             }
-                        } else if (left && !right && (this.bufferLeftWallJump > this.scene.time.now) && this.wallRunLeft) {
+                        } else if (left && !right && (this.bufferLeftWallJump > this.scene.time.now) && this.wallRunLeft && !this.isWallJumping) {
                             this.setVelocity(-25);
                             this.isMantling = this.scene.time.now;
                         }
@@ -468,7 +476,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                                 this.wallRunRight = 0;
                                 this.wallRunning = false;
                             }
-                        } else if (right && !left && (this.bufferRightWallJump > this.scene.time.now) && this.wallRunRight) {
+                        } else if (right && !left && (this.bufferRightWallJump > this.scene.time.now) && this.wallRunRight && !this.isWallJumping) {
                             this.setVelocityY(-25);
                             this.isMantling = this.scene.time.now;
                         }
@@ -535,7 +543,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     const { left, right } = input;
                     const move = (left ? -1 : right ? 1 : 0) * (this.speed);
                     this.slamCD = 800;
-                    this.setVelocity(move * 1.2, 350);
+                    this.setVelocity(move * 1.2, Math.max(350, this.body.velocity.y));
                 },
                 update: () => { },
                 exit: () => { },
@@ -699,8 +707,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     resetJump(dash = true) {
         this.canJump = true;
-        this.wallRunLeft = 500;
-        this.wallRunRight = 500;
+        this.wallRunLeft = 540;
+        this.wallRunRight = 540;
         this.reachApex = true;
 
         if (!dash) return;
@@ -753,7 +761,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             t: this.stunned ? 1 : 0,
             d: this.isDashing ? 1 : 0,
             w: this.isWalking ? 1 : 0,
-            wj: this.wallJumpAnim > (this.scene.time.now - 50) ? 1 : 0,
+            wj: this.wallJumpTimer > (this.scene.time.now - 50) ? 1 : 0,
             wr: this.wallRunning ? 1 : 0,
             ws: this.wallSlide ? 1 : 0,
             slam: this.isSlamming > (this.scene.time.now - 550) ? 1 : 0,
@@ -1113,7 +1121,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             return;
         }
         const body = this.body;
-        const buffer = 16; // extra safety padding
+        const buffer = 36; // extra safety padding
 
         // Coordinates at top-left and top-right just above the player
         const leftX = body.x + buffer;

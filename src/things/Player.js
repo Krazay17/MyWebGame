@@ -430,15 +430,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                             this.setVelocity(-350, -this.wallRunRight);
                             this.wallRunning = false;
                             this.wallJumpAnim = this.scene.time.now;
-                        this.isMantling = 0;
-                            //this.setFrame(11);
+                            this.isMantling = 0;
                         }
                         if (!left && (this.bufferLeftWallJump > this.scene.time.now)) {
                             this.setVelocity(350, -this.wallRunLeft);
                             this.wallRunning = false;
                             this.wallJumpAnim = this.scene.time.now;
-                        this.isMantling = 0;
-                            //this.setFrame(11);
+                            this.isMantling = 0;
                         }
 
                         if (this.wallRunLeft && this.body.blocked.left) {
@@ -449,8 +447,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                             this.wallRunLeft = Math.max(0, this.wallRunLeft -= delta * 1.5);
                             this.wallRunning = true;
 
-                            //this.play('dudeclimb', true);
-
                             if (this.body.blocked.up) {
                                 this.wallRunLeft = 0;
                                 this.wallRunning = false;
@@ -460,7 +456,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                             this.isMantling = this.scene.time.now;
                         }
 
-
                         if (this.wallRunRight && this.body.blocked.right) {
                             if (this.wallRunRight < (-this.body.velocity.y)) {
                                 this.wallRunRight = (-this.body.velocity.y)
@@ -468,8 +463,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                             this.setVelocityY(-this.wallRunRight);
                             this.wallRunRight = Math.max(0, this.wallRunRight -= delta * 1.5);
                             this.wallRunning = true;
-
-                            //this.play('dudeclimb', true);
 
                             if (this.body.blocked.up) {
                                 this.wallRunRight = 0;
@@ -687,6 +680,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     this.healCD += delta / 250;
 
                     if (this.healCD >= 1) {
+                        if (this.health >= this.healthMax) return;
                         this.healCD = 0;
                         this.health++;
                         GameManager.stats.health = this.health;

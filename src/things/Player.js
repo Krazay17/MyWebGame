@@ -551,7 +551,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     const { left, right } = input;
                     const move = (left ? -1 : right ? 1 : 0) * (this.speed);
                     this.slamCD = 800;
-                    this.setVelocity(move * 1.2, Math.max(350, this.body.velocity.y));
+                    this.setVelocity(move * 1.125, Math.max(350, this.body.velocity.y));
                 },
                 update: () => { },
                 exit: () => { },

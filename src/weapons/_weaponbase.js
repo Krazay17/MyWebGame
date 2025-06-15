@@ -33,18 +33,20 @@ export default class WeaponBase {
 
     damageScaling() {
         const money = GameManager.power.money;
-        if(!money) return 1;
+        if (!money) return 1;
 
         if (money < 1000) {
             return 1;
-        } else if (money < 5000) {
-            return 1 + money /5000;
-        } else if (money < 15000) {
-            return 2 + money /15000;
-        } else if (money < 100000){
-            return 3 + money /100000;
+        } else if (money < 2000) {
+            return 1 + money / 2000;
+        } else if (money < 4000) {
+            return 2 + money / 4000;
+        } else if (money < 8000) {
+            return 3 + money / 8000;
+        } else if (money < 16000) {
+            return 4 + money / 16000;
         } else {
-            return 5;
+            return 5 + money / 500000
         }
     }
 

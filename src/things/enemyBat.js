@@ -19,7 +19,7 @@ export default class Bat extends BaseEnemy {
     preUpdate(time, delta) {
         super.preUpdate(time, delta);
         if(this.body.velocity.length() < 50) {
-            this.setVelocity(Phaser.Math.Between(-400, 400), 400);
+            this.setVelocity(Phaser.Math.Between(-400, 400), Phaser.Math.Between(-400, 400));
         }
         }
 }

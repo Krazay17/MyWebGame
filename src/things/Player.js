@@ -438,7 +438,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                             this.bufferRightWallJump = 0;
                             this.wallRunning = false;
                             this.wallJumpTimer = this.scene.time.now;
-                            this.wallRunRight /= 4;
+                            this.wallRunRight /= 2;
                             this.isMantling = 0;
                             console.log(this.wallRunRight);
                         }
@@ -449,7 +449,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                             this.bufferLeftWallJump = 0;
                             this.wallRunning = false;
                             this.wallJumpTimer = this.scene.time.now;
-                            this.wallRunLeft /= 4;
+                            this.wallRunLeft /= 2;
                             this.isMantling = 0;
                             console.log(this.wallRunLeft);
                         }

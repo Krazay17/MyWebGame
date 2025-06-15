@@ -12,7 +12,6 @@ export default class level2 extends BaseGame {
 
     create() {
         this.setupSky();
-        this.setupSave();
         this.setupWorld(0, 0, 6400, 6400);
         this.setupPlayer();
         this.setupGroups();

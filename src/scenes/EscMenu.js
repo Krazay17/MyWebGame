@@ -23,7 +23,9 @@ export default class EscMenu extends Phaser.Scene {
 
         this.network = NetworkManager.instance;
 
-        window.addEventListener('beforeunload', () => GameManager.save());
+    //     window.addEventListener('beforeunload', () => {
+    //         GameManager.save();
+    // });
 
         // Background
         this.bg = this.add.rectangle(0, 0, 800, 600, 0x000000, 0.8).setOrigin(0, 0);

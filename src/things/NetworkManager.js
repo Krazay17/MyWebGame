@@ -29,7 +29,7 @@ export default class NetworkManager {
       console.log('Connected to server:', this.socket.id);
 
       this.socket.emit('pingCheck');
-      
+
       setInterval(() => {
         this.socket.emit('pingCheck');
       }, 5000);
@@ -37,7 +37,7 @@ export default class NetworkManager {
       // Initial sync request after gathering local player data
       const data = GameManager.getNetworkData();
 
-      this.socket.emit('playerSyncRequest', { x: 0, y: 0, data });
+      this.socket.emit('playerSyncRequest', { data });
     });
 
     this.socket.on('disconnect', (reason) => {
@@ -64,19 +64,19 @@ export default class NetworkManager {
     // Add already-connected players
     this.socket.on('existingPlayers', (players) => {
       console.log('Existing players received:', players);
-      players.forEach(({ id, x, y, data }) => {
+      players.forEach(({ id, data }) => {
         if (id !== this.socket.id) {
           //this.savedOtherPlayers = players;
-          this.addOtherPlayer(id, x, y, data);
-          console.log(x, y)
+          this.addOtherPlayer(id, data);
         }
       });
     });
 
     // New player joined
-    this.socket.on('playerJoined', ({ id, x, y, data }) => {
+    this.socket.on('playerJoined', ({ id, data }) => {
       if (!this.otherPlayers[id] && id !== this.socket.id) {
-        this.addOtherPlayer(id, x, y, data);
+        this.addOtherPlayer(id, data);
+        console.log(data)
       }
     });
     // Player left
@@ -97,10 +97,10 @@ export default class NetworkManager {
     });
 
     // General sync update
-    this.socket.on('playerSyncUpdate', ({ id, x, y, data }) => {
+    this.socket.on('playerSyncUpdate', ({ id, data }) => {
       const player = this.otherPlayers[id];
       if (player) {
-        player.syncAll(x, y, data);
+        player.syncAll(data);
       }
     });
 
@@ -113,9 +113,11 @@ export default class NetworkManager {
       }
     });
 
-    this.socket.on('playerStateUpdate', ({id, state}) => {
+    this.socket.on('playerStateUpdate', ({ id, state }) => {
       const player = this.otherPlayers[id];
       if (player) {
+        player.x = state.x;
+        player.y = state.y;
         player.setGhostState(state);
       }
     })
@@ -151,7 +153,7 @@ export default class NetworkManager {
       }
     })
 
-    this.socket.on('updateHealthUpdate', ({id, health, max}) => {
+    this.socket.on('updateHealthUpdate', ({ id, health, max }) => {
       const player = this.otherPlayers[id];
       if (player) {
         player.updateHealth(health, max);
@@ -161,29 +163,27 @@ export default class NetworkManager {
 
   }
 
-  addOtherPlayer(id, x = -1100, y = 400, data = {
-    name: { text: 'Hunter', color: '#ffffff' },
-    power: { money: 0, auraLevel: 1 },
-  }) {
+  addOtherPlayer(id, data) {
     if (this.otherPlayers[id]) {
       this.otherPlayers[id].destroy();
     }
 
-    const ghost = new GhostPlayer(this.scene, id, x, y, data);
+    const ghost = new GhostPlayer(this.scene, id, data);
+    console.log(data);
     this.otherPlayers[id] = ghost;
   }
 
-refreshScene(scene) {
-  this.scene = scene;
+  refreshScene(scene) {
+    this.scene = scene;
 
-  for (const id in this.otherPlayers) {
-    const oldGhost = this.otherPlayers[id];
-    const { x, y, data } = oldGhost.getSyncData(); // You’ll make this next
+    for (const id in this.otherPlayers) {
+      const oldGhost = this.otherPlayers[id];
+      const { data } = oldGhost.getSyncData(); // You’ll make this next
 
-    oldGhost.destroy(); // Clean up from old scene
+      oldGhost.destroy(); // Clean up from old scene
 
-    this.otherPlayers[id] = new GhostPlayer(scene, id, x, y, data);
+      this.otherPlayers[id] = new GhostPlayer(scene, id, data);
+    }
   }
-}
 
 }

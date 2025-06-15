@@ -73,12 +73,15 @@ export default class Preloader extends Phaser.Scene {
 
     create() {
         GameManager.load();
+
+
         window.secretDevMode = () => {
             GameManager.flags.devmode = !GameManager.flags.devmode;
             console.log(GameManager.flags.devmode);
         };
 
         this.scene.start(GameManager.area);
+        console.log(GameManager.area);
     }
 
     loadingBar() {

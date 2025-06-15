@@ -9,11 +9,8 @@ const io = new Server(server, {
   cors: {
     origin: [
       "https://krazay17.github.io",
-      "http://localhost:3000",
-      "http://127.0.0.1:3000",
-      "http://localhost:5500",
       "http://localhost:5173",
-      "http://127.0.0.1:5500",
+      "http://10.0.0.194:5173",
     ],
     methods: ["GET", "POST"]
   }
@@ -68,27 +65,24 @@ io.on('connection', (socket) => {
   //   );
   // })
 
-  socket.on('playerSyncRequest', ({ x, y, data }) => {
+  socket.on('playerSyncRequest', ({ data }) => {
     const isNew = !players[socket.id];
 
-    players[socket.id] = { x, y, data, lastPing: Date.now() };
+    players[socket.id] = { data, lastPing: Date.now() };
 
     if (isNew) {
       socket.broadcast.emit('playerJoined', {
         id: socket.id,
-        x,
-        y,
         data
       });
 
-      const existing = Object.entries(players).map(([id, pdata]) => ({ id, ...pdata }));
+      const existing = Object.entries(players).map(([id, data]) => ({ id, ...data }));
 
       socket.emit('existingPlayers', existing);
+      console.log(existing);
     } else {
       socket.broadcast.emit('playerSyncUpdate', {
         id: socket.id,
-        x,
-        y,
         data
       });
     }
@@ -102,6 +96,8 @@ io.on('connection', (socket) => {
 
   socket.on('playerStateRequest', (state) => {
     if (players[socket.id]) {
+      players[socket.id].data.location.x = state.x;
+      players[socket.id].data.location.y = state.y;
 
       socket.broadcast.emit('playerStateUpdate', { id: socket.id, state });
     }

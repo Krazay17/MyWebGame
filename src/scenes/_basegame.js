@@ -35,6 +35,7 @@ export default class BaseGame extends Phaser.Scene {
     this.spawnManager = new SpawnManager(this)
     this.sound.pauseOnBlur = false;
 
+
     this.input.on('wheel', (wheel) => {
       if (!this.zoom) this.zoom = 1;
       // Step 1: Adjust zoom
@@ -51,6 +52,14 @@ export default class BaseGame extends Phaser.Scene {
       this.cameras.main.setZoom(this.zoom)
       //this.resizeBackgroundToFill();
     })
+
+    GameManager.area = this.key;
+    window.addEventListener('beforeunload', () => {
+    GameManager.area = this.key;
+    GameManager.location.x = this.player.x;
+    GameManager.location.y = this.player.y;
+      GameManager.save();
+    });
 
     // window.addEventListener('focus', () => {
     //   this.sound.mute = false;
@@ -85,7 +94,10 @@ export default class BaseGame extends Phaser.Scene {
   }
 
   setupPlayer(x = 0, y = 0) {
-    this.player = new Player(this, x, y);
+    const locationX = GameManager.portalTravel ? x : GameManager.location.x;
+    const locationY = GameManager.portalTravel ? y : GameManager.location.y;
+
+    this.player = new Player(this, locationX, locationY);
     this.cameras.main.startFollow(this.player, false, .04, .04);
 
 
@@ -126,7 +138,12 @@ export default class BaseGame extends Phaser.Scene {
   }
 
   spawnPlayer(x, y) {
-    this.player.setPosition(x, y);
+    if (GameManager.portalTravel) {
+      this.player.setPosition(x, y);
+      GameManager.location.x = x;
+      GameManager.location.y = y;
+      GameManager.portalTravel = false;
+    }
   }
 
 
@@ -291,7 +308,6 @@ export default class BaseGame extends Phaser.Scene {
 
   setupQuick(x = 0, y = 0) {
     this.setupSky();
-    this.setupSave();
     this.setupWorld();
     this.setupTileMap()
     this.setupPlayer(x, y);
@@ -306,11 +322,6 @@ export default class BaseGame extends Phaser.Scene {
       (object.width - x) / 2,
       (object.height - y) / 2
     );
-  }
-
-  setupSave() {
-    GameManager.area = this.key;
-    GameManager.save();
   }
 
   loadingBar() {

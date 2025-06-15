@@ -21,7 +21,6 @@ export default class Level3 extends BaseGame {
     }
 
     create() {
-        this.setupSave();
         this.setupSky({sky2: false, sky3: false});
         this.sky2 = this.add.image(1000, 900, 'purplesky1').setScale(1.1).setScrollFactor(.15);
         this.sky3 = this.add.image(1200, 600, 'skybluestreaks').setScale(.8).setScrollFactor(.3);

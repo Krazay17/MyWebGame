@@ -4,23 +4,24 @@ import RankSystem from "./RankSystem.js";
 import ChatBubble from "./chatBubble.js";
 
 export default class GhostPlayer extends Phaser.GameObjects.Container {
-  constructor(scene, id, x = 0, y = 0,
-    data = {
-      name: { text: 'Hunter', color: '#ffffff' },
-      power: { money: 0, auraLevel: 1 },
-    }) {
-    super(scene, x, y);
+  constructor(scene, id, data = {
+    location: { x: 0, y: 0 },
+    name: { text: 'Hunter', color: '#ffffff' },
+    power: { money: 0, auraLevel: 1 },
+  }) {
+    super(scene, data.location.x, data.location.y);
+    console.log(data.location.x, data.location.x);
+
+    const { location, name, power } = data;
     this.id = id;
     this.myData = data;
-    const name = data?.name ?? { text: 'Hunter', color: '#ffffff' };
-    const power = data?.power ?? { money: 0, auraLevel: 1 };
     this.money = power.money;
     this.auraLevel = power.auraLevel;
     this.nameText = name.text;
     this.nameColor = name.color;
 
-    this.prevPos = new Phaser.Math.Vector2(x, y);
-    this.targetPos = new Phaser.Math.Vector2(x, y);
+    this.prevPos = new Phaser.Math.Vector2(location.x, location.y);
+    this.targetPos = new Phaser.Math.Vector2(location.x, location.y);
     this.lerpTimer = 0;
     this.lerpDuration = 15;
 
@@ -124,7 +125,7 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
       this.sprite.stop();
       this.sprite.setFrame(22);
       return;
-    }else {
+    } else {
       this.sprite.setTint(this.baseTint);
     }
 
@@ -147,14 +148,14 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
       return;
     }
 
-    if (wr) {
-      this.sprite.play('dudeclimb', true);
-      return;
-    }
-
     if (ws) {
       this.sprite.stop();
       this.sprite.setFrame(12);
+      return;
+    }
+
+    if (wr) {
+      this.sprite.play('dudeclimb', true);
       return;
     }
 
@@ -327,23 +328,22 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
     this.moneyText.setText(this.ranks.getRank(this.money) + '\n' + this.money);
   }
 
-  syncAll(x, y, data) {
+  syncAll(data) {
     this.myData = data;
-    const power = data.power || { money: 0, auraLevel: 1 };
-    const name = data.name || { text: 'Hunter', color: '#FFFFFF' };
+    const location = this.myData.location || { x: 0, y: 0 };
+    const power = this.myData.power || { money: 0, auraLevel: 1 };
+    const name = this.myData.name || { text: 'Hunter', color: '#FFFFFF' };
 
     this.updateName(name.text, name.color);
     this.updatePower(power.money, power.auraLevel);
 
-    this.x = x;
-    this.y = y;
+    this.x = location.x;
+    this.y = location.y;
   }
 
   getSyncData() {
     return {
-      x: this.x,
-      y: this.y,
-      data: this.myData, // should include name, power, etc.
+      data: this.myData
     };
   }
 

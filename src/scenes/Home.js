@@ -1,5 +1,6 @@
 import BaseGame from './_basegame.js'
 import Breakable from '../things/Breakable.js';
+import GameManager from '../things/GameManager.js';
 
 export default class Home extends BaseGame {
     constructor() {
@@ -19,7 +20,6 @@ export default class Home extends BaseGame {
     }
 
     create() {
-        this.setupSave();
         this.setupSky();
         this.setupWorld(-2000, 0, 4000, 2000);
         this.setupPlayer(0, 740);
@@ -110,6 +110,7 @@ export default class Home extends BaseGame {
 
         this.physics.add.overlap(this.player, this.portals, (player, portal) => {
             if (portal.targetScene && this.scene.key !== portal.targetScene) {
+                GameManager.portalTravel = true;
                 this.scene.start(portal.targetScene);
             }
         });

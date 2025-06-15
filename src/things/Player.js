@@ -20,7 +20,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
 
         this.setupAnimation();
-        this.syncNetwork(x, y)
+        this.syncNetwork()
 
         this.lastSentState = {};
 
@@ -82,6 +82,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.leftSpam = 0;
         this.rightSpam = 0;
         this.speed = 250;
+        this.test = 0;
 
         this.rankSystem = new RankSystem();
 
@@ -124,6 +125,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
         this.scene.input.keyboard.on('keydown-T', () => {
             if (this.scene.scene.key !== 'Home' && this.body.blocked.down && !this.playerUI.Chatting || !this.alive) {
+                GameManager.portalTravel = true;
                 this.scene.scene.start('Home')
             }
         });
@@ -190,6 +192,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         if (!this.isCrouch) {
             this.lerpHitBox(delta);
         }
+
+        GameManager.location.x = this.x;
+        GameManager.location.y = this.y;
     }
 
     setStats() {
@@ -286,8 +291,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
             this.decideState(input);       // decide what state to be in based on input
             this.states[this.currentState].update(delta, input); // update current state logic
-            if ((this.slamCD || this.slideCD) && !this.isSliding && !this.isCrouch) {
-                this.slideCD = Math.max(0, this.slideCD -= delta);
+            if ((this.slamCD || this.slidePower < 600) && !this.isSliding && !this.isCrouch) {
+                this.slidePower = Math.min(600, this.slidePower += delta/2);
+                console.log(this.slidePower)
                 this.slamCD = Math.max(0, this.slamCD -= delta);
             }
         }
@@ -303,6 +309,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         if (jump && this.canJump) return this.setState('jump', input);
         if ((slam && !this.slamCD && !this.body.blocked.down)) return this.setState('slam', input);
         if ((crouch)) return this.setState('crouch', input);
+        if (this.wallRunning) return this.setState('wallRun', input);
         if (!this.body.blocked.down) return this.setState('fall', input);
         if (left || right) return this.setState('walk', input);
         return this.setState('idle', input);
@@ -343,9 +350,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     setupStates() {
         this.currentState = 'idle';
         this.stateLockout = 0;
-        this.slideCD = 0;
+        this.slidePower = 0;
         this.slamCD = 0;
         this.healCD = 0;
+        this.wallRunLeft = 540;
+        this.wallRunRight = 540;
+
+        this.wallrunDecayRate = .5;
         // idle: {
         //     enter: () => { },
         //     update: () => { },
@@ -375,6 +386,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     this.tryUncrouch();
                     this.isSlamming = 0;
                     this.isWalking = true;
+                    if (!this.network.socket.connected) {
+                        this.network.socket.connect();
+                        console.log(this.network.connected)
+                    }
                 },
                 update: (delta, input) => {
                     const { left, right } = input;
@@ -396,11 +411,53 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 update: (delta, input) => {
                     const { left, right, jump } = input;
                     const dir = (left ? -1 : right ? 1 : 0) * (this.speed);
-                    this.tryUncrouch();
+                    if ((left && !right) || (!left && right)) {
+                        this.setVelocityX(this.walkLerp(delta, dir, .1));
+                    } else {
+                        this.setVelocityX(this.walkLerp(delta, 0, .02));
+                    }
 
+                    this.tryUncrouch();
                     if (this.body.velocity.y >= 0) {
                         this.reachApex = true;
                     }
+
+                    if (jump && (this.body.blocked.left || this.body.blocked.right)) {
+                        this.setState('wallRun');
+                    }
+
+                },
+                exit: () => {
+                    this.falling = false;
+                    this.isMantling = false;
+                    this.setMaxVelocity(1000, 850);
+                },
+            },
+
+            wallRun: {
+                enter: () => {
+                    this.wallRunning = true;
+
+                    if (this.body.blocked.left) {
+                        if (this.wallRunLeft < (-this.body.velocity.y)) {
+                            this.wallRunLeft = (-this.body.velocity.y)
+                        }
+
+                        this.wallRunRight = 540;
+                    }
+
+                    if (this.body.blocked.right) {
+                        if (this.wallRunRight < (-this.body.velocity.y)) {
+                            this.wallRunRight = (-this.body.velocity.y)
+                        }
+
+                        this.wallRunLeft = 540;
+                    }
+                },
+                update: (delta, input) => {
+                    const { left, right, jump } = input;
+                    const dir = (left ? -1 : right ? 1 : 0) * (this.speed);
+
                     if ((left && !right) || (!left && right)) {
                         this.setVelocityX(this.walkLerp(delta, dir, .1));
                     } else {
@@ -408,104 +465,77 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     }
 
                     if (this.body.blocked.left) {
+                        this.setVelocityY(-this.wallRunLeft);
+                        this.wallRunLeft = Math.max(-200, this.wallRunLeft - (this.wallrunDecayRate * delta));
                         this.bufferLeftWallJump = this.scene.time.now + 55;
-                        this.isWallJumping = false;
-                        this.wallRunRight = 540;
+                        this.bufferRightWallJump = 0;
+                        console.log(this.wallRunLeft)
+                        if (this.wallRunLeft <= 0) {
+                            this.wallSlide = true;
+                        }
                     }
-
                     if (this.body.blocked.right) {
+                        this.setVelocityY(-this.wallRunRight);
+                        this.wallRunRight = Math.max(-200, this.wallRunRight - (this.wallrunDecayRate * delta));
                         this.bufferRightWallJump = this.scene.time.now + 55;
-                        this.isWallJumping = false;
-                        this.wallRunLeft = 540;
+                        this.bufferLeftWallJump = 0;
+                        console.log(this.wallRunRight)
+                        if (this.wallRunRight <= 0) {
+                            this.wallSlide = true;
+                        }
+                    }
+                    if (this.body.blocked.up) {
+                        this.wallRunLeft = 0;
+                        this.wallRunRight = 0;
+                        this.wallRunning = false;
                     }
 
-                    if (!jump || (!this.body.blocked.right && !this.body.blocked.left)) {
-                        this.wallRunning = false;
-                        this.wallSlide = false;
-                        this.setMaxVelocity(1000, 850);
+                    const leftBuffer = this.bufferLeftWallJump > this.scene.time.now;
+                    const rightBuffer = this.bufferRightWallJump > this.scene.time.now
 
-                    } else if (!this.wallRunLeft || !this.wallRunRight) {
-                        this.wallSlide = true;
+                    if ((right && !left) && this.bufferRightWallJump > this.scene.time.now && !this.body.blocked.right) {
+                        this.setVelocityY(-25);
+                        this.isMantling = this.scene.time.now;
                         this.wallRunning = false;
-                        this.setMaxVelocity(1000, 200);
                     }
-
-                    if (jump) {
-                        if (!right && (this.bufferRightWallJump > this.scene.time.now) && !this.isWallJumping) {
-                            this.setVelocity(-350, Phaser.Math.Clamp(-this.wallRunRight, -500, -250));
-                            this.isWallJumping = true;
-                            this.flipX = true;
-                            this.bufferRightWallJump = 0;
-                            this.wallRunning = false;
-                            this.wallJumpTimer = this.scene.time.now;
-                            this.wallRunRight /= 2;
-                            this.isMantling = 0;
-                            console.log(this.wallRunRight);
-                        }
-                        if (!left && (this.bufferLeftWallJump > this.scene.time.now) && !this.isWallJumping) {
-                            this.setVelocity(350, Phaser.Math.Clamp(-this.wallRunLeft, -500, -250));
-                            this.isWallJumping = true;
-                            this.flipX = false;
-                            this.bufferLeftWallJump = 0;
-                            this.wallRunning = false;
-                            this.wallJumpTimer = this.scene.time.now;
-                            this.wallRunLeft /= 2;
-                            this.isMantling = 0;
-                            console.log(this.wallRunLeft);
-                        }
-
-                        if (this.wallRunLeft && this.body.blocked.left) {
-                            if (this.wallRunLeft < (-this.body.velocity.y)) {
-                                this.wallRunLeft = (-this.body.velocity.y)
-                            }
-                            this.setVelocityY(-this.wallRunLeft);
-                            this.wallRunLeft = Math.max(0, this.wallRunLeft -= delta * 1.3);
-                            this.wallRunning = true;
-
-                            if (this.body.blocked.up) {
-                                this.wallRunLeft = 0;
-                                this.wallRunning = false;
-                            }
-                        } else if ((left && !right) && (this.bufferLeftWallJump > this.scene.time.now) && this.wallRunLeft && !this.isWallJumping) {
-                            this.setVelocity(-25);
-                            this.isMantling = this.scene.time.now;
-                        }
-
-                        if (this.wallRunRight && this.body.blocked.right) {
-                            if (this.wallRunRight < (-this.body.velocity.y)) {
-                                this.wallRunRight = (-this.body.velocity.y)
-                            }
-                            this.setVelocityY(-this.wallRunRight);
-                            this.wallRunRight = Math.max(0, this.wallRunRight -= delta * 1.3);
-                            this.wallRunning = true;
-
-                            if (this.body.blocked.up) {
-                                this.wallRunRight = 0;
-                                this.wallRunning = false;
-                            }
-                        } else if ((right && !left) && (this.bufferRightWallJump > this.scene.time.now) && this.wallRunRight && !this.isWallJumping) {
-                            this.setVelocityY(-25);
-                            this.isMantling = this.scene.time.now;
-                        }
+                    if ((left && !right) && leftBuffer && !this.body.blocked.left) {
+                        this.setVelocityY(-25);
+                        this.isMantling = this.scene.time.now;
+                        this.wallRunning = false;
+                    }
+                    if (!this.body.blocked.left && !this.body.blocked.right) {
+                        this.wallRunning = false;
+                    }
+                    if (!jump || (right && leftBuffer) || (left && rightBuffer)) {
+                        const jumpHeight = leftBuffer ? this.wallRunLeft : this.wallRunRight;
+                        this.setState('wallJump', { left: rightBuffer, right: leftBuffer, height: jumpHeight })
                     }
                 },
                 exit: () => {
-                    this.falling = false;
-                    this.isMantling = false;
                     this.wallRunning = false;
                     this.wallSlide = false;
-                    this.setMaxVelocity(1000, 850);
                 },
             },
 
-            wallRun: {
-                enter: () => { },
-                update: () => { },
-                exit: () => { },
-            },
-
             wallJump: {
-                enter: () => { },
+                enter: ({ left, right, height }) => {
+                    this.isWallJumping = true;
+                    this.wallJumpTimer = this.scene.time.now;
+                    this.isMantling = 0;
+
+                    if (left) {
+                        this.setVelocity(-350, Phaser.Math.Clamp(-height, -500, -100));
+                        this.flipX = true;
+                        this.bufferRightWallJump = 0;
+                        this.wallRunRight /= 3;
+                    }
+                    if (right) {
+                        this.setVelocity(350, Phaser.Math.Clamp(-height, -500, -100));
+                        this.flipX = false;
+                        this.bufferLeftWallJump = 0;
+                        this.wallRunLeft /= 3;
+                    }
+                },
                 update: () => { },
                 exit: () => { },
             },
@@ -519,7 +549,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     this.setOffset(70, 70);
 
                     if (this.body.blocked.down && (!left && !right)) {
-                        this.slideCD = 1;
+                        this.slidePower = 100;
                     }
 
                     this.stop();
@@ -533,7 +563,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                         this.resetJump();
                         this.isSlamming = 0;
 
-                        if ((left || right) && !this.slideCD) {
+                        if ((left || right) && this.slidePower > 100) {
                             this.setState('slide');
                             return;
                         }
@@ -559,13 +589,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
             slide: {
                 enter: () => {
-                    const speed = 550 * this.dir;
+                    const speed = this.slidePower * this.dir;
+                    this.slidePower = 0;
 
                     this.isSliding = true;
                     this.canSlide = false;
                     this.setVelocityX(speed);
 
-                    this.slideCD = 800;
                     this.slideTime = this.scene.time.now + 500;
                     this.stateLockout = this.slideTime;
 
@@ -573,6 +603,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     this.setFrame(9);
                 },
                 update: (delta, input) => {
+                    if (Math.abs(this.body.velocity.x) < 150) {
+                        this.stateLockout = 0;
+                        this.setState('crouch', input);
+                        return;
+                    }
+
                     if (!input.crouch) {
                         this.stateLockout = 0;
                         this.setState('idle');
@@ -587,7 +623,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
                     if (this.slideTime <= this.scene.time.now && input.crouch) {
                         this.stateLockout = 0;
-                        this.setState('crouch');
+                        this.setState('crouch', input);
                         return;
                     }
 
@@ -801,14 +837,14 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             return;
         }
 
-        if (wr) {
-            this.play('dudeclimb', true);
-            return;
-        }
-
         if (ws) {
             this.stop();
             this.setFrame(12);
+            return;
+        }
+
+        if (wr) {
+            this.play('dudeclimb', true);
             return;
         }
 
@@ -1080,7 +1116,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     }
 
-    syncNetwork(x, y) {
+    syncNetwork() {
         if (this.tryingToSync) return;
         this.tryingToSync = true;
         setTimeout(() => this.tryingToSync = false, 500);
@@ -1090,7 +1126,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         }
 
         this.network.socket.emit('playerSyncRequest', {
-            x: x, y: y, data: {
+            data: {
+                location: GameManager.location,
                 name: GameManager.name,
                 power: GameManager.power
             }

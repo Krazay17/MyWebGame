@@ -15,6 +15,7 @@ export default {
         seenIntro: false,
         devmode: false,
     },
+    portalTravel: false,
 
     save() {
         const data = {
@@ -49,7 +50,7 @@ export default {
                         flags: parsed.flags,
                         //weapons: parsed.weapons,
                         power: parsed.power,
-                        
+
                     }
                 });
 
@@ -58,14 +59,14 @@ export default {
 
             // Normal loading path
             this.version = parsed.version ?? CURRENT_VERSION;
-            this.location = parsed.location ?? {x: 0, y: 0};
+            this.location = parsed.location ?? { x: 0, y: 0 };
             this.name = parsed.name ?? { text: 'Hunter', color: '#FFFFFF' };
             this.area = parsed.area ?? 'Home';
             this.power = parsed.power ?? { money: 0, spent: 0, auraLevel: 1, };
             this.upgrades = parsed.upgrades ?? {};
-            this.stats = parsed.stats ?? {healthMax: 25, health: 25};
+            this.stats = parsed.stats ?? { healthMax: 25, health: 25 };
             this.weapons = parsed.weapons ?? { left: 'shurikan', right: 'sword', aura: 'zap' };
-            this.volume = parsed.volume ?? {master: 1, music: 1};
+            this.volume = parsed.volume ?? { master: 1, music: 1 };
             this.collectedItems = parsed.collectedItems ?? [];
             this.flags = parsed.flags ?? {};
         }
@@ -75,14 +76,14 @@ export default {
         // Merge preserved values first
         this.version = CURRENT_VERSION;
         this.name = keep.name ?? { text: 'Hunter', color: '#FFFFFF' };
-        this.location = {x: 0, y: 0};
+        this.location = { x: 0, y: 0 };
         this.area = keep.area ?? 'Home';
         this.power = keep.power ?? { money: 0, spent: 0, auraLevel: 1, };
         this.upgrades = keep.upgrades ?? {};
         this.money = keep.money ?? 0;
-        this.stats = keep.stats ?? {healthMax: 25, health: 25};
+        this.stats = keep.stats ?? { healthMax: 25, health: 25 };
         this.weapons = keep.weapons ?? { left: 'shurikan', right: 'sword', aura: 'zap' };
-        this.volume = keep.volume ?? {master: 1, music: 1};
+        this.volume = keep.volume ?? { master: 1, music: 1 };
         this.collectedItems = keep.collectedItems ?? [];
         this.flags = keep.flags ?? {
             seenIntro: false,
@@ -96,22 +97,20 @@ export default {
         localStorage.removeItem('webConduitSave');
     },
 
-getNetworkData() {
-      console.log(this.power.money)
-  return {
-    name: {
-      text: this.name?.text ?? 'Hunter',
-      color: this.name?.color ?? '#ffffff'
+    getNetworkData() {
+        return {
+            location: {
+                x: this.location.x,
+                y: this.location.y
+            },
+            name: {
+                text: this.name?.text ?? 'Hunter',
+                color: this.name?.color ?? '#ffffff'
+            },
+            power: {
+                money: this.power?.money ?? 0,
+                auraLevel: this.power?.auraLevel ?? 1
+            }
+        };
     },
-    power: {
-      money: this.power?.money ?? 0,
-      auraLevel: this.power?.auraLevel ?? 1
-    }
-  };
-},
-
-getLastLocation() {
-    return this.location ?? {x:0, y:0};
-}
-
 }

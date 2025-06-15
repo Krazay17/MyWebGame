@@ -27,8 +27,8 @@ const config = {
       arcade: {
         gravity: {y: 720, x: 0},
         timescale: 1,
-        //fps: 60,
-        //fixedStep: true,
+        // fps: 60,
+        // fixedStep: true,
         //tileBias: 40,
         debug: false,
       }

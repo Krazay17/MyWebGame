@@ -72,6 +72,22 @@ export default class SpawnManager {
         return coin;
     }
 
+    spawnSourceBlock(x, y) {
+        const block = this.scene.walkableGroup.create(x, y, 'boxsheet')
+        this.scene.add.existing(block);
+        this.scene.physics.add.existing(block);
+
+        if (!this.scene.anims.get('box'))
+            this.scene.anims.create({
+                key: 'box',
+                frames: this.scene.anims.generateFrameNumbers('boxsheet', {start: 0, end: 3}),
+                frameRate: 6,
+                repeat: -1,
+                yoyo: true,
+        })
+        block.play('box')
+    }
+
     spawnTurret(x, y) {
         const turret = new Enemy(this.scene, x, y, 'turret', 10);
         this.sunmanGroup.add(turret)

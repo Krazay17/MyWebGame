@@ -334,7 +334,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     walkLerp(delta, a, modify) {
-        if (!modify) modify = this.body.blocked.down ? .5 : .06;
+        if (!modify) modify = this.body.blocked.down ? .5 : .1;
 
         modify = Phaser.Math.Clamp(modify * (delta / 16.666), 0, 1);
         return Phaser.Math.Linear(this.body.velocity.x, a, modify);
@@ -402,7 +402,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                         this.reachApex = true;
                     }
                     if ((left && !right) || (!left && right)) {
-                        this.setVelocityX(this.walkLerp(delta, dir, .075));
+                        this.setVelocityX(this.walkLerp(delta, dir, .1));
                     } else {
                         this.setVelocityX(this.walkLerp(delta, 0, .02));
                     }

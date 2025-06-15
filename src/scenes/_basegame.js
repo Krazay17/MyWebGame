@@ -167,7 +167,6 @@ export default class BaseGame extends Phaser.Scene {
       { group: this.player },
       ...spawnGroups.filter(({ walls }) => walls ?? true),
     ]
-    console.log(this.walkingGroups)
 
     // this.attackableGroups = [
     //   { group: this.walkableGroup = this.physics.add.group({ allowGravity: false, immovable: true }), handler: 'platformHit', zap: false },
@@ -409,5 +408,9 @@ export default class BaseGame extends Phaser.Scene {
         this.spawnCoin(x, y);
       })
     })
+  }
+
+  spawnSourceBlock(x, y) {
+    const block = this.spawnManager.spawnSourceBlock(x, y);
   }
 }

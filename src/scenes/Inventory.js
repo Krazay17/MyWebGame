@@ -232,6 +232,7 @@ export default class Inventory extends Phaser.Scene {
         this.upgradeButtons.forEach(({ button, config }) => {
             button.setInteractive();
             button.setTint(config.tint);
+            button.prevTint = config.tint;
         });
     }
 }

@@ -27,7 +27,7 @@ export default class Level1 extends BaseGame {
     this.setupSky({ sky1: 'redsky0', sky2: false, sky3: false });
     this.sky2 = this.add.image(600, 400, 'redsky1').setScale(1).setScrollFactor(.3);
     this.sky3 = this.add.image(600, 400, 'redsky2').setScale(1).setScrollFactor(.6);
-    this.setupWorld();
+    this.setupWorld(-1200, 0, 2400, 900);
     this.setupMusic('music0');
     this.setupPlayer(-1100, 300);
 

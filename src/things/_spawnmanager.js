@@ -14,7 +14,7 @@ export default class SpawnManager {
         this.enemyCounter = 0;
     }
 
-    setupGroups() {
+    setupGroups(scene) {
         this.batGroup = this.scene.physics.add.group({ classType: Bat, allowGravity: false, immovable: true });
         this.sunmanGroup = this.scene.physics.add.group({ classType: SunMan, runChildUpdate: true, allowGravity: false });
         this.duckGroup = this.scene.physics.add.group({ classType: Duck, immovable: true });
@@ -22,6 +22,7 @@ export default class SpawnManager {
         this.softBulletGroup = this.scene.physics.add.group({ allowGravity: false });
         this.itemGroup = this.scene.physics.add.group();
         this.staticItemGroup = this.scene.physics.add.group({ allowGravity: false, immovable: true });
+        scene.physics.add.collider(this.sunmanGroup, this.sunmanGroup);
     }
 
     getGroups() {
@@ -82,7 +83,7 @@ export default class SpawnManager {
 
     spawnDuck(x, y, health = 5, isRemote = false, id = null ) {
         let duck = this.duckGroup.get();
-        
+
         if (duck && duck.isPooled) {
             duck.activate(x, y, health);
         } else {

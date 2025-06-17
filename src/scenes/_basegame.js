@@ -160,7 +160,7 @@ export default class BaseGame extends Phaser.Scene {
 
   setupGroups() {
     this.weaponGroup = new WeaponGroup(this, this.player);
-    this.spawnManager.setupGroups();
+    this.spawnManager.setupGroups(this);
     this.walkableGroup = this.physics.add.group({ allowGravity: false, immovable: true });
 
     const spawnGroups = this.spawnManager.getGroups();

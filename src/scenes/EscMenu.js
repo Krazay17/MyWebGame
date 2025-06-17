@@ -23,6 +23,14 @@ export default class EscMenu extends Phaser.Scene {
 
         this.network = NetworkManager.instance;
 
+        if (!window.secretDevMode) {
+    window.secretDevMode = function () {
+        GameManager.flags.devmode = !GameManager.flags.devmode;
+        console.log(GameManager.flags.devmode);
+    };
+}
+
+
     //     window.addEventListener('beforeunload', () => {
     //         GameManager.save();
     // });

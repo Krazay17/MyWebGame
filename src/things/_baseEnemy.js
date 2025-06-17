@@ -68,7 +68,7 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
     }
 
     updateHealthBar() {
-        if (!this.healthBar) return;
+        if (!this.healthBar || !this.healthBarBg) return;
 
         const percent = Phaser.Math.Clamp(this.health / this.maxHealth, 0, 1);
         this.healthBar.setScale(percent, 1);
@@ -201,10 +201,13 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
     deactivate() {
         if (this.healthBar) {
             this.healthBar.destroy();
+            this.healthbar = null;
         }
         if (this.healthBarBg) {
             this.healthBarBg.destroy();
+            this.healthBarBg = null;
         }
+        this.createdHealthBar = false;
         this.setActive(false);
         this.setVisible(false);
         this.body.stop();
@@ -220,7 +223,6 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
         this.setPosition(x, y);
         this.setTint();
         this.body.enable = true;
-        this.createdHealthBar = false;
 
         this.dead = false;
         this.isPooled = false;

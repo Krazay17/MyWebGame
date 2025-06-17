@@ -125,8 +125,13 @@ export default class AuraZap extends WeaponBase {
             this[handler]?.(target);
             this.zapVisual(target.x, target.y, target);
             if (this.spawnOrb) {
-                const orb = new DarkOrbProjectile(this.scene, target.x, target.y, this.player);
+                let orb = this.scene.weaponGroup.getMatching('name', 'orb').find(o => !o.active);
+                if (orb) {
+                    orb.activate(target.x, target.y)
+                } else {
+                orb = new DarkOrbProjectile(this.scene, target.x, target.y, this.player);
                 this.scene.weaponGroup.add(orb);
+                }
                 orb.setScale(.1);
                 orb.detonate = true;
             }

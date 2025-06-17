@@ -7,17 +7,10 @@ export default class DarkOrbProjectile extends WeaponProjectile {
 
         this.pointer = pointer;
 
-        this.baseTickDelay = 200;
-        this.damageTick = scene.time.addEvent({
-            delay: this.baseTickDelay,
-            callback: () => {
-                this.hitTargets = [];
-                this.damageTick.delay = Phaser.Math.Clamp(this.baseTickDelay -= 5, 80, 200);
-            },
-            repeat: -1,
-        });
+        this.name = 'orb'
 
-                if (!scene.anims.get('darkorb')) {
+
+        if (!scene.anims.get('darkorb')) {
             scene.anims.create({
                 key: 'darkorb',
                 frames: scene.anims.generateFrameNumbers('darkorb', { start: 0, end: 3 }),
@@ -25,8 +18,26 @@ export default class DarkOrbProjectile extends WeaponProjectile {
                 repeat: -1,
             })
         }
-        this.play('darkorb');
-        
+
+        this.activate();
+    }
+
+    activate(x, y) {
+        if (x || y) {
+            this.setPosition(x, y);
+        }
+
+        this.setActive(true);
+        this.setVisible(true);
+
+        this.damageTick = this.scene.time.addEvent({
+            delay: 80,
+            callback: () => {
+                this.hitTargets = [];
+            },
+            repeat: -1,
+        });
+
         // Spin tween
         this.scene.tweens.add({
             targets: this,
@@ -36,29 +47,43 @@ export default class DarkOrbProjectile extends WeaponProjectile {
             ease: 'Linear',
         });
 
+        this.play('darkorb');
+    }
 
+    deactivate() {
+        this.setActive(false);
+        this.setVisible(false);
+        this.stop();
+        this.scene.time.removeEvent(this.damageTick);
+        this.hitTargets = [];
+        this.detonated = false;
+        this.detonateTime = null;
     }
 
     preUpdate(time, delta) {
         super.preUpdate(time, delta);
         this.setScale(this.scale + .002);
-        if(this.detonate) {
+        if (this.detonate) {
             this.setVelocity(0, 0);
-            this.setScale(this.scale + .005);
-            if (!this.detonated) {
-                this.detonated = true;
-                this.scene?.time?.delayedCall(400, () => this.destroy())
+            this.setScale(this.scale + 0.005);
+
+            // Initialize if not set, then check time
+            const detonateTime = (this.detonateTime ??= time + 500);
+
+            if (time > detonateTime) {
+                this.deactivate();
             }
         } else {
-        const cursorPos = this.pointer.positionToCamera(this.scene.cameras.main);
-        const direction = new Phaser.Math.Vector2(cursorPos.x - this.x, cursorPos.y - this.y).normalize();
-        const speed = direction.scale(200);
+            const cursorPos = this.pointer.positionToCamera(this.scene.cameras.main);
+            const direction = new Phaser.Math.Vector2(cursorPos.x - this.x, cursorPos.y - this.y).normalize();
+            const speed = direction.scale(200);
             this.setVelocity(speed.x, speed.y);
         }
     }
 
-    destroy() {
-        this.scene?.time.removeEvent(this.damageTick);
-        super.destroy();
-    }
+
+    // destroy() {
+    //     this.scene?.time.removeEvent(this.damageTick);
+    //     super.destroy();
+    // }
 }

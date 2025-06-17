@@ -84,13 +84,13 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
         if (this.dead || !this.canDamage) return false;
         if (!this.createdHealthBar) this.createHealthBar();
 
-        this.scene.network.socket.emit('enemyDamageRequest', {
-            id: this.id,
-            player: player,
-            damage,
-            stagger,
-            duration,
-        })
+        // this.scene.network.socket.emit('enemyDamageRequest', {
+        //     id: this.id,
+        //     player: player,
+        //     damage,
+        //     stagger,
+        //     duration,
+        // })
 
         this.applyDamage(player, damage, stagger, duration);
 

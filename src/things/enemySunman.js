@@ -35,9 +35,4 @@ export default class SunMan extends BaseEnemy {
         super.preUpdate(time, delta);
         this.replicateEnemy();
     }
-
-    die(player) {
-        super.die(player, true);
-
-    }
 }

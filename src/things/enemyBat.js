@@ -30,8 +30,4 @@ export default class Bat extends BaseEnemy {
         }
         }
 
-        die(player) {
-            super.die(player, true);
-
-        }
 }

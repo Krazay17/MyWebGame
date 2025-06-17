@@ -1,5 +1,6 @@
 import GameManager from "../things/GameManager.js";
 import NetworkManager from "../things/NetworkManager.js";
+import SoundUtil from "../things/soundUtils.js";
 
 export default class EscMenu extends Phaser.Scene {
     constructor() {
@@ -22,13 +23,6 @@ export default class EscMenu extends Phaser.Scene {
         this.uiElements = [];
 
         this.network = NetworkManager.instance;
-
-        if (!window.secretDevMode) {
-    window.secretDevMode = function () {
-        GameManager.flags.devmode = !GameManager.flags.devmode;
-        console.log(GameManager.flags.devmode);
-    };
-}
 
 
     //     window.addEventListener('beforeunload', () => {
@@ -131,7 +125,7 @@ export default class EscMenu extends Phaser.Scene {
             const percent = (dragX - minX) / (maxX - minX);
 
             if (gameObject.name === 'music') {
-                globalThis.currentMusic.volume = percent;
+                SoundUtil.currentMusic.volume = percent;
                 GameManager.volume.music = percent
                 GameManager.save();
             } else {
@@ -157,11 +151,9 @@ export default class EscMenu extends Phaser.Scene {
         this.slider.handle.x = Phaser.Math.Linear(minX, maxX, volume.master);
         this.sound.volume = volume.master ?? 1;
 
-        if (!globalThis.currentMusic) return;
         const minX1 = this.slider1.track1.x - this.slider1.track1.width / 2;
         const maxX1 = this.slider1.track1.x + this.slider1.track1.width / 2;
         this.slider1.handle1.x = Phaser.Math.Linear(minX1, maxX1, volume.music);
-        globalThis.currentMusic.volume = volume.music ?? 1;
     }
 
     openNameInput() {

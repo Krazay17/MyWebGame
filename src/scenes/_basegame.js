@@ -4,6 +4,7 @@ import GameManager from '../things/GameManager.js';
 import SpawnManager from '../things/_spawnmanager.js';
 import WeaponGroup from '../weapons/WeaponGroup.js';
 import Duck from '../things/enemyDuck.js';
+import SoundUtil from '../things/soundUtils.js';
 
 export default class BaseGame extends Phaser.Scene {
   constructor(key) {
@@ -58,9 +59,9 @@ export default class BaseGame extends Phaser.Scene {
 
     GameManager.area = this.key;
     window.addEventListener('beforeunload', () => {
-    GameManager.area = this.key;
-    GameManager.location.x = this.player.x;
-    GameManager.location.y = this.player.y;
+      GameManager.area = this.key;
+      GameManager.location.x = this.player.x;
+      GameManager.location.y = this.player.y;
       GameManager.save();
     });
 
@@ -156,6 +157,20 @@ export default class BaseGame extends Phaser.Scene {
     objects.objects.forEach(obj => {
       this[obj.name]?.(obj.x, obj.y, obj.text?.text);
     });
+
+    this.events.on('shutdown', () => {
+
+      if (this.walls) {
+        this.walls.destroy();
+        this.walls = null;
+      }
+
+      if (this.map) {
+        this.map.destroy();
+        this.map = null;
+      }
+    });
+
   }
 
   setupGroups() {
@@ -273,23 +288,39 @@ export default class BaseGame extends Phaser.Scene {
     // }, null, this);
   }
 
-  setupMusic(key = 'music1', volume = 1) {
-    // If music is already playing and it's the same track, do nothing
-    // Use globalThis to store music reference
+setupMusic(key = 'music1', volume = 1) {
+    // this.currentMusic = this.sound.add(key, { loop: true });
+    // this.currentMusic.volume = GameManager.volume.music * volume;
 
-    if (!globalThis.currentMusic || globalThis.currentMusic.key !== key) {
+    // const storedTime = this.game.registry.get('music_seek_time');
+    // if (storedTime !== undefined) {
+    //   this.currentMusic.seek = storedTime;
+    // }
 
-      // Stop current music
-      if (globalThis.currentMusic && globalThis.currentMusic.isPlaying) {
-        globalThis.currentMusic.stop();
-      }
+    // this.currentMusic.play();
 
-      // Start new track
-      globalThis.currentMusic = this.sound.add(key, { loop: true });
-      globalThis.currentMusic.volume = GameManager.volume.music ?? 1;
-      globalThis.currentMusic.play();
+    // const shutdownHandler = () => {
+    //   if (this.currentMusic) {
+    //     const currentTime = this.currentMusic.seek;
+    //     this.game.registry.set('music_seek_time', currentTime);
+    //     this.currentMusic.stop();
+    //     this.currentMusic.destroy();
+    //     this.currentMusic = null;
+    //   }
+    // };
+
+    // this.events.once('shutdown', shutdownHandler);
+    // this.events.once('destroy', shutdownHandler);
+
+    SoundUtil.setup(this, key);
+
+    const shutdownHandler = () => {
+      SoundUtil.savePosition();
     }
-  }
+    
+    this.events.once('shutdown', shutdownHandler);
+}
+
 
 
   setupPlatforms(platformPos = [[0, 800]]) {

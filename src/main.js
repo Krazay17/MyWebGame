@@ -9,6 +9,7 @@ import Level1 from './scenes/Level1.js'
 import level2 from './scenes/level2.js'
 import Level3 from './scenes/Level3.js'
 import level4 from './scenes/level4.js'
+import GameManager from './things/GameManager.js'
 
 /// <reference path="../types/phaser.d.ts" />
 
@@ -42,3 +43,11 @@ const config = {
 };
 
 let game = new Phaser.Game(config);
+
+
+        if (!window.secretDevMode) {
+    window.secretDevMode = function () {
+        GameManager.flags.devmode = !GameManager.flags.devmode;
+        console.log(GameManager.flags.devmode);
+    };
+}

@@ -22,6 +22,7 @@ export default class SpawnManager {
         this.softBulletGroup = this.scene.physics.add.group({ allowGravity: false });
         this.itemGroup = this.scene.physics.add.group();
         this.staticItemGroup = this.scene.physics.add.group({ allowGravity: false, immovable: true });
+        
         scene.physics.add.collider(this.sunmanGroup, this.sunmanGroup);
     }
 

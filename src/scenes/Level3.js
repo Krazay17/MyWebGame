@@ -21,10 +21,10 @@ export default class Level3 extends BaseGame {
     }
 
     create() {
-        this.setupSky({sky2: false, sky3: false});
+        this.setupSky({ sky2: false, sky3: false });
         this.sky2 = this.add.image(1000, 900, 'purplesky1').setScale(1.1).setScrollFactor(.15);
         this.sky3 = this.add.image(1200, 600, 'skybluestreaks').setScale(.8).setScrollFactor(.3);
-        this.setupWorld(0, 0, 6400, 6400);
+        this.setupWorld(0, 0, 6400, 12800);
         this.setupPlayer(3200, 6200);
         this.setupGroups();
         this.setupTileMap('tilemap2');
@@ -35,6 +35,10 @@ export default class Level3 extends BaseGame {
 
         this.spawnSpeed = 2500;
         this.enemyTimers();
+
+                function lerp(start, end, t) {
+            return start + (end - start) * t;
+        }
     }
 
     update(time, delta) {
@@ -55,50 +59,65 @@ export default class Level3 extends BaseGame {
         }
     }
 
+    
+
     checkPlayerY() {
         if (!this.player) return;
         const y = this.player.y;
+        const yd = y / 12000;
 
-        if (y > 5500) {
-            this.batTimer.delay = 2000;
+        this.batTimer.delay = 1000 * yd;
+        this.sunManHealth = 5 / yd;
+        this.sunTimer.delay = 2000 * yd;
+        
+        if (y > 12000) {
             this.doSpawnSunMan = false;
             return;
-        }
-        if (y > 4000) {
-            this.batTimer.delay = 1500;
+        } else {
             this.doSpawnSunMan = true;
-            this.sunManHealth = 5;
-            this.sunTimer.delay = 6000;
-            return;
+
         }
-        if (y > 3000) {
-            this.batTimer.delay = 1000;
-            this.doSpawnSunMan = true;
-            this.sunManHealth = 10;
-            this.sunTimer.delay = 5500;
-            return;
-        }
-        if (y > 2000) {
-            this.batTimer.delay = 500;
-            this.doSpawnSunMan = true;
-            this.sunManHealth = 15;
-            this.sunTimer.delay = 5000;
-            return;
-        }
-        if (y > 1000) {
-            this.batTimer.delay = 250;
-            this.doSpawnSunMan = true;
-            this.sunManHealth = 25;
-            this.sunTimer.delay = 4500;
-            return;
-        }
-        if (y > 0) {
-            this.batTimer.delay = 100;
-            this.doSpawnSunMan = true;
-            this.sunManHealth = 50;
-            this.sunTimer.delay = 2000;
-            return;
-        }
+
+        // if (y > 5500) {
+        //     this.batTimer.delay = 2000;
+        //     this.doSpawnSunMan = false;
+        //     return;
+        // }
+        // if (y > 4000) {
+        //     this.batTimer.delay = 1500;
+        //     this.doSpawnSunMan = true;
+        //     this.sunManHealth = 5;
+        //     this.sunTimer.delay = 6000;
+        //     return;
+        // }
+        // if (y > 3000) {
+        //     this.batTimer.delay = 1000;
+        //     this.doSpawnSunMan = true;
+        //     this.sunManHealth = 10;
+        //     this.sunTimer.delay = 5500;
+        //     return;
+        // }
+        // if (y > 2000) {
+        //     this.batTimer.delay = 500;
+        //     this.doSpawnSunMan = true;
+        //     this.sunManHealth = 15;
+        //     this.sunTimer.delay = 5000;
+        //     return;
+        // }
+        // if (y > 1000) {
+        //     this.batTimer.delay = 250;
+        //     this.doSpawnSunMan = true;
+        //     this.sunManHealth = 25;
+        //     this.sunTimer.delay = 4500;
+        //     return;
+        // }
+        // if (y > 0) {
+        //     this.batTimer.delay = 100;
+        //     this.doSpawnSunMan = true;
+        //     this.sunManHealth = 50;
+        //     this.sunTimer.delay = 2000;
+        //     return;
+        // }
     }
 
     enemyTimers() {
@@ -116,10 +135,10 @@ export default class Level3 extends BaseGame {
         this.sunTimer = this.time.addEvent({
             delay: 6000,
             callback: () => {
-                if(!this.doSpawnSunMan) return;
+                if (!this.doSpawnSunMan) return;
                 const { x, y } = this.getSpawnPos();
                 const sunMan = this.spawnManager.spawnSunMan(x, y, this.sunManHealth);
-                
+
                 this.checkPlayerY();
             },
             loop: true

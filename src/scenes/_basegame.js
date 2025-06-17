@@ -416,22 +416,32 @@ setupMusic(key = 'music1', volume = 1) {
     // this.bulletSpawnLocs.push([x, y])
   }
 
-  spawnDuck(x, y) {
+spawnDuck(x, y) {
     const duck = this.spawnManager.spawnDuck(x, y, 20);
-    duck.on('die', () => {
-      const deathSpawn = () => this.time.delayedCall(25000, () => {
-        const dx = this.player.x - x;
-        const dy = this.player.y - y;
-        const distance = Math.sqrt(dx * dx - dy * dy);
-        if (distance > 800) {
-          this.spawnDuck(x, y);
-        } else {
-          deathSpawn();
-        }
-      })
-      deathSpawn();
-    })
-  }
+
+    duck.once('die', () => {
+
+        const checkDistanceTimer = this.time.addEvent({
+            delay: 1000, // check every 1 second (adjust if you want)
+            callback: () => {
+                const dx = this.player.x - x;
+                const dy = this.player.y - y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                console.log('Checking duck respawn, distance:', distance);
+
+                if (distance > 800) {
+                    console.log('Respawning duck');
+                    this.spawnDuck(x, y);
+                    checkDistanceTimer.remove(); // stop checking
+                }
+            },
+            loop: true
+        });
+
+    });
+}
+
 
   spawnCoin(x, y) {
     const coin = this.spawnManager.SpawnCoin(x, y);

@@ -15,7 +15,7 @@ export default {
         seenIntro: false,
         devmode: false,
     },
-    portalTravel: false,
+    useLastLocation: false,
 
     save() {
         const data = {
@@ -30,6 +30,7 @@ export default {
             volume: this.volume,
             collectedItems: this.collectedItems,
             flags: this.flags,
+            useLastLocation: this.useLastLocation,
         };
         localStorage.setItem('webConduitSave', JSON.stringify(data));
     },
@@ -69,6 +70,7 @@ export default {
             this.volume = parsed.volume ?? { master: 1, music: 1 };
             this.collectedItems = parsed.collectedItems ?? [];
             this.flags = parsed.flags ?? {};
+            this.useLastLocation = parsed.useLastLocation ?? false;
         }
     },
 

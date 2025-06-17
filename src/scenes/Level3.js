@@ -36,9 +36,7 @@ export default class Level3 extends BaseGame {
         this.spawnSpeed = 2500;
         this.enemyTimers();
 
-                function lerp(start, end, t) {
-            return start + (end - start) * t;
-        }
+
     }
 
     update(time, delta) {
@@ -59,18 +57,18 @@ export default class Level3 extends BaseGame {
         }
     }
 
-    
+
 
     checkPlayerY() {
         if (!this.player) return;
         const y = this.player.y;
         const yd = y / 12000;
 
-        this.batTimer.delay = 1000 * yd;
-        this.sunManHealth = 5 / yd;
-        this.sunTimer.delay = 2000 * yd;
-        
-        if (y > 12000) {
+        this.batTimer.delay = this.lerp(5, 2000, yd);
+        this.sunManHealth = this.lerp(100, 3, yd);
+        this.sunTimer.delay = this.lerp(250, 6000, yd);
+
+        if (y > 11500) {
             this.doSpawnSunMan = false;
             return;
         } else {
@@ -169,5 +167,9 @@ export default class Level3 extends BaseGame {
         //     this.time.delayedCall(5000, () => this.sunMan())
         // })
 
+    }
+
+    lerp(start, end, t) {
+        return start + (end - start) * t;
     }
 }

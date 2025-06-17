@@ -110,7 +110,7 @@ export default class Home extends BaseGame {
 
         this.physics.add.overlap(this.player, this.portals, (player, portal) => {
             if (portal.targetScene && this.scene.key !== portal.targetScene) {
-                GameManager.portalTravel = true;
+                GameManager.useLastLocation = false;
                 this.scene.start(portal.targetScene);
             }
         });

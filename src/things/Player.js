@@ -125,7 +125,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
         this.scene.input.keyboard.on('keydown-T', () => {
             if (this.scene.scene.key !== 'Home' && this.body.blocked.down && !this.playerUI.Chatting || !this.alive) {
-                GameManager.portalTravel = true;
+                GameManager.useLastLocation = false;
                 this.scene.scene.start('Home')
             }
         });
@@ -235,6 +235,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             this.scene.scene.restart()
         });
         this.emit('playerdied');
+        GameManager.useLastLocation = false;
 
         GameManager.save();
     }
@@ -546,7 +547,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     }
                 },
                 update: () => { },
-                exit: () => { },
+                exit: () => { 
+                    this.wallSlide = false;
+                },
             },
 
             crouch: {

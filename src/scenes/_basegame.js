@@ -62,6 +62,7 @@ export default class BaseGame extends Phaser.Scene {
       GameManager.area = this.key;
       GameManager.location.x = this.player.x;
       GameManager.location.y = this.player.y;
+      GameManager.useLastLocation = true;
       GameManager.save();
     });
 
@@ -85,8 +86,8 @@ export default class BaseGame extends Phaser.Scene {
   }
 
   setupPlayer(x = 0, y = 0) {
-    const locationX = GameManager.portalTravel ? x : GameManager.location.x;
-    const locationY = GameManager.portalTravel ? y : GameManager.location.y;
+    const locationX = GameManager.useLastLocation ? GameManager.location.x : x;
+    const locationY = GameManager.useLastLocation ? GameManager.location.y : y;
 
     this.player = new Player(this, locationX, locationY);
     this.cameras.main.startFollow(this.player, false, .04, .04);
@@ -129,11 +130,11 @@ export default class BaseGame extends Phaser.Scene {
   }
 
   spawnPlayer(x, y) {
-    if (GameManager.portalTravel) {
+    if (!GameManager.useLastLocation) {
       this.player.setPosition(x, y);
       GameManager.location.x = x;
       GameManager.location.y = y;
-      GameManager.portalTravel = false;
+      GameManager.useLastLocation = true;
     }
   }
 
@@ -443,13 +444,17 @@ spawnDuck(x, y) {
 }
 
 
-  spawnCoin(x, y) {
+  spawnCoin(x, y, data) {
     const coin = this.spawnManager.SpawnCoin(x, y);
-    coin.on('pickup', () => {
+    coin.once('pickup', () => {
       this.time.delayedCall(25000, () => {
         this.spawnCoin(x, y);
       })
     })
+    if (data === 'float') {
+      coin.body.allowGravity = false;
+    }
+
   }
 
   spawnSourceBlock(x, y) {

@@ -2,13 +2,14 @@ import BaseEnemy from "./_baseEnemy.js";
 
 export default class Duck extends BaseEnemy
 {
-    constructor(scene, x, y, id = 'duck', health)
+    constructor(scene, x, y, health)
     {
-        super(scene, x, y, id);
+        super(scene, x, y, 'duck');
         this.maxHealth = health;
         this.health = health;
         
         this.body.setBounce(.7);
+        this.setScale(.3);
 
     }
 

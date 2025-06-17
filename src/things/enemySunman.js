@@ -10,6 +10,7 @@ export default class SunMan extends BaseEnemy {
         this.scaleCollision(170, 170);
         this.setCollideWorldBounds(true);
 
+        this.name = 'sunMan';
         this.maxaccell = 400;
         this.damage = 4;
 
@@ -22,21 +23,21 @@ export default class SunMan extends BaseEnemy {
             });
         };
         this.play('sunsheet')
+    }
 
+    init() {
+        if (!this.isRemote) {
+            this.accelToPlayer(200, 400);
+        }
+    }
 
-        this.accelToPlayer(200, 400);
+    preUpdate(time, delta) {
+        super.preUpdate(time, delta);
+        this.replicateEnemy();
+    }
 
-        //     const lookForPlayer = scene.time.addEvent({
-        //         delay: 1000,
-        //         loop: true,
-        //         callback: () => {
-        //             if(this.distanceToPlayer() < 550){
-        //             this.accelToPlayer(200, 400);
-        //             }
-        //         }
-        //     })
-        //     this.on('die', () => {
-        //         scene.time.removeEvent(lookForPlayer);
-        // })
+    die(player) {
+        super.die(player, true);
+
     }
 }

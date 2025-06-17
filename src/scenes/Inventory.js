@@ -169,7 +169,7 @@ export default class Inventory extends Phaser.Scene {
         let currentRank = GameManager.upgrades[id];
         let maxed = currentRank === maxRank;
 
-        if (!maxed && GameManager.power.money > realCost) {
+        if (!maxed && GameManager.power.money >= realCost) {
             this.player.updateMoney(-realCost);
             GameManager.power.spent += realCost;
             apply(this);

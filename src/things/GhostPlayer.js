@@ -10,7 +10,6 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
     power: { money: 0, auraLevel: 1 },
   }) {
     super(scene, data.location.x, data.location.y);
-    console.log(data.location.x, data.location.x);
 
     const { location, name, power } = data;
     this.id = id;
@@ -381,7 +380,9 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
     //     shurikan.destroy();
     //   }
     // });
-    const shurikan = new ShurikanProjectile(this.scene, start.x, start.y, this.scene.player, null, 2, 1, 3);
+
+
+    const shurikan = new ShurikanProjectile(this.scene, start.x, start.y, this.scene.player, null, 0, 1, 3);
     shurikan.setVelocity(velocity.x, velocity.y);
     shurikan.setAlpha(.5);
   }

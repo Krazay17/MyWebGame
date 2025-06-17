@@ -292,8 +292,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             this.decideState(input);       // decide what state to be in based on input
             this.states[this.currentState].update(delta, input); // update current state logic
             if ((this.slamCD || this.slidePower < 600) && !this.isSliding && !this.isCrouch) {
-                this.slidePower = Math.min(600, this.slidePower += delta/2);
-                console.log(this.slidePower)
+                this.slidePower = Math.min(600, this.slidePower += delta / 2);
                 this.slamCD = Math.max(0, this.slamCD -= delta);
             }
         }
@@ -388,7 +387,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     this.isWalking = true;
                     if (!this.network.socket.connected) {
                         this.network.socket.connect();
-                        console.log(this.network.connected)
                     }
                 },
                 update: (delta, input) => {
@@ -423,7 +421,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     }
 
                     if (jump && (this.body.blocked.left || this.body.blocked.right)) {
-                        this.setState('wallRun');
+                        this.setState('wallRun', input);
                     }
 
                 },
@@ -435,14 +433,14 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             },
 
             wallRun: {
-                enter: () => {
+                enter: (input) => {
+                    const { left, right } = input
                     this.wallRunning = true;
 
                     if (this.body.blocked.left) {
                         if (this.wallRunLeft < (-this.body.velocity.y)) {
                             this.wallRunLeft = (-this.body.velocity.y)
                         }
-
                         this.wallRunRight = 540;
                     }
 
@@ -450,9 +448,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                         if (this.wallRunRight < (-this.body.velocity.y)) {
                             this.wallRunRight = (-this.body.velocity.y)
                         }
-
                         this.wallRunLeft = 540;
                     }
+
                 },
                 update: (delta, input) => {
                     const { left, right, jump } = input;
@@ -469,7 +467,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                         this.wallRunLeft = Math.max(-200, this.wallRunLeft - (this.wallrunDecayRate * delta));
                         this.bufferLeftWallJump = this.scene.time.now + 55;
                         this.bufferRightWallJump = 0;
-                        console.log(this.wallRunLeft)
+
+                        const leftBuffer = true;
+                        if (!left) {
+                            this.setState('wallJump', { left: leftBuffer, right: false, height: this.wallRunLeft })
+                        }
+
                         if (this.wallRunLeft <= 0) {
                             this.wallSlide = true;
                         }
@@ -479,7 +482,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                         this.wallRunRight = Math.max(-200, this.wallRunRight - (this.wallrunDecayRate * delta));
                         this.bufferRightWallJump = this.scene.time.now + 55;
                         this.bufferLeftWallJump = 0;
-                        console.log(this.wallRunRight)
+
+                        const rightBuffer = true;
+                        if (!right) {
+                            this.setState('wallJump', { left: false, right: rightBuffer, height: this.wallRunRight })
+                        }
+
                         if (this.wallRunRight <= 0) {
                             this.wallSlide = true;
                         }
@@ -508,7 +516,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     }
                     if (!jump || (right && leftBuffer) || (left && rightBuffer)) {
                         const jumpHeight = leftBuffer ? this.wallRunLeft : this.wallRunRight;
-                        this.setState('wallJump', { left: rightBuffer, right: leftBuffer, height: jumpHeight })
+                        this.setState('wallJump', { left: leftBuffer, right: rightBuffer, height: jumpHeight })
                     }
                 },
                 exit: () => {
@@ -522,18 +530,19 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     this.isWallJumping = true;
                     this.wallJumpTimer = this.scene.time.now;
                     this.isMantling = 0;
+                    this.stateLockout = this.scene.time.now + 25;
 
-                    if (left) {
+                    if (right) {
                         this.setVelocity(-350, Phaser.Math.Clamp(-height, -500, -100));
                         this.flipX = true;
                         this.bufferRightWallJump = 0;
-                        this.wallRunRight /= 3;
+                        this.wallRunRight /= 2;
                     }
-                    if (right) {
+                    if (left) {
                         this.setVelocity(350, Phaser.Math.Clamp(-height, -500, -100));
                         this.flipX = false;
                         this.bufferLeftWallJump = 0;
-                        this.wallRunLeft /= 3;
+                        this.wallRunLeft /= 2;
                     }
                 },
                 update: () => { },
@@ -615,7 +624,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                         return;
                     }
 
-                    if (input.jump && this.canJump) {
+                    if (input.jump && this.canJump && this.body.blocked.down) {
                         this.stateLockout = 0;
                         this.setState('jump', input);
                         return;
@@ -867,7 +876,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         }
 
         if (jp) {
-            this.play('dudejump', true);
+            this.play('dudejump');
             return;
         }
 

@@ -32,9 +32,12 @@ export default class BaseGame extends Phaser.Scene {
     this.physics.world.setBounds(xleft, ytop, width, height);
     this.bounds = this.physics.world.bounds;
     this.cameras.main.setBounds(xleft, ytop, width, height);
-    this.spawnManager = new SpawnManager(this)
-    this.sound.pauseOnBlur = false;
 
+    this.network = new NetworkManager(this);
+    this.spawnManager = new SpawnManager(this)
+
+    this.network.refreshScene(this);
+    this.sound.pauseOnBlur = false;
 
     this.input.on('wheel', (wheel) => {
       if (!this.zoom) this.zoom = 1;
@@ -68,19 +71,6 @@ export default class BaseGame extends Phaser.Scene {
     // window.addEventListener('blur', () => {
     //   this.sound.mute = true;
     // });
-
-    this.network = new NetworkManager(this);
-
-    // Object.values(this.network.otherPlayers).forEach(([id, oldGhost]) => {
-    //   //ghost.updateScene(this);
-    //   //console.log(ghost)
-    //   // Recreate with current scene
-    //   const {x, y, data} = oldGhost.getMyData();
-    //   oldGhost.destroy();
-
-    //   this.network.otherPlayers[id] = new GhostPlayer(this, id, x, y, data);
-    // });
-    this.network.refreshScene(this);
   }
 
   setupSky({ sky1 = 'purplesky0', sky2 = true, sky3 = true } = {}) {
@@ -363,7 +353,7 @@ export default class BaseGame extends Phaser.Scene {
   }
 
   spawnSunman(x, y) {
-    this.spawnManager.spawnSunMans(x, y, 10)
+    this.spawnManager.spawnSunMan(x, y, 10)
   }
 
   spawnBullets(x, y, text) {
@@ -396,7 +386,7 @@ export default class BaseGame extends Phaser.Scene {
   }
 
   spawnDuck(x, y) {
-    const duck = this.spawnManager.spawnDuck(x, y, 20, .25);
+    const duck = this.spawnManager.spawnDuck(x, y, 20);
     duck.on('die', () => {
       const deathSpawn = () => this.time.delayedCall(25000, () => {
         const dx = this.player.x - x;

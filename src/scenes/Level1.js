@@ -56,8 +56,8 @@ export default class Level1 extends BaseGame {
       loop: true
     });
 
-    this.spawnManager.spawnSunMans(1900, 0);
-    this.spawnManager.spawnSunMans(2000, 400);
+    this.spawnManager.spawnSunMan(1900, 0);
+    this.spawnManager.spawnSunMan(2000, 400);
     this.time.addEvent({
       delay: Phaser.Math.Between(2000, 10000),
       loop: true,

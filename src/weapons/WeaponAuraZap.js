@@ -105,7 +105,7 @@ export default class AuraZap extends WeaponBase {
                 const targetPos = new Phaser.Math.Vector2(target.x, target.y);
                 const distance = Phaser.Math.Distance.BetweenPoints(playerPos, targetPos);
 
-                if (distance <= range) {
+                if (distance <= range && !target.dead) {
                     validTargets.push({
                         target,
                         distance,

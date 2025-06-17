@@ -11,6 +11,7 @@ export default class NetworkManager {
 
     this.scene = scene;
     this.otherPlayers = {};
+    this.otherEnemies = {};
 
     const serverURL =
       location.hostname === 'localhost' || location.hostname === '127.0.0.1'
@@ -160,6 +161,32 @@ export default class NetworkManager {
       }
     })
 
+    this.socket.on('enemyStateUpdate', (data) => {
+      const { x, y, type, id, vx, vy, sceneKey } = data;
+
+      if (this.scene.scene.key !== sceneKey) return;
+
+      let enemy = this.otherEnemies[id];
+
+      if (!enemy) {
+        // You'll need a way to spawn remote enemies with a known ID
+        enemy = this.spawnEnemy(data);
+        this.otherEnemies[id] = enemy;
+        return;
+      }
+      enemy.setPosition(x, y);
+      if (enemy.body) {
+        enemy.body.velocity.x = vx;
+        enemy.body.velocity.y = vy;
+      }
+    });
+
+    this.socket.on('enemyDamageUpdate', (info) => {
+      const {id, player, damage, stagger, duration} = info;
+      if (this.otherEnemies[id]) {
+        this.otherEnemies[id].applyDamage?.(this.scene.player, damage, stagger, duration);
+      }
+    })
 
   }
 
@@ -169,7 +196,6 @@ export default class NetworkManager {
     }
 
     const ghost = new GhostPlayer(this.scene, id, data);
-    console.log(data);
     this.otherPlayers[id] = ghost;
   }
 
@@ -178,12 +204,33 @@ export default class NetworkManager {
 
     for (const id in this.otherPlayers) {
       const oldGhost = this.otherPlayers[id];
-      const { data } = oldGhost.getSyncData(); // You’ll make this next
+      const { data } = oldGhost.getSyncData(); 
 
-      oldGhost.destroy(); // Clean up from old scene
+      oldGhost.destroy();
 
       this.otherPlayers[id] = new GhostPlayer(scene, id, data);
     }
+  }
+
+  spawnEnemy(info) {
+    const {x, y, type, health, id, sceneKey } = info;
+    if (!this.scene || !this.scene.spawnManager || (this.scene.scene.key != sceneKey)) return;
+    let enemy;
+
+    switch (type) {
+      case 'duck':
+        //enemy = this.scene.spawnManager.spawnDuck(x, y, health, true);
+        break;
+      case 'bat':
+        enemy = this.scene.spawnManager.spawnBat(x, y, health, true, id);
+        break;
+      case 'sunMan':
+        enemy = this.scene.spawnManager.spawnSunMan(x, y, health, true, id);
+        break;
+      default:
+        console.warn('Unknown Enemy Type: ', type);
+    }
+    return enemy;
   }
 
 }

@@ -37,7 +37,6 @@ export default class ShurikanProjectile extends WeaponProjectile {
 
         if (enemy.TakeDamage(this.player, this.damage(), stagger? velocity : null)) {
             playHitSound(this.scene, this.hitSoundId)
-            console.log(this.damage());
         }
 
         if ((this.chainCount > 0)) {
@@ -91,7 +90,7 @@ export default class ShurikanProjectile extends WeaponProjectile {
                 const targetPos = new Phaser.Math.Vector2(target.x, target.y);
                 const distance = Phaser.Math.Distance.BetweenPoints(thisPos, targetPos);
 
-                if (target !== enemy && distance <= range) {
+                if ((target !== enemy && distance <= range) && !target.dead) {
                     validTargets.push({
                         target,
                         distance,

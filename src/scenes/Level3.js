@@ -61,40 +61,40 @@ export default class Level3 extends BaseGame {
 
         if (y > 5500) {
             this.batTimer.delay = 2000;
-            this.doSpawnSunMans = false;
+            this.doSpawnSunMan = false;
             return;
         }
         if (y > 4000) {
             this.batTimer.delay = 1500;
-            this.doSpawnSunMans = true;
+            this.doSpawnSunMan = true;
             this.sunManHealth = 5;
             this.sunTimer.delay = 6000;
             return;
         }
         if (y > 3000) {
             this.batTimer.delay = 1000;
-            this.doSpawnSunMans = true;
+            this.doSpawnSunMan = true;
             this.sunManHealth = 10;
             this.sunTimer.delay = 5500;
             return;
         }
         if (y > 2000) {
             this.batTimer.delay = 500;
-            this.doSpawnSunMans = true;
+            this.doSpawnSunMan = true;
             this.sunManHealth = 15;
             this.sunTimer.delay = 5000;
             return;
         }
         if (y > 1000) {
             this.batTimer.delay = 250;
-            this.doSpawnSunMans = true;
+            this.doSpawnSunMan = true;
             this.sunManHealth = 25;
             this.sunTimer.delay = 4500;
             return;
         }
         if (y > 0) {
             this.batTimer.delay = 100;
-            this.doSpawnSunMans = true;
+            this.doSpawnSunMan = true;
             this.sunManHealth = 50;
             this.sunTimer.delay = 2000;
             return;
@@ -116,9 +116,9 @@ export default class Level3 extends BaseGame {
         this.sunTimer = this.time.addEvent({
             delay: 6000,
             callback: () => {
-                if(!this.doSpawnSunMans) return;
+                if(!this.doSpawnSunMan) return;
                 const { x, y } = this.getSpawnPos();
-                const sunMan = this.spawnManager.spawnSunMans(x, y, this.sunManHealth);
+                const sunMan = this.spawnManager.spawnSunMan(x, y, this.sunManHealth);
                 
                 this.checkPlayerY();
             },
@@ -145,7 +145,7 @@ export default class Level3 extends BaseGame {
 
     sunMan() {
         const { x, y } = this.getSpawnPos();
-        const sunMan = this.spawnManager.spawnSunMans(x, y, this.sunManHealth);
+        const sunMan = this.spawnManager.spawnSunMan(x, y, this.sunManHealth);
         // sunMan.once('die', () => {
         //     this.time.delayedCall(5000, () => this.sunMan())
         // })

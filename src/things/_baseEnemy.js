@@ -36,18 +36,25 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
         this.state = 'idle';  // 'idle', 'walking', 'jumping', 'falling'
         this.hasJumpedFromStuck = false;
         this.lastJumpTime = 0;
+        this.prevPos = new Phaser.Math.Vector2(x, y);
+        this.targetPos = new Phaser.Math.Vector2(x, y);
+        this.lerpDuration = 33;
 
         this.scene.events.on('update', this.currentSpeed, this)
 
     }
 
+    init() { }
+
     preUpdate(time, delta) {
         super.preUpdate(time, delta);
-        if (!this.alive) return;
+        if (this.dead) return;
         this.updateHealthBar();
         this.locoAnims();
         if (!this.stunned) this.staggerDR = Phaser.Math.Clamp(this.staggerDR + delta / 10000, 0, 1);
         if (this.accelToPlayerSpeed) this.scene.physics.accelerateToObject(this, this.player, this.accelToPlayerSpeed, this.maxaccell, this.maxaccell);
+
+
     }
 
     createHealthBar() {
@@ -73,9 +80,24 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
     }
 
     TakeDamage(player, damage = 1, stagger = false, duration = 300) {
-        if (!this.canDamage) return false;
+        if (this.dead || !this.canDamage) return false;
         if (!this.createdHealthBar) this.createHealthBar();
 
+        this.scene.network.socket.emit('enemyDamageRequest', {
+            id: this.id,
+            player: player,
+            damage,
+            stagger,
+            duration,
+        })
+
+        this.applyDamage(player, damage, stagger, duration);
+
+        return true;
+
+    }
+
+    applyDamage(player, damage = 1, stagger = false, duration = 300) {
         this.health -= damage;
         this.updateHealthBar();
 
@@ -121,16 +143,76 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
         }
 
         return true;
+
     }
 
-    die(player) {
+    die(player, pool = false) {
+        this.dead = true;
         player.updateMoney(this.maxHealth);
         if (this.healthBar) this.healthBar.destroy();
         if (this.healthBarBg) this.healthBarBg.destroy();
         this.scene.time.removeAllEvents
         this.emit('die', player);
 
-        this.destroy();
+        if (pool) {
+            this.deactivate();
+        } else {
+            this.destroy();
+        }
+    }
+
+    replicateEnemy() {
+        if (!this.isRemote && this.scene.network) {
+            this.scene.network.socket.emit('enemyStateRequest', {
+                id: this.id,
+                type: this.name,
+                x: this.x,
+                y: this.y,
+                vx: this.body.velocity.x,
+                vy: this.body.velocity.y,
+                sceneKey: this.scene.scene.key,
+            });
+        }
+    }
+
+    lerpPosition(delta) {
+        if (this.dead) return;
+
+        this.lerpTimer += delta;
+
+        const t = Phaser.Math.Clamp(this.lerpTimer / this.lerpDuration, 0, 1);
+        const lerpedX = Phaser.Math.Linear(this.prevPos.x, this.targetPos.x, t);
+        const lerpedY = Phaser.Math.Linear(this.prevPos.y, this.targetPos.y, t);
+
+        this.x = lerpedX;
+        this.y = lerpedY;
+    }
+
+    setLerpPosition(x, y) {
+        if (x === 0 || y === 0) return;
+        this.lerpTimer = 0;
+        this.prevPos.set(this.x, this.y);
+        this.targetPos.set(x, y);
+    }
+
+    deactivate() {
+        this.setActive(false);
+        this.setVisible(false);
+        this.body.stop();
+        this.body.enable = false;
+
+        this.scene.time.delayedCall(1000, () => this.isPooled = true);
+    }
+
+    activate(x, y, health = 1) {
+        this.setActive(true);
+        this.setVisible(true);
+        this.setPosition(x, y);
+        this.setTint();
+        this.body.enable = true;
+        this.dead = false;
+        this.isPooled = false;
+        this.health = health;
     }
 
     playerCollide(enemy, player) {

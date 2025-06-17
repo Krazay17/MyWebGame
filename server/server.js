@@ -155,6 +155,14 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('enemyStateRequest', (info) => {
+
+    socket.broadcast.emit('enemyStateUpdate', info);
+  });
+
+  socket.on('enemyDamageRequest', (info) => {
+    socket.broadcast.emit('enemyDamageUpdate', info);
+  });
 
 });
 

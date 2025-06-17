@@ -138,6 +138,8 @@ export default class WeaponBase {
                 const toTarget = closestPoint.clone().subtract(data.start);
                 const distanceToTarget = toTarget.length();
 
+                if(target.dead) return;
+
                 // skip far targets
                 if (distanceToTarget > data.distance + 200) return;
 

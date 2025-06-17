@@ -103,7 +103,8 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
 
         if (this.health <= 0) {
             this.alive = false;
-            this.scene.time.removeEvent(this.hitRecover);
+            if(!this.scene) return;
+            this.scene?.time?.removeEvent(this.hitRecover);
             this.die(player);
         } else {
 
@@ -115,8 +116,8 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
                 }
                 this.setVelocity(stagger.x / 3, stagger.y / 3)
                 this.setTint(0xff0000);
-                this.scene.time.removeEvent(this.hitRecover);
-                this.hitRecover = this.scene.time.addEvent({
+                this.scene?.time?.removeEvent(this.hitRecover);
+                this.hitRecover = this.scene?.time?.addEvent({
                     delay: duration * this.staggerDR,
                     callback: () => {
                         if (this.alive) {

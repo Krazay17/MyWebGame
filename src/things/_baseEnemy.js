@@ -104,7 +104,7 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
 
         if (this.health <= 0) {
             this.alive = false;
-            if(!this.scene) return;
+            if (!this.scene) return;
             this.scene?.time?.removeEvent(this.hitRecover);
             this.die(player);
         } else {
@@ -148,25 +148,20 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
 
     }
 
-    die(player, pool = false) {
+    die(player) {
         this.dead = true;
         player.updateMoney(this.maxHealth);
-        if (this.healthBar) this.healthBar.destroy();
-        if (this.healthBarBg) this.healthBarBg.destroy();
         this.scene.time.removeAllEvents
         this.emit('die', player);
 
-        if (pool) {
-            this.deactivate();
-        } else {
-            this.destroy();
-        }
+        this.deactivate();
+
     }
 
     replicateEnemy() {
         if (!this.doesReplicate) return;
-        
-        if(this.replicateTimer < this.scene.time.now) {
+
+        if (this.replicateTimer < this.scene.time.now) {
             this.replicateTimer = this.scene.time.now + 100;
         }
 
@@ -204,10 +199,17 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
     }
 
     deactivate() {
+        if (this.healthBar) {
+            this.healthBar.destroy();
+        }
+        if (this.healthBarBg) {
+            this.healthBarBg.destroy();
+        }
         this.setActive(false);
         this.setVisible(false);
         this.body.stop();
         this.body.enable = false;
+
 
         this.scene.time.delayedCall(1000, () => this.isPooled = true);
     }
@@ -218,9 +220,12 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
         this.setPosition(x, y);
         this.setTint();
         this.body.enable = true;
+        this.createdHealthBar = false;
+
         this.dead = false;
         this.isPooled = false;
         this.health = health;
+        this.maxHealth = health;
     }
 
     playerCollide(enemy, player) {

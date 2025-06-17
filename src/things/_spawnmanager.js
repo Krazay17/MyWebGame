@@ -82,6 +82,7 @@ export default class SpawnManager {
 
     spawnDuck(x, y, health = 5, isRemote = false, id = null ) {
         let duck = this.duckGroup.get();
+        
         if (duck && duck.isPooled) {
             duck.activate(x, y, health);
         } else {

@@ -7,6 +7,7 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
 
         this.player = scene.player;
 
+        this.doesReplicate = false;
         this.setImmovable(true);
         this.maxHealth = health;
         this.health = health;
@@ -163,7 +164,13 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
     }
 
     replicateEnemy() {
-        if (!this.isRemote && this.scene.network) {
+        if (!this.doesReplicate) return;
+        
+        if(this.replicateTimer < this.scene.time.now) {
+            this.replicateTimer = this.scene.time.now + 100;
+        }
+
+        if (this.scene && !this.isRemote && this.scene.network) {
             this.scene.network.socket.emit('enemyStateRequest', {
                 id: this.id,
                 type: this.name,

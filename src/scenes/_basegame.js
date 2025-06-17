@@ -448,7 +448,7 @@ spawnDuck(x, y) {
     const coin = this.spawnManager.SpawnCoin(x, y);
     coin.once('pickup', () => {
       this.time.delayedCall(25000, () => {
-        this.spawnCoin(x, y);
+        this.spawnCoin(x, y, data);
       })
     })
     if (data === 'float') {

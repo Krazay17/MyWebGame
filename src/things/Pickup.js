@@ -1,18 +1,22 @@
+import {playSound} from "./soundUtils.js";
+
 export default class Pickup extends Phaser.Physics.Arcade.Sprite
 {
-    constructor(scene, x, y, id = 'coin', pickupSound = 'pickup')
+    constructor(scene, x, y, id = 'coin')
     {
         super(scene, x, y, id)
         scene.add.existing(this);
         scene.physics.add.existing(this);
-        this.setMaxVelocity(1000, 800);
 
-        this.pickupSound = pickupSound;
-        scene.sound.add(pickupSound);
+        this.pickupSound = 'pickup';
+        scene.sound.add(this.pickupSound);
     }
 
-    preUpdate()
+    init() {}
+
+    preUpdate(time, delta)
     {
+        super.preUpdate(time, delta);
         const bounds = this.scene.physics.world.bounds;
 
         // Wrap horizontally
@@ -37,16 +41,12 @@ export default class Pickup extends Phaser.Physics.Arcade.Sprite
     }
 
 
-    playerCollide(pickup, player) {
-        player.updateMoney(5);
-        this.playPickupSound();
-        this.emit('pickup');
-        this.destroy();
+    playerCollide(player) {
+        
     }
 
     playPickupSound() {
-        if (this.pickupSound && this.scene.sound.get('pickup'))
-            this.scene.sound.play('pickup');
+        playSound(this.scene, this.pickupSound);
     }
 
     hit(player, damage, velocity) {

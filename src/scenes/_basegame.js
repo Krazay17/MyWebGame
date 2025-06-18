@@ -3,7 +3,6 @@ import NetworkManager from '../things/NetworkManager.js';
 import GameManager from '../things/GameManager.js';
 import SpawnManager from '../things/_spawnmanager.js';
 import WeaponGroup from '../weapons/WeaponGroup.js';
-import Duck from '../things/enemyDuck.js';
 import SoundUtil from '../things/soundUtils.js';
 
 export default class BaseGame extends Phaser.Scene {
@@ -38,7 +37,7 @@ export default class BaseGame extends Phaser.Scene {
     this.spawnManager = new SpawnManager(this)
 
     this.network.refreshScene(this);
-    this.sound.pauseOnBlur = false;
+    //this.sound.pauseOnBlur = false;
 
     this.input.on('wheel', (wheel) => {
       if (!this.zoom) this.zoom = 1;
@@ -57,7 +56,7 @@ export default class BaseGame extends Phaser.Scene {
       //this.resizeBackgroundToFill();
     })
 
-    GameManager.area = this.key;
+
     window.addEventListener('beforeunload', () => {
       GameManager.area = this.key;
       GameManager.location.x = this.player.x;
@@ -65,6 +64,14 @@ export default class BaseGame extends Phaser.Scene {
       GameManager.useLastLocation = true;
       GameManager.save();
     });
+
+    this.events.on('shutdown', () => {
+      this.cleanupScene();
+    }, this);
+    this.events.on('destroy', () => {
+      this.cleanupScene();
+    }, this);
+
 
     // window.addEventListener('focus', () => {
     //   this.sound.mute = false;
@@ -138,40 +145,41 @@ export default class BaseGame extends Phaser.Scene {
     }
   }
 
-
   setupTileMap(tilemap = 'tilemap1', tilesheet = 'tilesheet') {
-    const map = this.make.tilemap({ key: tilemap });
-    const tileset = map.addTilesetImage(tilesheet, tilesheet);
-    const layer1 = map.createLayer('layer1', tileset, 0, 0);
-    const layer2 = map.createLayer('layer2', tileset, 0, 0);
-    this.walls = map.createLayer('walls', tileset, 0, 0);
-    const walls2 = map.createLayer('walls2', tileset, 0, 0);
+    this.tilemap = this.make.tilemap({ key: tilemap });
+    this.tileset = this.tilemap.addTilesetImage(tilesheet, tilesheet);
+    this.layer1 = this.tilemap.createLayer('layer1', this.tileset, 0, 0);
+    this.layer2 = this.tilemap.createLayer('layer2', this.tileset, 0, 0);
+    this.walls = this.tilemap.createLayer('walls', this.tileset, 0, 0);
+    this.walls2 = this.tilemap.createLayer('walls2', this.tileset, 0, 0);
 
     this.walls.setCollisionByExclusion([-1]); // excludes only empty tiles
-    walls2.setCollisionByExclusion([-1]); // excludes only empty tiles
+    this.walls2.setCollisionByExclusion([-1]); // excludes only empty tiles
     this.tilemapColliders = [
       { walls: this.walls, handler: 'touchWall' },
-      { walls: walls2, handler: 'touchFireWall' },
+      { walls: this.walls2, handler: 'touchFireWall' },
     ];
 
-    const objects = map.getObjectLayer('objects');
+    if (!this.tilemap) return;
+
+    const objects = this.tilemap.getObjectLayer('objects');
     objects.objects.forEach(obj => {
-      this[obj.name]?.(obj.x, obj.y, obj.text?.text);
-    });
-
-    this.events.on('shutdown', () => {
-
-      if (this.walls) {
-        this.walls.destroy();
-        this.walls = null;
-      }
-
-      if (this.map) {
-        this.map.destroy();
-        this.map = null;
+      if(this.spawnManager[obj.name]) {
+        this.spawnManager[obj.name]?.(obj.x, obj.y, obj);
+      } else {
+      this[obj.name]?.(obj.x, obj.y, obj);
       }
     });
 
+  }
+
+  cleanupScene() {
+    if (this.layer1) { this.layer1.destroy(); this.layer1 = null; }
+    if (this.layer2) { this.layer2.destroy(); this.layer2 = null; }
+    if (this.walls) { this.walls.destroy(); this.walls = null; }
+    if (this.walls2) { this.walls2.destroy(); this.walls2 = null; }
+
+    if (this.tilemap) { this.tilemap.destroy(); this.tilemap = null; }
   }
 
   setupGroups() {
@@ -217,7 +225,7 @@ export default class BaseGame extends Phaser.Scene {
 
     spawnGroups.forEach(({ group }) =>
       this.physics.add.overlap(this.player, group, (player, entity) => {
-        entity.playerCollide?.(entity, player);
+        entity.playerCollide?.(player);
       }, null, this));
 
 
@@ -289,7 +297,7 @@ export default class BaseGame extends Phaser.Scene {
     // }, null, this);
   }
 
-setupMusic(key = 'music1', volume = 1) {
+  setupMusic(key = 'music1', volume = 1) {
     // this.currentMusic = this.sound.add(key, { loop: true });
     // this.currentMusic.volume = GameManager.volume.music * volume;
 
@@ -318,11 +326,9 @@ setupMusic(key = 'music1', volume = 1) {
     const shutdownHandler = () => {
       SoundUtil.savePosition();
     }
-    
+
     this.events.once('shutdown', shutdownHandler);
-}
-
-
+  }
 
   setupPlatforms(platformPos = [[0, 800]]) {
     platformPos.forEach(pos => this.walkableGroup.create(pos[0], pos[1], 'platform'));
@@ -417,47 +423,12 @@ setupMusic(key = 'music1', volume = 1) {
     // this.bulletSpawnLocs.push([x, y])
   }
 
-spawnDuck(x, y) {
-    const duck = this.spawnManager.spawnDuck(x, y, 20);
-
-    duck.once('die', () => {
-
-        const checkDistanceTimer = this.time.addEvent({
-            delay: 1000, // check every 1 second (adjust if you want)
-            callback: () => {
-                const dx = this.player.x - x;
-                const dy = this.player.y - y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-
-                console.log('Checking duck respawn, distance:', distance);
-
-                if (distance > 800) {
-                    console.log('Respawning duck');
-                    this.spawnDuck(x, y);
-                    checkDistanceTimer.remove(); // stop checking
-                }
-            },
-            loop: true
-        });
-
-    });
-}
-
-
-  spawnCoin(x, y, data) {
-    const coin = this.spawnManager.SpawnCoin(x, y);
-    coin.once('pickup', () => {
-      this.time.delayedCall(25000, () => {
-        this.spawnCoin(x, y, data);
-      })
-    })
-    if (data === 'float') {
-      coin.body.allowGravity = false;
-    }
-
-  }
-
   spawnSourceBlock(x, y) {
     const block = this.spawnManager.spawnSourceBlock(x, y);
   }
+  
+  spawnBooster(x, y, obj) {
+    this.spawnManager.spawnBooster(x, y, obj);
+  }
+
 }

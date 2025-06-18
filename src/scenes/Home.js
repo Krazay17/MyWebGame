@@ -33,17 +33,13 @@ export default class Home extends BaseGame {
         this.setupCollisions();
 
         const widePlatformPos = [
-            [-1200, 350], [-800, 500], [-400, 650], [0, 800], [400, 650], [800, 500], [1200, 350], [400, 1000],[-400, 1000],[-700, 1200],[700, 1200],
+            [-1200, 350], [-800, 500], [-400, 650], [0, 800], [400, 650], [800, 500], [1200, 350], [400, 1000], [-400, 1000], [-700, 1200], [700, 1200],
         ];
         widePlatformPos.forEach(pos => this.walkableGroup.create(pos[0], pos[1], 'platformwide'));
 
         const largePlatform = this.walkableGroup.create(0, 1450, 'largeplatform').setScale(5, 1.5);
 
         this.setupPortals();
-
-        this.spawnEnemies();
-
-
     }
 
     update(time, delta) {
@@ -60,12 +56,14 @@ export default class Home extends BaseGame {
         const portal1 = this.portals.create(-800, 400, 'portal1');
         const portal2 = this.portals.create(-700, 800, 'door0').setScale(.3);
 
-        this.anims.create({
-            key: 'portal3',
-            frameRate: 6,
-            frames: this.anims.generateFrameNumbers('portal3', {start: 0, end: 5}),
-            repeat: -1,
-        });
+        if (!this.anims.get('portal3')) {
+            this.anims.create({
+                key: 'portal3',
+                frameRate: 6,
+                frames: this.anims.generateFrameNumbers('portal3', { start: 0, end: 5 }),
+                repeat: -1,
+            });
+        }
 
         const portal3 = this.portals.create(700, 800, 'portal3').setScale(.2).play('portal3');
 
@@ -111,14 +109,10 @@ export default class Home extends BaseGame {
         this.physics.add.overlap(this.player, this.portals, (player, portal) => {
             if (portal.targetScene && this.scene.key !== portal.targetScene) {
                 GameManager.useLastLocation = false;
+                GameManager.save();
                 this.scene.start(portal.targetScene);
             }
         });
 
-    }
-
-    spawnEnemies() {
-        this.spawnManager.spawnDuck(400, 1000, 50);
-        this.spawnManager.SpawnCoin(100, 300);
     }
 }

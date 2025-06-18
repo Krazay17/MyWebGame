@@ -30,7 +30,7 @@ const config = {
         timescale: 1,
         // fps: 60,
         // fixedStep: true,
-        //tileBias: 40,
+        tileBias: 55,
         debug: false,
       }
     },
@@ -43,11 +43,3 @@ const config = {
 };
 
 let game = new Phaser.Game(config);
-
-
-        if (!window.secretDevMode) {
-    window.secretDevMode = function () {
-        GameManager.flags.devmode = !GameManager.flags.devmode;
-        console.log(GameManager.flags.devmode);
-    };
-}

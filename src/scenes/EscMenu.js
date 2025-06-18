@@ -24,20 +24,15 @@ export default class EscMenu extends Phaser.Scene {
 
         this.network = NetworkManager.instance;
 
-
-    //     window.addEventListener('beforeunload', () => {
-    //         GameManager.save();
-    // });
-
         // Background
         this.bg = this.add.rectangle(0, 0, 800, 600, 0x000000, 0.8).setOrigin(0, 0);
 
         this.resetButton = this.add.rectangle(0, 0, 225, 75, 0xFFFFFF, 1)
             .setInteractive()
             .on('pointerdown', () => {
-                this.scene.stop(this.gameScene);
+                GameManager.reset();
+                this.scene.stop('Home');
                 this.scene.start('Home');
-                GameManager.power.money = 0;
             });
         const resetText = this.add.text(0, 0, 'RESET', {
             font: '32px',

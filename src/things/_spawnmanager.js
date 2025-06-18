@@ -1,9 +1,12 @@
-import Pickup from "./Pickup.js";
 import Enemy from "./_baseEnemy.js";
 import Bullet from "./bullet.js"
 import Duck from "./enemyDuck.js"
 import Bat from "./enemyBat.js"
 import SunMan from "./enemySunman.js";
+import Coin from "./coin.js";
+import Booster from "./booster.js";
+import DashBuff from "./dashBuff.js";
+import { getProperty } from "../myFunctions.js";
 
 export default class SpawnManager {
     static instance;
@@ -22,7 +25,7 @@ export default class SpawnManager {
         this.softBulletGroup = this.scene.physics.add.group({ allowGravity: false });
         this.itemGroup = this.scene.physics.add.group();
         this.staticItemGroup = this.scene.physics.add.group({ allowGravity: false, immovable: true });
-        
+
         scene.physics.add.collider(this.sunmanGroup, this.sunmanGroup);
     }
 
@@ -38,7 +41,7 @@ export default class SpawnManager {
         ];
     }
 
-    spawnBat(x, y, health, isRemote = false, id = null ) {
+    spawnBat(x, y, obj, health, isRemote = false, id = null) {
         let bat = this.batGroup.get()
 
         if (bat && bat.isPooled) {
@@ -60,7 +63,7 @@ export default class SpawnManager {
         return bat;
     }
 
-    spawnSunMan(x, y, health, isRemote = false, id = null ) {
+    spawnSunMan(x, y, obj, health, isRemote = false, id = null) {
         let sunMan = this.sunmanGroup.get();
 
         if (sunMan && sunMan.isPooled) {
@@ -82,7 +85,7 @@ export default class SpawnManager {
         return sunMan;
     }
 
-    spawnDuck(x, y, health = 5, isRemote = false, id = null ) {
+    spawnDuck(x, y, obj, health = 25, isRemote = false, id = null) {
         let duck = this.duckGroup.get();
 
         if (duck && duck.isPooled) {
@@ -95,23 +98,34 @@ export default class SpawnManager {
         return duck;
     }
 
-    SpawnCoin(x, y) {
-        const coin = new Pickup(this.scene, x, y, 'coin');
+    spawnCoin(x, y, obj) {
+        const coin = new Coin(this.scene, x, y);
+        const props = getProperty(obj);
+
         this.itemGroup.add(coin);
-        coin.setGravity(0, 0);
-        coin.setBounce(.9);
+        coin.setMaxVelocity(800, 800);
+        coin.setBounce(.99);
         coin.setScale(.2);
         this.scene.tweens.add({
             targets: coin,
             angle: 360,
-            duration: 500,
+            duration: Phaser.Math.Between(400, 1000),
             repeat: -1
         });
+        if (props?.float) {
+            coin.body.allowGravity = false;
+        }
+
+        coin.once('pickup', () => {
+            this.scene.time.delayedCall(45000, () => {
+                this.spawnCoin(x, y, obj);
+            })
+        })
 
         return coin;
     }
 
-    spawnSourceBlock(x, y) {
+    spawnSourceBlock(x, y, data) {
         const block = this.scene.walkableGroup.create(x, y, 'boxsheet')
         this.scene.add.existing(block);
         this.scene.physics.add.existing(block);
@@ -177,6 +191,21 @@ export default class SpawnManager {
         return bullet;
     }
 
+    spawnBooster(x, y, obj) {
+        const booster = new Booster(this.scene, x, y, obj);
+        this.staticItemGroup.add(booster);
+    }
+
+    spawnDashBuff(x, y, obj) {
+        const dashBuff = new DashBuff(this.scene, x, y);
+        this.staticItemGroup.add(dashBuff);
+
+        dashBuff.once('pickup', () => {
+            this.scene.time.delayedCall(45000, () => {
+                this.spawnDashBuff(x, y, obj);
+            })
+        })
+    }
 
 
 }

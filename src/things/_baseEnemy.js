@@ -229,8 +229,8 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
         this.maxHealth = health;
     }
 
-    playerCollide(enemy, player) {
-        const direction = new Phaser.Math.Vector2(player.x - enemy.x, player.y - enemy.y);
+    playerCollide(player) {
+        const direction = new Phaser.Math.Vector2(player.x - this.x, player.y - this.y);
         const knockback = direction.normalize().scale(this.knockPower);
 
         player.TakeDamage(knockback.x, knockback.y, this.damage);

@@ -8,6 +8,10 @@ export default class Preloader extends Phaser.Scene {
     preload() {
         this.loadingBar();
 
+        this.load.image('redsky0', 'assets/RedSky0.webp');
+        this.load.image('redsky1', 'assets/RedSky1.webp');
+        this.load.image('redsky2', 'assets/RedSky2.webp');
+        this.load.image('bat', 'assets/BatEnemy.png')
         this.load.image('purplesky0', 'assets/PurpleSky0.webp');
         this.load.image('tilesheet', 'assets/tilesheet.png')
         this.load.image('bullet', 'assets/bullet.png');
@@ -30,9 +34,12 @@ export default class Preloader extends Phaser.Scene {
         this.load.image('auraicon', 'assets/AuraIcon.png');
         this.load.image('auraicondesat', 'assets/AuraIconDesat.png');
         this.load.image('bottomplat', 'assets/BottomPlat.png');
+        this.load.image('duckman', 'assets/duckman.png');
+        this.load.image('turret', 'assets/TurretPlatform.png');
 
         this.load.audio('music0', 'assets/music0.mp3');
         this.load.audio('music1', 'assets/music1.mp3');
+        this.load.audio('music2', 'assets/music2.mp3');
         this.load.audio('energysound', 'assets/EnergySound.wav');
         this.load.audio('playerHit', 'assets/PlayerGotHit.wav');
         this.load.audio('shurikanthrow', 'assets/Whip1.wav');
@@ -41,11 +48,18 @@ export default class Preloader extends Phaser.Scene {
         this.load.audio('clinksound', 'assets/Clink1.wav');
         this.load.audio('clinksound2', 'assets/Clink2.wav');
 
+        this.load.tilemapTiledJSON('tilemap1', 'assets/tilemap3.json')
+        this.load.tilemapTiledJSON('tilemap2', 'assets/tilemap2.json')
+
         this.load.spritesheet('dudesheet', 'assets/DudeSheet.png', {
             frameWidth: 256,
             frameHeight: 256,
         });
         this.load.spritesheet('sword', 'assets/SwordSheet.png', {
+            frameWidth: 512,
+            frameHeight: 512,
+        });
+        this.load.spritesheet('booster', 'assets/booster.png', {
             frameWidth: 512,
             frameHeight: 512,
         });
@@ -69,13 +83,29 @@ export default class Preloader extends Phaser.Scene {
             frameWidth: 512,
             frameHeight: 1024,
         });
+        this.load.spritesheet('sunsheet', 'assets/SunSheet.png', {
+            frameHeight: 256,
+            frameWidth: 256
+        });
+        this.load.spritesheet('sunsheet', 'assets/SunSheet.png', {
+            frameWidth: 256,
+            frameHeight: 256
+        });
+        this.load.spritesheet('fireballsheet', 'assets/FireballSheet.png', {
+            frameWidth: 66,
+            frameHeight: 26
+        });
     }
 
     create() {
         GameManager.load();
 
+        window.secretDevMode = function() {
+            GameManager.flags.devmode = !GameManager.flags.devmode;
+            console.log(GameManager.flags.devmode);
+        }
+
         this.scene.start(GameManager.area);
-        console.log(GameManager.area);
     }
 
     loadingBar() {

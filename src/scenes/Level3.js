@@ -9,17 +9,6 @@ export default class Level3 extends BaseGame {
         super('Level3')
     }
 
-    preload() {
-        super.preload()
-        this.load.audio('music2', 'assets/music2.mp3');
-        this.load.tilemapTiledJSON('tilemap2', 'assets/tilemap2.json')
-        this.load.image('bat', 'assets/BatEnemy.png')
-        this.load.spritesheet('sunsheet', 'assets/SunSheet.png', {
-            frameHeight: 256,
-            frameWidth: 256
-        })
-    }
-
     create() {
         this.setupSky({ sky2: false, sky3: false });
         this.sky2 = this.add.image(1000, 900, 'purplesky1').setScale(1.1).setScrollFactor(.15);
@@ -30,17 +19,9 @@ export default class Level3 extends BaseGame {
         this.setupTileMap('tilemap2');
         this.setupCollisions();
         this.setupMusic('music2');
-
-        //this.sunManHealth = 3;
-
-        this.spawnSpeed = 2500;
         this.enemyTimers();
 
 
-    }
-
-    update(time, delta) {
-        super.update(time, delta);
     }
 
     makeClimbingPlatforms() {
@@ -57,7 +38,9 @@ export default class Level3 extends BaseGame {
         }
     }
 
-
+    lerp(start, end, t) {
+        return start + (end - start) * t;
+    }
 
     checkPlayerY() {
         if (!this.player) return;
@@ -73,49 +56,7 @@ export default class Level3 extends BaseGame {
             return;
         } else {
             this.doSpawnSunMan = true;
-
         }
-
-        // if (y > 5500) {
-        //     this.batTimer.delay = 2000;
-        //     this.doSpawnSunMan = false;
-        //     return;
-        // }
-        // if (y > 4000) {
-        //     this.batTimer.delay = 1500;
-        //     this.doSpawnSunMan = true;
-        //     this.sunManHealth = 5;
-        //     this.sunTimer.delay = 6000;
-        //     return;
-        // }
-        // if (y > 3000) {
-        //     this.batTimer.delay = 1000;
-        //     this.doSpawnSunMan = true;
-        //     this.sunManHealth = 10;
-        //     this.sunTimer.delay = 5500;
-        //     return;
-        // }
-        // if (y > 2000) {
-        //     this.batTimer.delay = 500;
-        //     this.doSpawnSunMan = true;
-        //     this.sunManHealth = 15;
-        //     this.sunTimer.delay = 5000;
-        //     return;
-        // }
-        // if (y > 1000) {
-        //     this.batTimer.delay = 250;
-        //     this.doSpawnSunMan = true;
-        //     this.sunManHealth = 25;
-        //     this.sunTimer.delay = 4500;
-        //     return;
-        // }
-        // if (y > 0) {
-        //     this.batTimer.delay = 100;
-        //     this.doSpawnSunMan = true;
-        //     this.sunManHealth = 50;
-        //     this.sunTimer.delay = 2000;
-        //     return;
-        // }
     }
 
     enemyTimers() {
@@ -135,14 +76,18 @@ export default class Level3 extends BaseGame {
             callback: () => {
                 if (!this.doSpawnSunMan) return;
                 const { x, y } = this.getSpawnPos();
-                const sunMan = this.spawnManager.spawnSunMan(x, y, this.sunManHealth);
+                const sunMan = this.spawnManager.spawnSunMan(x, y, null, this.sunManHealth);
 
                 this.checkPlayerY();
             },
             loop: true
         });
 
-        //this.time.delayedCall(5000, () => this.sunMan());
+        this.events.on('shutdown', () => {
+            if (this.batTimer) { this.batTimer.remove(); this.batTimer = null; }
+            if (this.sunTimer) { this.sunTimer.remove(); this.sunTimer = null; }
+        });
+
     }
 
     getSpawnPos() {
@@ -158,18 +103,5 @@ export default class Level3 extends BaseGame {
         const y = this.player.y + Phaser.Math.Between(-650, -850)
 
         return { x, y, spawnLeft };
-    }
-
-    sunMan() {
-        const { x, y } = this.getSpawnPos();
-        const sunMan = this.spawnManager.spawnSunMan(x, y, this.sunManHealth);
-        // sunMan.once('die', () => {
-        //     this.time.delayedCall(5000, () => this.sunMan())
-        // })
-
-    }
-
-    lerp(start, end, t) {
-        return start + (end - start) * t;
     }
 }

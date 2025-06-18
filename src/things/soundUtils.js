@@ -55,4 +55,24 @@ export function playHitSound(scene, soundKey, options = {}) {
             rate: options.rate ?? 1
         });
     }
+
+
+}
+
+export function playSound(scene, soundKey, options = {}) {
+    if (document.visibilityState !== 'visible') return;
+
+    const now = scene.time.now;
+    const lastTime = lastPlayTimes[soundKey] || 0;
+
+    if (now - lastTime > (options.cooldown || MIN_INTERVAL)) {
+        lastPlayTimes[soundKey] = now;
+
+        // You can pass extra options like volume, detune, etc.
+        scene.sound.play(soundKey, {
+            volume: options.volume ?? 1,
+            detune: options.detune ?? Phaser.Math.Between(-55, 55),
+            rate: options.rate ?? 1
+        });
+    }
 }

@@ -5,23 +5,6 @@ export default class Level1 extends BaseGame {
     super('Level1');
   }
 
-  preload() {
-    super.preload();
-    this.load.image('redsky0', 'assets/RedSky0.webp');
-    this.load.image('redsky1', 'assets/RedSky1.webp');
-    this.load.image('redsky2', 'assets/RedSky2.webp');
-    this.load.spritesheet('sunsheet', 'assets/SunSheet.png', {
-      frameWidth: 256,
-      frameHeight: 256
-    });
-    this.load.image('duckman', 'assets/duckman.png');
-    this.load.image('turret', 'assets/TurretPlatform.png');
-    this.load.spritesheet('fireballsheet', 'assets/FireballSheet.png', {
-      frameWidth: 66,
-      frameHeight: 26
-    });
-  }
-
   create() {
     this.setupSky({ sky1: 'redsky0', sky2: false, sky3: false });
     this.sky2 = this.add.image(600, 400, 'redsky1').setScale(1).setScrollFactor(.3);
@@ -29,9 +12,7 @@ export default class Level1 extends BaseGame {
     this.setupWorld(-1200, 0, 2400, 900);
     this.setupMusic('music0');
     this.setupPlayer(-1100, 300);
-
     this.setupGroups();
-
     this.setupCollisions();
 
 
@@ -52,7 +33,7 @@ export default class Level1 extends BaseGame {
 
     this.time.addEvent({
       delay: Phaser.Math.Between(2000, 5000),
-      callback: () => this.spawnManager.SpawnCoin(Phaser.Math.Between(-1100, 1100), 0),
+      callback: () => this.spawnManager.spawnCoin(Phaser.Math.Between(-1100, 1100), 0),
       loop: true
     });
 

@@ -20,7 +20,7 @@ export default class PlayerUI extends Phaser.Scene {
 
     create() {
         this.visible = true;
-        this.Chatting = false;
+        this.chatting = false;
         this.playerList = [];
         this.network = NetworkManager.instance;
         this.playerTextMap = {}; // Object to hold playerId => textObject
@@ -56,7 +56,7 @@ export default class PlayerUI extends Phaser.Scene {
         this.scale.on('resize', this.resizeUI, this);
 
         this.input.keyboard.on('keydown-ENTER', () => {
-            if (this.Chatting) {
+            if (this.chatting) {
                 const input = this.textBox?.node?.querySelector('#textchat');
                 if (input) {
                     this.closeTextChat(input.value);
@@ -75,7 +75,7 @@ export default class PlayerUI extends Phaser.Scene {
 
 
         this.input.keyboard.on('keydown-ESC', () => {
-            if (this.Chatting) {
+            if (this.chatting) {
                 this.closeTextChat('');
             }
         });
@@ -153,10 +153,11 @@ export default class PlayerUI extends Phaser.Scene {
     }
 
     openTextChat() {
-        if (this.Chatting) return;
+        if (this.chatting) return;
+                    this.player.chatting = true;
 
-        this.Chatting = true;
-        //this.emit('chatting');
+        this.chatting = true;
+        this.events.emit('chatting');
 
         if (!this.cache.html.exists('textchat')) {
             this.textBox = this.add.dom(this.textBoxX, this.textBoxY).createFromHTML(`
@@ -175,8 +176,8 @@ export default class PlayerUI extends Phaser.Scene {
         const input = this.textBox.node?.querySelector('#textchat');
         if (!input) {
             console.error('Input element not found!');
-            this.Chatting = false;
-            //this.emit('doneChatting');
+            this.chatting = false;
+            this.events.emit('doneChatting');
             return;
         }
 
@@ -186,12 +187,13 @@ export default class PlayerUI extends Phaser.Scene {
 
 
     closeTextChat(message) {
+                    this.player.chatting = false;
         if (this.textBox) {
             this.textBox.destroy();
             this.textBox = null;
             this.inputFocused = false;
         }
-        this.Chatting = false;
+        this.chatting = false;
 
         if (!message) return;
         console.log('Player typed:', message);

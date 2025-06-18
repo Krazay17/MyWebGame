@@ -83,6 +83,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.rightSpam = 0;
         this.speed = 250;
         this.test = 0;
+        this.buffColor = 0x66ff33;
 
         this.rankSystem = new RankSystem();
 
@@ -130,12 +131,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             }
         });
 
-        // this.playerUI.on('chatting', () => {
-        //     this.chatting = true;
-        // })
-        // this.playerUI.on('doneChatting', () => {
-        //     this.chatting = false;
-        // })
         // this.scene.input.keyboard.on('keydown-R', () => {
         //     if (!this.playerUI.Chatting) {
         //         this.Died();
@@ -355,6 +350,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.healCD = 0;
         this.wallRunLeft = 540;
         this.wallRunRight = 540;
+        this.dashDuration = 250;
 
         this.wallrunDecayRate = .5;
         // idle: {
@@ -435,12 +431,15 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
             wallRun: {
                 enter: (input) => {
-                    const { left, right } = input
+                    const { left, right } = input;
                     this.wallRunning = true;
+                    const xSpeed = Math.min(500, Math.abs(this.body.velocity.x));
 
                     if (this.body.blocked.left) {
                         if (this.wallRunLeft < (-this.body.velocity.y)) {
                             this.wallRunLeft = (-this.body.velocity.y)
+                        } else if (this.wallRunLeft < xSpeed) {
+                            this.wallRunLeft = xSpeed;
                         }
                         this.wallRunRight = 540;
                     }
@@ -448,6 +447,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     if (this.body.blocked.right) {
                         if (this.wallRunRight < (-this.body.velocity.y)) {
                             this.wallRunRight = (-this.body.velocity.y)
+                        } else if (this.wallRunRight < xSpeed) {
+                            this.wallRunRight = xSpeed;
                         }
                         this.wallRunLeft = 540;
                     }
@@ -547,7 +548,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     }
                 },
                 update: () => { },
-                exit: () => { 
+                exit: () => {
                     this.wallSlide = false;
                 },
             },
@@ -682,7 +683,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
             dash: {
                 enter: () => {
-                    this.dashDuration = 250;
                     this.stateLockout = this.scene.time.now + this.dashDuration;
 
                     this.canDash = false;
@@ -703,22 +703,24 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                             if (this.queResetDash) this.resetDash();
                         }
                     });
-
-                    this.stop();
-                    this.setFrame(11);
                     this.clearTint();
                 },
-                update: (delta) => {
+                update: (delta, input) => {
                     this.dashTime += delta;
 
-                    const t = Phaser.Math.Clamp((this.dashTime * 2) / this.dashDuration, 0, 1);
+                    const t = Phaser.Math.Clamp((this.dashTime) / this.dashDuration, 0, 1);
                     const currentSpeed = lerp(this.startDash, this.endDash, t)
                     this.setVelocityX(currentSpeed);
                     this.setVelocityY(0);
 
                     if (this.body.blocked.left || this.body.blocked.right) {
                         this.stateLockout = 0;
-                        this.setState('idle');
+                        if (input.jump) {
+                            this.body.blocked.left ? this.wallRunLeft = 540 : this.wallRunRight = 540;
+                            this.setState('wallRun', input);
+                        } else {
+                            this.setState('idle');
+                        }
                     }
                 },
                 exit: () => {
@@ -768,10 +770,30 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         if (this.canResetDash) {
             this.queResetDash = false;
             this.canDash = true;
-            this.setTint(0x66ff33);
+            this.setTint(this.buffColor);
         } else {
             this.queResetDash = true;
         }
+    }
+
+    dashBuff() {
+        const prevColor = this.buffColor;
+
+        this.dashSpeed = 2000
+        this.dashDuration = 300;
+        this.buffColor = 0x0000FF;
+        this.setTint(0x0000FF);
+        this.resetDash(true);
+        this.scene.time.removeEvent(this.dashBuffTimer);
+        this.dashBuffTimer = this.scene.time.addEvent({
+            delay: 15000,
+            callback: () => {
+                this.dashSpeed = 900
+                this.dashDuration = 250;
+                this.buffColor = 0x66ff33;
+                this.clearTint();
+            }
+        })
     }
 
     lerpHitBox(delta) {
@@ -996,55 +1018,14 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         return true;
     }
 
-    resetDash() {
-        if (this.canResetDash && !this.stunned) {
+    resetDash(force = false) {
+        if ((this.canResetDash && !this.stunned) || force) {
             this.queResetDash = false;
             this.canDash = true;
-            this.setTint(0x66ff33);
+            this.setTint(this.buffColor);
         } else {
             this.queResetDash = true;
         }
-    }
-
-    dash(x) {
-        this.iFrame = true;
-        this.canDash = false;
-        this.canResetDash = false;
-        this.isDashing = true;
-        this.stop();
-        this.setFrame(11);
-
-        //this.setVelocityX(x);
-        let vel = { x: x }; // start at high speed
-
-        this.dashTween = this.scene.add.tween({
-            targets: vel,
-            x: x / 3,           // lower target speed
-            duration: 200,
-            ease: 'Power1',
-            onUpdate: () => {
-                this.body.setVelocity(vel.x, 0); // apply it each frame
-            },
-            onComplete: () => {
-                this.isDashing = false;
-            }
-        });
-
-        this.clearTint();
-
-        this.scene.time.addEvent({
-            delay: 350,
-            callback: () => {
-                this.iFrame = false;
-            }
-        });
-        this.scene.time.addEvent({
-            delay: 650,
-            callback: () => {
-                this.canResetDash = true;
-                if (this.queResetDash) this.resetDash();
-            }
-        });
     }
 
     PickupItem(money = 0) {
@@ -1196,7 +1177,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 if (!this.alive) return;
                 screenFlash.destroy();
                 if (this.canDash) {
-                    this.setTint(0x66ff33);
+                    this.setTint(this.buffColor);
                 } else {
                     this.setTint();
                 }

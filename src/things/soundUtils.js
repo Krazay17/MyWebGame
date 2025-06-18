@@ -1,7 +1,7 @@
 import GameManager from "./GameManager.js";
 
 const lastPlayTimes = {};
-const MIN_INTERVAL = 50; // ms per sound ID
+const MIN_INTERVAL = 25; // ms per sound ID
 
 export default class SoundUtil {
     static currentMusic = null;
@@ -48,15 +48,22 @@ export function playHitSound(scene, soundKey, options = {}) {
     if (now - lastTime > (options.cooldown || MIN_INTERVAL)) {
         lastPlayTimes[soundKey] = now;
 
-        // You can pass extra options like volume, detune, etc.
-        scene.sound.play(soundKey, {
+        if (!scene.sfx[soundKey]) {
+            scene.sfx[soundKey] = [];
+            for (let i = 0; i < (options.poolSize || 10); i++) {
+                scene.sfx[soundKey].push(scene.sound.add(soundKey));
+            }
+        }
+
+        const pool = scene.sfx[soundKey];
+        const sound = pool.find(s => !s.isPlaying) || pool[0]; // grab idle sound or first one
+
+        sound.play({
             volume: options.volume ?? 1,
             detune: options.detune ?? Phaser.Math.Between(-55, 55),
             rate: options.rate ?? 1
         });
     }
-
-
 }
 
 export function playSound(scene, soundKey, options = {}) {
@@ -68,8 +75,17 @@ export function playSound(scene, soundKey, options = {}) {
     if (now - lastTime > (options.cooldown || MIN_INTERVAL)) {
         lastPlayTimes[soundKey] = now;
 
-        // You can pass extra options like volume, detune, etc.
-        scene.sound.play(soundKey, {
+        if (!scene.sfx[soundKey]) {
+            scene.sfx[soundKey] = [];
+            for (let i = 0; i < (options.poolSize || 10); i++) {
+                scene.sfx[soundKey].push(scene.sound.add(soundKey));
+            }
+        }
+
+        const pool = scene.sfx[soundKey];
+        const sound = pool.find(s => !s.isPlaying) || pool[0]; // grab idle sound or first one
+
+        sound.play({
             volume: options.volume ?? 1,
             detune: options.detune ?? Phaser.Math.Between(-55, 55),
             rate: options.rate ?? 1

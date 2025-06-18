@@ -38,6 +38,12 @@ export default class BaseGame extends Phaser.Scene {
 
     this.network.refreshScene(this);
     this.sound.pauseOnBlur = false;
+    this.sfx = {};
+
+    this.events.once('shutdown', () => {
+      this.sound.stopAll();
+      this.sfx = {};
+    });
 
     this.input.on('wheel', (wheel) => {
       if (!this.zoom) this.zoom = 1;
@@ -65,10 +71,10 @@ export default class BaseGame extends Phaser.Scene {
       GameManager.save();
     });
 
-    this.events.on('shutdown', () => {
+    this.events.once('shutdown', () => {
       this.cleanupScene();
     }, this);
-    this.events.on('destroy', () => {
+    this.events.once('destroy', () => {
       this.cleanupScene();
     }, this);
 
@@ -146,6 +152,7 @@ export default class BaseGame extends Phaser.Scene {
   }
 
   setupTileMap(tilemap = 'tilemap1', tilesheet = 'tilesheet') {
+    console.log('SETUPTILEMAP')
     this.tilemap = this.make.tilemap({ key: tilemap });
     this.tileset = this.tilemap.addTilesetImage(tilesheet, tilesheet);
     this.layer1 = this.tilemap.createLayer('layer1', this.tileset, 0, 0);
@@ -164,10 +171,10 @@ export default class BaseGame extends Phaser.Scene {
 
     const objects = this.tilemap.getObjectLayer('objects');
     objects.objects.forEach(obj => {
-      if(this.spawnManager[obj.name]) {
+      if (this.spawnManager[obj.name]) {
         this.spawnManager[obj.name]?.(obj.x, obj.y, obj);
       } else {
-      this[obj.name]?.(obj.x, obj.y, obj);
+        this[obj.name]?.(obj.x, obj.y, obj);
       }
     });
 
@@ -426,7 +433,7 @@ export default class BaseGame extends Phaser.Scene {
   spawnSourceBlock(x, y) {
     const block = this.spawnManager.spawnSourceBlock(x, y);
   }
-  
+
   spawnBooster(x, y, obj) {
     this.spawnManager.spawnBooster(x, y, obj);
   }

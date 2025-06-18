@@ -40,14 +40,14 @@ export default class EscMenu extends Phaser.Scene {
         })
 
         // Slider track and handle
-        const track = this.add.rectangle(400, 400, 200, 10, 0xffffff).setOrigin(0.5);
-        const handle = this.add.circle(400, 400, 10, 0xff0000).setInteractive();
+        const track = this.add.rectangle(600, 400, 200, 10, 0xffffff).setOrigin(0.5);
+        const handle = this.add.circle(600, 400, 10, 0xff0000).setInteractive();
         this.input.setDraggable(handle);
         this.slider = { track, handle };
 
         // Slider track and handle
-        const track1 = this.add.rectangle(400, 450, 200, 10, 0xffffff).setOrigin(0.5);
-        const handle1 = this.add.circle(400, 450, 10, 0xff0000).setInteractive();
+        const track1 = this.add.rectangle(600, 450, 200, 10, 0xffffff).setOrigin(0.5);
+        const handle1 = this.add.circle(600, 450, 10, 0xff0000).setInteractive();
         this.input.setDraggable(handle1);
         handle1.name = 'music';
         this.slider1 = { track1, handle1 };
@@ -69,14 +69,14 @@ export default class EscMenu extends Phaser.Scene {
             })
 
         const instructions = this.add.text(0, 50,
-            'ASD - Move\nW - Heal\nSPACE - Jump\nShift - dash\nL/R Click - Attack\nC -Inventory\nT - Home', {
-            fontSize: '32px',
+            'ASD - Move\nW - Heal\nSPACE - Jump\nSHIFT - dash\nL/R Click - Attack\nC -Inventory\nT - Home\n<-/-> - Spectate Others\nUpArrow^ - Spectate Self', {
+            fontSize: '28px',
             color: '#4fffff',
         });
         instructions.setScrollFactor(0);
 
         // Name display
-        this.nameDisplay = this.add.text(400, 250, GameManager.name.text || 'Hunter', {
+        this.nameDisplay = this.add.text(600, 250, GameManager.name.text || 'Hunter', {
             fontSize: '32px',
             fontStyle: 'bold',
             color: GameManager.name.color || '#FFFFFF',
@@ -152,7 +152,7 @@ export default class EscMenu extends Phaser.Scene {
     }
 
     openNameInput() {
-        this.nameInput = this.add.dom(400, 300).createFromHTML(`
+        this.nameInput = this.add.dom(600, 300).createFromHTML(`
             <input type="text" id="nameInput" name="name" placeholder="Enter name"
                    style="font-size: 20px; width: 200px; padding: 5px;" />
         `).setOrigin(0.5);
@@ -190,7 +190,7 @@ export default class EscMenu extends Phaser.Scene {
     }
 
     openColorInput() {
-        this.colorInput = this.add.dom(400, 350).createFromHTML(`
+        this.colorInput = this.add.dom(600, 350).createFromHTML(`
             <input type="color" id="nameColor" value="${GameManager.name.color || '#ffffff'}"
                    style="width: 80px; height: 40px; border: none;" />
         `).setOrigin(0.5);

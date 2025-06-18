@@ -8,7 +8,6 @@ export default class Booster extends Pickup {
 
         this.setScale(.3);
         changeCollision(this, obj.width*4, obj.height*4);
-        console.log(obj.width)
 
         const rot = Phaser.Math.DegToRad(obj.rotation);
         this.setRotation(rot);

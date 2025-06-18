@@ -4,6 +4,7 @@ import RankSystem from "./RankSystem.js";
 import { createWeapon } from "../weapons/WeaponManager.js"
 import ChatBubble from "./chatBubble.js";
 import PlayerContainer from "./playerContainer.js";
+import SoundUtil, { playSound } from "./soundUtils.js";
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y) {
@@ -24,7 +25,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
         this.lastSentState = {};
 
-        this.damageSound = this.scene.sound.add('playerHit');
+        this.damageSound = 'playerHit';
 
         this.setScale(0.35);
         this.setDepth(10);
@@ -225,14 +226,15 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         gameOverText.setOrigin(0.5);
         gameOverText.setScrollFactor(0);
 
+        this.emit('playerdied');
+
+        GameManager.useLastLocation = false;
+        GameManager.save();
+
         this.scene.physics?.pause(); // Stop physics
         this.scene.time.delayedCall(2000, () => {
             this.scene.scene.restart()
         });
-        this.emit('playerdied');
-        GameManager.useLastLocation = false;
-
-        GameManager.save();
     }
 
     // touchWall(player, platform) {
@@ -991,11 +993,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         }
 
         this.makeScreenFlash();
-        if (this.damageSound) {
-            if (this.damageSound.isPlaying)
-                this.damageSound.stop();
-            this.damageSound.play();
-        }
+        playSound(this.scene, this.damageSound);
 
         this.stunned = true;
         this.emit('playerstunned');

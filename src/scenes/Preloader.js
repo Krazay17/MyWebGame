@@ -105,6 +105,8 @@ export default class Preloader extends Phaser.Scene {
             console.log(GameManager.flags.devmode);
         }
 
+        
+
         this.scene.start(GameManager.area);
     }
 

@@ -1,5 +1,5 @@
 import GameManager from "../things/GameManager.js";
-import { playHitSound } from "../things/soundUtils.js";
+import { playHitSound, playSound } from "../things/soundUtils.js";
 
 export default class WeaponBase {
     constructor(scene, player, baseDamage = 1) {
@@ -233,13 +233,7 @@ export default class WeaponBase {
     }
 
     playThrowSound() {
-        if (!this.hitSound) {
-            this.throwSound = this.scene.sound.add(this.throwSoundId);
-        };
-        if (this.throwSound.isPlaying) {
-            this.throwSound.stop();
-        }
-        this.throwSound.play();
+        playSound(this.scene, this.throwSoundId);
     }
 
     mapRangeClamped(value, inMin, inMax, outMin, outMax) {

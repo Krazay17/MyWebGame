@@ -1,3 +1,5 @@
+import SoundUtil from "../things/soundUtils";
+
 export default class Boot extends Phaser.Scene
 {
     constructor ()
@@ -8,7 +10,6 @@ export default class Boot extends Phaser.Scene
     create()
     {
         this.input.mouse.disableContextMenu();
-
-        this.scene.start('Preloader');
+        this.scene.run('Preloader');
     }
 }

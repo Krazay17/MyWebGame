@@ -9,12 +9,19 @@ export default class SoundUtil {
     static storedTime = 0;
 
     static setup(scene, key = 'music1', volume = 1) {
-        if (this.currentMusic && this.currentKey === key) {
-            // Already playing this track → do nothing
+        console.log('setup music:', key);
+
+        // Check if same music is already playing
+        const existingMusic = scene.game.sound.get(key);
+
+        if (existingMusic && existingMusic.isPlaying) {
+            console.log('already playing:', key);
+            this.currentMusic = existingMusic;
+            this.currentKey = key;
             return;
         }
 
-        // If switching tracks, stop old one
+        // If switching tracks, save position + clean up
         if (this.currentMusic) {
             this.storedTime = this.currentMusic.seek;
             this.currentMusic.stop();
@@ -22,22 +29,26 @@ export default class SoundUtil {
         }
 
         this.currentKey = key;
-        this.currentMusic = scene.sound.add(key, { loop: true });
-        this.currentMusic.volume = GameManager.volume.music * volume;
+        this.currentMusic = scene.game.sound.add(key, { loop: true });
+        this.currentMusic.volume = volume;
 
-        if (this.storedTime) {
-            this.currentMusic.seek = this.storedTime;
+        // Resume from stored position if any
+        if (this.storedTime > 0) {
+            this.currentMusic.setSeek(this.storedTime);
         }
 
         this.currentMusic.play();
     }
 
     static savePosition() {
-        if (this.currentMusic) {
+        if (this.currentMusic && this.currentMusic.isPlaying) {
             this.storedTime = this.currentMusic.seek;
+            console.log('saved position:', this.storedTime);
         }
     }
 }
+
+
 
 export function playHitSound(scene, soundKey, options = {}) {
     if (document.visibilityState !== 'visible') return;

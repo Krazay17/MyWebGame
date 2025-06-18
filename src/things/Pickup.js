@@ -9,7 +9,6 @@ export default class Pickup extends Phaser.Physics.Arcade.Sprite
         scene.physics.add.existing(this);
 
         this.pickupSound = 'pickup';
-        scene.sound.add(this.pickupSound);
     }
 
     init() {}

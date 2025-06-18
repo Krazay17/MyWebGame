@@ -37,13 +37,6 @@ export default class BaseGame extends Phaser.Scene {
     this.spawnManager = new SpawnManager(this)
 
     this.network.refreshScene(this);
-    this.sound.pauseOnBlur = false;
-    this.sfx = {};
-
-    this.events.once('shutdown', () => {
-      this.sound.stopAll();
-      this.sfx = {};
-    });
 
     this.input.on('wheel', (wheel) => {
       if (!this.zoom) this.zoom = 1;
@@ -304,37 +297,19 @@ export default class BaseGame extends Phaser.Scene {
     // }, null, this);
   }
 
-  setupMusic(key = 'music1', volume = 1) {
-    // this.currentMusic = this.sound.add(key, { loop: true });
-    // this.currentMusic.volume = GameManager.volume.music * volume;
-
-    // const storedTime = this.game.registry.get('music_seek_time');
-    // if (storedTime !== undefined) {
-    //   this.currentMusic.seek = storedTime;
-    // }
-
-    // this.currentMusic.play();
-
-    // const shutdownHandler = () => {
-    //   if (this.currentMusic) {
-    //     const currentTime = this.currentMusic.seek;
-    //     this.game.registry.set('music_seek_time', currentTime);
-    //     this.currentMusic.stop();
-    //     this.currentMusic.destroy();
-    //     this.currentMusic = null;
-    //   }
-    // };
-
-    // this.events.once('shutdown', shutdownHandler);
-    // this.events.once('destroy', shutdownHandler);
-
-    SoundUtil.setup(this, key);
-
+  setupMusic(key = 'music1') {
     const shutdownHandler = () => {
-      SoundUtil.savePosition();
     }
 
-    this.events.once('shutdown', shutdownHandler);
+    SoundUtil.setup(this, key, GameManager.volume.music || 1);
+
+    this.sound.pauseOnBlur = false;
+    this.sfx = {};
+
+    this.events.once('shutdown', () => {
+      SoundUtil.savePosition();
+      this.sfx = {};
+    });
   }
 
   setupPlatforms(platformPos = [[0, 800]]) {

@@ -260,7 +260,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             const numberofPlayers = Object.keys(this.network.otherPlayers).length;
             this.spectateIndex = Phaser.Math.Clamp(this.spectateIndex + index, 0, numberofPlayers);
             const otherPlayer = Object.values(this.network.otherPlayers)[this.spectateIndex] || Object.values(this.network.otherPlayers)[0];
-            this.scene.cameras.main.startFollow(otherPlayer, false, .1, .1);
+            otherPlayer ? this.scene.cameras.main.startFollow(otherPlayer, false, .1, .1) : this.spectatePlayer(false);
         }
     }
 

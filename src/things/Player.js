@@ -17,7 +17,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         scene.physics.add.existing(this);
 
         this.body.setMaxSpeed(1000);
-        this.body.setMaxVelocity(1000, 850);
+        this.body.setMaxVelocity(1000, 1000);
 
 
         this.setupAnimation();
@@ -95,7 +95,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             down: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S, false),
             left: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A, false),
             right: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D, false),
-            dash: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT, false)
+            dash: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT, false),
 
         };
         this.myPointer = new Phaser.Input.Pointer(this.scene.input.manager, 1)
@@ -113,8 +113,19 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         });
         this.scene.input.keyboard.on('keydown-F', () => {
             if (GameManager.flags.devmode) {
-                this.updateMoney(5000);
+                this.updateMoney(50000);
             }
+        });
+
+        this.spectateIndex = 0;
+        this.scene.input.keyboard.on('keydown-LEFT', () => {
+            this.spectatePlayer(true, -1);
+        });
+        this.scene.input.keyboard.on('keydown-UP', () => {
+            this.spectatePlayer(false);
+        });
+        this.scene.input.keyboard.on('keydown-RIGHT', () => {
+            this.spectatePlayer(true, 1);
         });
 
         this.scene.input.on('pointerup', (pointer) => {
@@ -180,7 +191,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         let prevY = this.y;
 
         // After update:
-        if (this.body.velocity.y > 700 && this.body.blocked.down) {
+        if (this.body.velocity.y > 999 && this.body.blocked.down) {
             this.y = Math.min(this.y, prevY); // crude correction
             this.body.velocity.y = 0;
         }
@@ -218,7 +229,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         const gameOverText = this.scene.add.text(
             this.scene.cameras.main.width / 2,
             this.scene.cameras.main.height / 2,
-            'YOU DIED!\n' + this.deathPenalty + ' Source', {
+            'YOU DIED!\n' + this.deathPenalty + ' Source\nPress T to respawn\n or wait 10 seconds', {
             fontSize: '64px',
             color: '#ff0000'
         });
@@ -231,10 +242,37 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         GameManager.useLastLocation = false;
         GameManager.save();
 
+        this.spectatePlayer(true);
         this.scene.physics?.pause(); // Stop physics
-        this.scene.time.delayedCall(2000, () => {
-            this.scene.scene.restart()
+        this.scene.time.delayedCall(10000, () => {
+            //this.scene.scene.restart()
+            gameOverText.destroy();
+            this.respawnPlayer()
         });
+    }
+
+    spectatePlayer(spectate = false, index = 0) {
+        if (!spectate) {
+            this.scene.cameras.main.startFollow(this, false, .04, .04);
+            return;
+        }
+        if (this.network.otherPlayers) {
+            const numberofPlayers = Object.keys(this.network.otherPlayers).length;
+            this.spectateIndex = Phaser.Math.Clamp(this.spectateIndex + index, 0, numberofPlayers);
+            const otherPlayer = Object.values(this.network.otherPlayers)[this.spectateIndex] || Object.values(this.network.otherPlayers)[0];
+            this.scene.cameras.main.startFollow(otherPlayer, false, .1, .1);
+        }
+    }
+
+    respawnPlayer() {
+        const respawnLoc = this.scene.tileObjects?.objects.find(obj => obj.name === 'spawnPlayer');
+        this.setPosition(respawnLoc?.x, respawnLoc?.y)
+        this.setStats();
+        this.clearTint();
+        this.alive = true;
+
+        this.spectatePlayer(false);
+        this.scene.physics?.resume();
     }
 
     // touchWall(player, platform) {
@@ -301,7 +339,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     decideState(input) {
         const { left, right, jump, dash, crouch, heal, slam } = input;
 
-        if (dash && this.canDash) return this.setState('dash', input);
+        if (dash && this.canDash && !this.isDashing) return this.setState('dash', input);
         if (heal) return this.setState('heal');
         if (jump && this.canJump) return this.setState('jump', input);
         if ((slam && !this.slamCD && !this.body.blocked.down)) return this.setState('slam', input);
@@ -427,7 +465,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 exit: () => {
                     this.falling = false;
                     this.isMantling = false;
-                    this.setMaxVelocity(1000, 850);
+                    this.setMaxVelocity(1000, 1000);
                 },
             },
 
@@ -756,7 +794,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 },
                 exit: () => {
                     this.isHealing = false;
-                    this.setMaxVelocity(1000, 850);
+                    this.setMaxVelocity(1000, 1000);
                 },
             },
         }

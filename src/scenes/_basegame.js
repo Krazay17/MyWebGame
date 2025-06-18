@@ -145,7 +145,7 @@ export default class BaseGame extends Phaser.Scene {
   }
 
   setupTileMap(tilemap = 'tilemap1', tilesheet = 'tilesheet') {
-    console.log('SETUPTILEMAP')
+    if(this.tilemap) return;
     this.tilemap = this.make.tilemap({ key: tilemap });
     this.tileset = this.tilemap.addTilesetImage(tilesheet, tilesheet);
     this.layer1 = this.tilemap.createLayer('layer1', this.tileset, 0, 0);
@@ -162,8 +162,8 @@ export default class BaseGame extends Phaser.Scene {
 
     if (!this.tilemap) return;
 
-    const objects = this.tilemap.getObjectLayer('objects');
-    objects.objects.forEach(obj => {
+    this.tileObjects = this.tilemap.getObjectLayer('objects');
+    this.tileObjects.objects.forEach(obj => {
       if (this.spawnManager[obj.name]) {
         this.spawnManager[obj.name]?.(obj.x, obj.y, obj);
       } else {
@@ -195,7 +195,7 @@ export default class BaseGame extends Phaser.Scene {
     ]
 
     this.walkingGroups = [
-      { group: this.player },
+      { group: this.physics.add.group({ runChildUpdate: true }).add(this.player) },
       ...spawnGroups.filter(({ walls }) => walls ?? true),
     ]
 

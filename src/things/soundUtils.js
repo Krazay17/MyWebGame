@@ -1,7 +1,7 @@
 import GameManager from "./GameManager.js";
 
 const lastPlayTimes = {};
-const MIN_INTERVAL = 25; // ms per sound ID
+const MIN_INTERVAL = 33; // ms per sound ID
 
 export default class SoundUtil {
     static currentMusic = null;
@@ -61,7 +61,7 @@ export function playHitSound(scene, soundKey, options = {}) {
 
         if (!scene.sfx[soundKey]) {
             scene.sfx[soundKey] = [];
-            for (let i = 0; i < (options.poolSize || 10); i++) {
+            for (let i = 0; i < (options.poolSize || 6); i++) {
                 scene.sfx[soundKey].push(scene.sound.add(soundKey));
             }
         }
@@ -88,7 +88,7 @@ export function playSound(scene, soundKey, options = {}) {
 
         if (!scene.sfx[soundKey]) {
             scene.sfx[soundKey] = [];
-            for (let i = 0; i < (options.poolSize || 10); i++) {
+            for (let i = 0; i < (options.poolSize || 6); i++) {
                 scene.sfx[soundKey].push(scene.sound.add(soundKey));
             }
         }

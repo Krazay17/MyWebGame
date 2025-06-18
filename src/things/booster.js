@@ -3,11 +3,12 @@ import Pickup from "./Pickup";
 
 export default class Booster extends Pickup {
     constructor(scene, x, y, obj) {
-        super(scene, x, y, 'booster');
+        super(scene, x + obj.width/2, y + obj.height/2, 'booster');
         this.props = getProperty(obj);
 
         this.setScale(.3);
-        changeCollision(this, obj.width, obj.height);
+        changeCollision(this, obj.width*4, obj.height*4);
+        console.log(obj.width)
 
         const rot = Phaser.Math.DegToRad(obj.rotation);
         this.setRotation(rot);

@@ -29,6 +29,7 @@ export default class DarkOrbProjectile extends WeaponProjectile {
 
         this.setActive(true);
         this.setVisible(true);
+        this.body.enable = true;
 
         this.damageTick = this.scene.time.addEvent({
             delay: 80,
@@ -53,6 +54,7 @@ export default class DarkOrbProjectile extends WeaponProjectile {
     deactivate() {
         this.setActive(false);
         this.setVisible(false);
+        this.body.enable = false;
         this.stop();
         this.scene.time.removeEvent(this.damageTick);
         this.hitTargets = [];

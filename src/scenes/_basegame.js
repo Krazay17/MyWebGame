@@ -37,7 +37,7 @@ export default class BaseGame extends Phaser.Scene {
     this.spawnManager = new SpawnManager(this)
 
     this.network.refreshScene(this);
-    //this.sound.pauseOnBlur = false;
+    this.sound.pauseOnBlur = false;
 
     this.input.on('wheel', (wheel) => {
       if (!this.zoom) this.zoom = 1;

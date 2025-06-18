@@ -6374,7 +6374,7 @@
                  "y":11414.6666666667
                 }, 
                 {
-                 "height":66.3333000000002,
+                 "height":100.3333,
                  "id":341,
                  "name":"spawnBooster",
                  "properties":[
@@ -6391,9 +6391,9 @@
                  "rotation":0,
                  "type":"",
                  "visible":true,
-                 "width":55.3333,
-                 "x":202.909107575757,
-                 "y":11377.9697136364
+                 "width":73.3333,
+                 "x":206.909107575757,
+                 "y":11393.9697136364
                 }, 
                 {
                  "height":0,
@@ -6428,11 +6428,11 @@
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":672,
-                 "y":10768
+                 "x":674,
+                 "y":10762
                 }, 
                 {
-                 "height":66.3333,
+                 "height":98.3333000000002,
                  "id":345,
                  "name":"spawnBooster",
                  "properties":[
@@ -6449,12 +6449,12 @@
                  "rotation":0,
                  "type":"",
                  "visible":true,
-                 "width":55.3333,
-                 "x":1052.33335,
-                 "y":10702.83335
+                 "width":69.3333,
+                 "x":1050.33335,
+                 "y":10734.83335
                 }, 
                 {
-                 "height":66.3333,
+                 "height":102.3333,
                  "id":346,
                  "name":"spawnBooster",
                  "properties":[
@@ -6471,7 +6471,7 @@
                  "rotation":0,
                  "type":"",
                  "visible":true,
-                 "width":55.3333,
+                 "width":81.3333,
                  "x":1036.33335,
                  "y":10056.83335
                 }, 
@@ -6508,29 +6508,11 @@
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":706,
+                 "x":700,
                  "y":9608
                 }, 
                 {
-                 "height":0,
-                 "id":349,
-                 "name":"spawnDashBuff",
-                 "point":true,
-                 "properties":[
-                        {
-                         "name":"float",
-                         "type":"bool",
-                         "value":false
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":320,
-                 "y":9608
-                }, 
-                {
-                 "height":66.3333,
+                 "height":104.3333,
                  "id":350,
                  "name":"spawnBooster",
                  "properties":[
@@ -6547,8 +6529,8 @@
                  "rotation":0,
                  "type":"",
                  "visible":true,
-                 "width":55.3333,
-                 "x":296.33335,
+                 "width":95.3333,
+                 "x":272.33335,
                  "y":10046.83335
                 }, 
                 {
@@ -6570,7 +6552,7 @@
                  "y":8948.48484848485
                 }, 
                 {
-                 "height":66.3333,
+                 "height":102.3333,
                  "id":352,
                  "name":"spawnBooster",
                  "properties":[
@@ -6587,9 +6569,9 @@
                  "rotation":0,
                  "type":"",
                  "visible":true,
-                 "width":55.3333,
-                 "x":772.33335,
-                 "y":9078.95456212121
+                 "width":97.3333,
+                 "x":744.33335,
+                 "y":9052.95456212121
                 }, 
                 {
                  "height":33,
@@ -9134,8 +9116,7 @@
                  "width":32,
                  "x":1379,
                  "y":8454.5
-                },
-            
+                }, 
                 {
                  "height":33,
                  "id":459,
@@ -9159,7 +9140,8 @@
                  "width":32,
                  "x":1319,
                  "y":8460.5
-                }, 
+                },
+            
                 {
                  "height":33,
                  "id":460,

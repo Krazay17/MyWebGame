@@ -74,16 +74,5 @@ export default class Level1 extends BaseGame {
         platform.body.y = 0 - platform.body.height;
     });
 
-    // this.bullets.getChildren().forEach(child => {
-    //   const { x, y } = child.body;
-
-    //   if (
-    //       x < this.bounds.x - 600 || x > this.bounds.right + 600 ||
-    //       y < this.bounds.y - 600 || y > this.bounds.bottom + 600
-    //   ) {
-    //       child.destroy();
-    //     }
-    // });
-
   }
 }

@@ -3,12 +3,10 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
         super(scene, x, y, id);
 
         scene.add.existing(this);
-        scene.physics.add.existing(this);
 
         this.player = scene.player;
 
         this.doesReplicate = false;
-        this.setImmovable(true);
         this.maxHealth = health;
         this.health = health;
         this.canDamage = true;
@@ -61,14 +59,14 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
     createHealthBar() {
         this.createdHealthBar = true;
         this.healthBarWidth = Phaser.Math.Clamp(this.maxHealth * 8, 16, 128);
-        this.healthBarBg = this.scene.add.rectangle(this.x, this.y - this.displayHeight / 2 - 6, this.healthBarWidth, 6, 0x000000, 0.6);
+        //this.healthBarBg = this.scene.add.rectangle(this.x, this.y - this.displayHeight / 2 - 6, this.healthBarWidth, 6, 0x000000, 0.6);
         this.healthBar = this.scene.add.rectangle(this.x, this.y - this.displayHeight / 2 - 6, this.healthBarWidth, 6, 0xff0000, 1);
         this.healthBar.setOrigin(0.5);
-        this.healthBarBg.setOrigin(0.5);
+        //this.healthBarBg.setOrigin(0.5);
     }
 
     updateHealthBar() {
-        if (!this.healthBar || !this.healthBarBg) return;
+        if (!this.healthBar) return;
 
         const percent = Phaser.Math.Clamp(this.health / this.maxHealth, 0, 1);
         this.healthBar.setScale(percent, 1);
@@ -76,8 +74,8 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
         // Positioning
         this.healthBar.x = this.x;
         this.healthBar.y = this.y - this.displayHeight / 2 - 6;
-        this.healthBarBg.x = this.x;
-        this.healthBarBg.y = this.y - this.displayHeight / 2 - 6;
+        //this.healthBarBg.x = this.x;
+        //this.healthBarBg.y = this.y - this.displayHeight / 2 - 6;
     }
 
     TakeDamage(player, damage = 1, stagger = false, duration = 300) {
@@ -121,7 +119,7 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
                 this.hitRecover = this.scene?.time?.addEvent({
                     delay: duration * this.staggerDR,
                     callback: () => {
-                        if (this.alive) {
+                        if (!this.dead) {
                             this.stunned = false;
                             this.setVelocity(this.prevVelocity.x, this.prevVelocity.y);
                             delete this.prevVelocity
@@ -198,6 +196,7 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
     }
 
     deactivate() {
+        const now = Date.now();
         if (this.healthBar) {
             this.healthBar.destroy();
             this.healthbar = null;
@@ -211,12 +210,20 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
         this.setVisible(false);
         this.body.stop();
         this.body.enable = false;
+        this.dead = true;
 
-
-        this.scene.time.delayedCall(1000, () => this.isPooled = true);
+        this.lastActiveAt = now;
     }
 
     activate(x, y, health = 1) {
+        const now = Date.now();
+        const cooldown = 1000; // 1 second cooldown
+
+        if (this.lastActiveAt && (now - this.lastActiveAt) < cooldown) {
+            this.deactivate();
+            // Skip reactivation
+            return false;
+        }
         this.setActive(true);
         this.setVisible(true);
         this.setPosition(x, y);
@@ -224,9 +231,14 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
         this.body.enable = true;
 
         this.dead = false;
+        this.stunned = false;
         this.isPooled = false;
         this.health = health;
         this.maxHealth = health;
+
+        this.lastActiveAt = now;
+
+        return true;
     }
 
     playerCollide(player) {

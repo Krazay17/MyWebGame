@@ -35,7 +35,7 @@ playerCollide(player) {
         targets: playerVel,
         x: this.boost.x,
         y: this.boost.y,
-        ease: 'power3',
+        ease: 'power4',
         duration: this.props.duration?? 300,
     })
 

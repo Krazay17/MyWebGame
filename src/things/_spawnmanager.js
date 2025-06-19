@@ -18,9 +18,19 @@ export default class SpawnManager {
     }
 
     setupGroups(scene) {
-        this.batGroup = this.scene.physics.add.group({ classType: Bat, allowGravity: false, immovable: true });
-        this.sunmanGroup = this.scene.physics.add.group({ classType: SunMan, runChildUpdate: true, allowGravity: false });
-        this.duckGroup = this.scene.physics.add.group({ classType: Duck, immovable: true });
+        this.batGroup = this.scene.physics.add.group({
+            classType: Bat,
+            allowGravity: false,
+            bounce: .9,
+        });
+        this.sunmanGroup = this.scene.physics.add.group({
+            classType: SunMan,
+            runChildUpdate: true,
+            allowGravity: false,
+        });
+        this.duckGroup = this.scene.physics.add.group({
+            classType: Duck,
+        });
         this.bulletGroup = this.scene.physics.add.group({ allowGravity: false });
         this.softBulletGroup = this.scene.physics.add.group({ allowGravity: false });
         this.itemGroup = this.scene.physics.add.group();
@@ -42,59 +52,82 @@ export default class SpawnManager {
     }
 
     spawnBat(x, y, obj, health, isRemote = false, id = null) {
-        let bat = this.batGroup.get()
-
-        if (bat && bat.isPooled) {
-            bat.id = null;
-            bat.ownerId = null;
-            bat.isRemote = false;
-            bat.activate(x, y, health)
-        } else {
-            bat = new Bat(this.scene, x, y)
-            this.batGroup.add(bat);
+        let bat = this.batGroup.get(x, y)
+        if (bat) {
+            if (!bat.activate(x, y, health)) {
+                bat = this.batGroup.create()
+                bat.activate?.(x, y, health);
+            }
+            bat.init();
         }
-        bat.id = id || `${Date.now()}-${Math.random()}`;
-        bat.ownerId = this.scene.network.socket.id;
-        bat.isRemote = isRemote;
-        bat.init();
 
-        this.scene.network.otherEnemies[bat.id] = bat;
+        // if (bat && bat.isPooled) {
+        //     bat.id = null;
+        //     bat.ownerId = null;
+        //     bat.isRemote = false;
+        //     bat.activate(x, y, health)
+        // } else {
+        //     bat = new Bat(this.scene, x, y)
+        //     this.batGroup.add(bat);
+        // }
+        // bat.id = id || `${Date.now()}-${Math.random()}`;
+        // bat.ownerId = this.scene.network.socket.id;
+        // bat.isRemote = isRemote;
+        // bat.init();
+
+        // this.scene.network.otherEnemies[bat.id] = bat;
 
         return bat;
     }
 
     spawnSunMan(x, y, obj, health, isRemote = false, id = null) {
-        let sunMan = this.sunmanGroup.get();
-
-        if (sunMan && sunMan.isPooled) {
-            sunMan.id = null;
-            sunMan.ownerId = null;
-            sunMan.isRemote = null;
-            sunMan.activate(x, y, health);
-        } else {
-            sunMan = new SunMan(this.scene, x, y, health);
-            this.sunmanGroup.add(sunMan);
+        let sunMan = this.sunmanGroup.get(x, y);
+        if (sunMan) {
+            if (!sunMan.activate(x, y, health)) {
+                sunMan = this.sunmanGroup.create()
+                sunMan.activate?.(x, y, health);
+            }
+            sunMan.init();
         }
-        sunMan.id = id || `${Date.now()}-${Math.random()}`;
-        sunMan.ownerId = this.scene.network.socket.id;
-        sunMan.isRemote = isRemote;
-        sunMan.init();
 
-        this.scene.network.otherEnemies[sunMan.id] = sunMan;
+
+        // if (sunMan && sunMan.isPooled) {
+        //     sunMan.id = null;
+        //     sunMan.ownerId = null;
+        //     sunMan.isRemote = null;
+        //     sunMan.activate(x, y, health);
+        // } else {
+        //     sunMan = new SunMan(this.scene, x, y, health);
+        //     this.sunmanGroup.add(sunMan);
+        // }
+        // sunMan.id = id || `${Date.now()}-${Math.random()}`;
+        // sunMan.ownerId = this.scene.network.socket.id;
+        // sunMan.isRemote = isRemote;
+        // sunMan.init();
+
+        // this.scene.network.otherEnemies[sunMan.id] = sunMan;
 
         return sunMan;
     }
 
     spawnDuck(x, y, obj, health = 25, isRemote = false, id = null) {
-        let duck = this.duckGroup.get();
-
-        if (duck && duck.isPooled) {
-            duck.activate(x, y, health);
-        } else {
-            duck = new Duck(this.scene, x, y, health)
-            this.duckGroup.add(duck);
+        let duck = this.duckGroup.get(x, y);
+        if (duck) {
+            if (!duck.activate(x, y, health)) {
+                duck = this.duckGroup.create();
+                duck.activate(x, y, health);
+            }
         }
+        console.log(duck.active);
+        this.respawn(duck, x, y, health, this.spawnDuck.bind(this))
 
+        // if (duck && duck.isPooled) {
+        //     duck.activate(x, y, health);
+        // } else {
+        //     //duck = new Duck(this.scene, x, y, health);
+        //     duck = this.duckGroup.create(x, y, health);
+        //     //this.duckGroup.add(duck);
+        // }
         return duck;
     }
 
@@ -205,6 +238,29 @@ export default class SpawnManager {
                 this.spawnDashBuff(x, y, obj);
             })
         })
+    }
+
+    respawn(obj, x, y, health, spawnFunc) {
+        obj.once('die', () => {
+            const checkDistanceTimer = this.scene.time.addEvent({
+                delay: 1000, // check every 1 second (adjust if you want)
+                callback: () => {
+                    const dx = this.scene.player.x - x;
+                    const dy = this.scene.player.y - y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance > 800) {
+                        this.scene.time.removeEvent(checkDistanceTimer);
+                        spawnFunc(x, y, health);
+                    }
+                },
+                loop: true
+            });
+            this.scene.events.once('shutdown', () => {
+                this.scene.time.removeEvent(checkDistanceTimer);
+            })
+
+        });
     }
 
 

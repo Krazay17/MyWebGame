@@ -24,6 +24,7 @@ export default class AuraZap extends WeaponBase {
             loop: true,
         });
 
+        this.zapLineGroup = this.scene.add.group({classType: ZapSprite})
         this.setStats();
     }
 
@@ -140,7 +141,11 @@ export default class AuraZap extends WeaponBase {
 
 
     zapVisual(x, y, target) {
-        this.zapLine = new ZapSprite(this.scene, x, y, this.player, target)
+        //this.zapLine = new ZapSprite(this.scene, x, y, this.player, target)
+        const zapLine = this.zapLineGroup.get()
+        if (zapLine) {
+            zapLine.init(this.player, target);
+        }
 
     }
 }

@@ -1022,11 +1022,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             }
         });
 
-        this.health = Phaser.Math.Clamp(this.health - damage, 0, this.healthMax);
-        GameManager.stats.health = this.health;
-        this.emit('updateHealth', this.health, this.healthMax);
-        this.network.socket.emit('updateHealth', this.health, this.healthMax);
-        if (this.health === 0) {
+        if (this.adjustHealth(-damage) === 0) {
             this.Died();
         }
 
@@ -1052,6 +1048,16 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.updateMoney(-damage);
 
         return true;
+    }
+
+    adjustHealth(amount) {
+        
+        this.health = Phaser.Math.Clamp(this.health + amount, 0, this.healthMax);
+        GameManager.stats.health = this.health;
+        this.emit('updateHealth', this.health, this.healthMax);
+        this.network.socket.emit('updateHealth', this.health, this.healthMax);
+
+        return this.health;
     }
 
     resetDash(force = false) {

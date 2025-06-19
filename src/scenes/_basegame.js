@@ -198,18 +198,6 @@ export default class BaseGame extends Phaser.Scene {
       { group: this.physics.add.group({ runChildUpdate: true }).add(this.player) },
       ...spawnGroups.filter(({ walls }) => walls ?? true),
     ]
-
-    // this.attackableGroups = [
-    //   { group: this.walkableGroup = this.physics.add.group({ allowGravity: false, immovable: true }), handler: 'platformHit', zap: false },
-    //   { group: this.enemyGroup = this.physics.add.group(), handler: 'enemyHit', zap: true },
-    //   // { group: this.flyingEnemyGroup = this.physics.add.group({ allowGravity: false }), handler: 'enemyHit' },
-    //   { group: this.sunmanGroup = this.physics.add.group({ classType: Duck, runChildUpdate: true, allowGravity: false }), handler: 'enemyHit', zap: true },
-    //   { group: this.staticEnemyGroup = this.physics.add.group({ allowGravity: false, immovable: true }), handler: 'enemyHit', zap: true },
-    //   { group: this.bulletGroup = this.physics.add.group({ allowGravity: false }), handler: 'bulletHit', zap: true },
-    //   { group: this.softBulletGroup = this.physics.add.group({ allowGravity: false }), handler: 'bulletHit', zap: true },
-    //   { group: this.itemGroup = this.physics.add.group(), handler: 'itemHit', zap: false },
-    //   { group: this.staticItemGroup = this.physics.add.group({ allowGravity: false, immovable: true }), handler: 'itemHit', zap: false }
-    // ];
   }
 
   setupCollisions() {
@@ -254,6 +242,7 @@ export default class BaseGame extends Phaser.Scene {
     }
 
     this.physics.add.collider(this.weaponGroup, this.walkableGroup);
+    this.physics.add.collider(spawnGroups, this.walkableGroup)
 
     // this.walkableCollider = this.physics.add.collider(this.player, this.walkableGroup, (player, walkable) => {
     //   player.touchWall(walkable);

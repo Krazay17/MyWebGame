@@ -26,20 +26,25 @@ export default class Home extends BaseGame {
         this.setupMusic('music1');
 
         this.setupGroups();
+        this.setupCollisions();
 
         const boxPos = [[-200, 200], [-500, 400], [-400, 200], [-200, 400], [100, 450], [400, 400], [200, 300]];
         boxPos.forEach(pos => this.walkableGroup.add(new Breakable(this, pos[0], pos[1], 'boxsheet', 2)));
 
-        this.setupCollisions();
 
         const widePlatformPos = [
             [-1200, 350], [-800, 500], [-400, 650], [0, 800], [400, 650], [800, 500], [1200, 350], [400, 1000], [-400, 1000], [-700, 1200], [700, 1200],
         ];
-        widePlatformPos.forEach(pos => this.walkableGroup.create(pos[0], pos[1], 'platformwide'));
+        widePlatformPos.forEach(pos => {
+            const plat = this.walkableGroup.create(pos[0], pos[1], 'platformwide');
+            plat.refreshBody();
+        });
 
         const largePlatform = this.walkableGroup.create(0, 1450, 'largeplatform').setScale(5, 1.5);
-
+        largePlatform.refreshBody();
         this.setupPortals();
+
+        this.spawnManager.spawnDuck(0, 1200, null, 50);
     }
 
     update(time, delta) {

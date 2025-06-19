@@ -4,11 +4,7 @@ export default class SunMan extends BaseEnemy {
     constructor(scene, x, y, health = 3) {
         super(scene, x, y, 'sunsheet', health)
 
-        this.body.setMaxSpeed(1000);
-        this.setBounce(1);
         this.setScale(.4);
-        this.scaleCollision(170, 170);
-        this.setCollideWorldBounds(true);
 
         this.name = 'sunMan';
         this.maxaccell = 400;
@@ -29,6 +25,10 @@ export default class SunMan extends BaseEnemy {
         if (!this.isRemote) {
             this.accelToPlayer(200, 400);
         }
+        this.body.setMaxSpeed(1000);
+        this.setBounce(1);
+        this.scaleCollision(170, 170);
+        this.setCollideWorldBounds(true);
     }
 
     preUpdate(time, delta) {

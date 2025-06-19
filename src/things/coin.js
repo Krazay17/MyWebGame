@@ -8,6 +8,7 @@ export default class Coin extends Pickup {
     playerCollide(player) {
         
         player.updateMoney(5);
+        player.adjustHealth(5);
         this.playPickupSound();
         this.emit('pickup');
         this.destroy();

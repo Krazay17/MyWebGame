@@ -9,17 +9,14 @@ export default class Bat extends BaseEnemy {
         this.maxHealth = 2;
         this.health = 2;
         this.flying = true;
-        
-        this.body.setBounce(1);
 
-
-        this.scaleCollision(30, 30)
     }
 
     init() {
         if (!this.isRemote) {
         this.accelToPlayer(100, 600);
         }
+        this.scaleCollision(30, 30)
     }
 
     preUpdate(time, delta) {

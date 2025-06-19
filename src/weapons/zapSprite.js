@@ -6,7 +6,6 @@ export default class ZapSprite extends Phaser.GameObjects.TileSprite {
         this.target = target;
         this.setOrigin(0, 0.5);
         //this.updateZapLine();
-        this.setVisible(false);
 
         scene.add.existing(this);
 
@@ -22,9 +21,7 @@ export default class ZapSprite extends Phaser.GameObjects.TileSprite {
     }
 
     preUpdate(time, delta) {
-        if (this.target) {
             this.updateZapLine();
-        }
         this.tilePositionX += 10; // in update loop
     }
 
@@ -38,21 +35,47 @@ export default class ZapSprite extends Phaser.GameObjects.TileSprite {
         this.setVisible(true);
     }
 
-    updateZapLine() {
-        if(!this.target) return;
-        if(this.target.dead || !this.target.active) {
-            this.target = null;
-            this.deactivateTimer = this.scene.time.delayedCall(50, () => this.deactivate(), this)
-            return;
-        }
-        const dx = this.target.x - this.player.x;
-        const dy = this.target.y - this.player.y;
-        const length = Math.sqrt(dx * dx + dy * dy);
-        const angle = Math.atan2(dy, dx);
+updateZapLine() {
+    if (this.target && (this.target.dead || !this.target.active)) {
+        // Enemy is dead — save last known world position
+        this.lastTargetX = this.target.x;
+        this.lastTargetY = this.target.y;
 
-        this.setPosition(this.player.x, this.player.y);
-        this.setRotation(angle);
-        this.displayWidth = length;
+        // Clear target so we don't update it anymore
+        this.target = null;
+
+        // Start 100ms linger timer
+        this.scene.time.removeEvent(this.deactivateTimer);
+        this.deactivateTimer = this.scene.time.delayedCall(100, () => this.deactivate(), this);
     }
+
+    let targetX, targetY;
+
+    if (this.target) {
+        // Target is alive — use live position
+        targetX = this.target.x;
+        targetY = this.target.y;
+        this.lastTargetX = targetX;
+        this.lastTargetY = targetY;
+    } else if (this.lastTargetX !== undefined && this.lastTargetY !== undefined) {
+        // No target — use saved last position
+        targetX = this.lastTargetX;
+        targetY = this.lastTargetY;
+    } else {
+        // No target, no last position — collapse line
+        targetX = this.player.x;
+        targetY = this.player.y;
+    }
+
+    const dx = targetX - this.player.x;
+    const dy = targetY - this.player.y;
+    const length = Math.sqrt(dx * dx + dy * dy);
+    const angle = Math.atan2(dy, dx);
+
+    this.setPosition(this.player.x, this.player.y);
+    this.setRotation(angle);
+    this.displayWidth = length;
+}
+
 
 }

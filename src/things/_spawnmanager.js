@@ -53,6 +53,7 @@ export default class SpawnManager {
 
     spawnBat(x, y, obj, health, isRemote = false, id = null) {
         let bat = this.batGroup.getFirst(false);
+        console.log(this.batGroup.getChildren().length)
 
         if (bat && bat.activate(x, y, health)) {
             bat.init();
@@ -68,7 +69,6 @@ export default class SpawnManager {
 
     spawnSunMan(x, y, obj, health = 3, isRemote = false, id = null) {
         let sunMan = this.sunmanGroup.getFirstDead(false);
-        console.log(this.sunmanGroup.getChildren().length)
 
         if (sunMan && sunMan.activate(x, y, health)) {
             sunMan.init();

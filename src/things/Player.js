@@ -112,7 +112,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             }
         });
         this.scene.input.keyboard.on('keydown-F', () => {
-            if (GameManager.flags.devmode) {
+            if (GameManager.flags.devmode && !this.chatting) {
                 this.updateMoney(50000);
             }
         });
@@ -137,7 +137,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         });
 
         this.scene.input.keyboard.on('keydown-T', () => {
-            if (this.scene.scene.key !== 'Home' && this.body.blocked.down && !this.playerUI.Chatting || !this.alive) {
+            if (this.scene.scene.key !== 'Home' && this.body.blocked.down && !this.chatting || !this.alive) {
                 GameManager.useLastLocation = false;
                 this.scene.scene.start('Home')
             }

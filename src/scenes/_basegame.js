@@ -301,7 +301,7 @@ export default class BaseGame extends Phaser.Scene {
     const shutdownHandler = () => {
     }
 
-    SoundUtil.setup(this, key, GameManager.volume.music || 1);
+    SoundUtil.setup(this, key, GameManager.volume.music?? 1);
 
     this.sound.pauseOnBlur = false;
     this.sfx = {};

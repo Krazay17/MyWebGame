@@ -229,7 +229,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         const gameOverText = this.scene.add.text(
             this.scene.cameras.main.width / 2,
             this.scene.cameras.main.height / 2,
-            'YOU DIED!\n' + this.deathPenalty + ' Source\nPress T to respawn\n or wait 10 seconds', {
+            'YOU DIED!\n' + this.deathPenalty + ' Source\n\nPress T to respawn\nor wait 10 seconds', {
             fontSize: '64px',
             color: '#ff0000'
         });

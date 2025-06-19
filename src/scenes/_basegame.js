@@ -204,7 +204,7 @@ export default class BaseGame extends Phaser.Scene {
     const spawnGroups = this.spawnManager.getGroups();
 
     this.attackableGroups.forEach(({ group, handler }) =>
-      this.physics.add.overlap(group, this.weaponGroup, (target, weapon) => {
+      this.weaponOverlap = this.physics.add.overlap(group, this.weaponGroup, (target, weapon) => {
         weapon[handler]?.(target);
       },
         null,
@@ -212,20 +212,20 @@ export default class BaseGame extends Phaser.Scene {
       ));
 
     spawnGroups.forEach(({ group }) =>
-      this.physics.add.overlap(this.player, group, (player, entity) => {
+      this.enemyOverlap = this.physics.add.overlap(this.player, group, (player, entity) => {
         entity.playerCollide?.(player);
       }, null, this));
 
 
     this.walkingGroups.forEach(({ group }) =>
-      this.physics.add.collider(group, this.walkableGroup, (entity, wall) => {
+      this.walkCollider = this.physics.add.collider(group, this.walkableGroup, (entity, wall) => {
         entity.touchWall?.(wall);
       }, null, this));
 
     // TileMap wall collisions
     if (this.tilemapColliders?.length) {
       this.tilemapColliders.forEach(({ walls, handler }) => {
-        this.physics.add.collider(walls, this.weaponGroup, null, (wall, weapon) => {
+        this.tileCollider1 = this.physics.add.collider(walls, this.weaponGroup, null, (wall, weapon) => {
           weapon[handler]?.(wall);
 
           if (weapon.ignoreWall) {
@@ -235,55 +235,34 @@ export default class BaseGame extends Phaser.Scene {
         }, this);
 
         this.walkingGroups.forEach(({ group }) =>
-          this.physics.add.collider(group, walls, (entity, wall) => {
+          this.tileCollider2 = this.physics.add.collider(group, walls, (entity, wall) => {
             entity[handler]?.(wall);
           }, null, this));
       });
     }
 
-    this.physics.add.collider(this.weaponGroup, this.walkableGroup);
-    this.physics.add.collider(spawnGroups, this.walkableGroup)
+    this.weaponWalkableCollider = this.physics.add.collider(this.weaponGroup, this.walkableGroup);
+  }
 
-    // this.walkableCollider = this.physics.add.collider(this.player, this.walkableGroup, (player, walkable) => {
-    //   player.touchWall(walkable);
-    // }, null, this);
-
-    // this.physics.add.collider(this.player, this.staticEnemyGroup, (player, walkable) => {
-    //   player.touchWall(walkable);
-    // }, null, this);
-
-    // this.physics.add.overlap(this.player, this.enemyGroup, (player, enemy) => {
-    //   enemy.playerCollide(player, enemy);
-    // }, null, this);
-
-    // this.physics.add.overlap(this.player, this.flyingEnemyGroup, (player, enemy) => {
-    //   enemy.playerCollide(player, enemy);
-    // }, null, this);
-
-
-    // this.physics.add.overlap(this.player, this.softBulletGroup, (player, bullet) => {
-    //   bullet.playerHit(player, bullet);
-    // }, null, this);
-
-    // this.physics.add.overlap(this.player, this.sunmanGroup, (player, enemy) => {
-    //   enemy.playerCollide(player, enemy);
-    // }, null, this);
-
-    // this.physics.add.overlap(this.player, this.itemGroup, (player, pickup) => {
-    //   pickup.pickup?.(player, pickup);
-    // }, null, this);
-
-    // this.physics.add.collider(this.player, this.staticItemGroup, (player, walkable) => {
-    //   player.touchWall(walkable);
-    // }, null, this);
-
-    // this.physics.add.collider(this.weaponGroup, this.staticItemGroup);
-    // this.physics.add.collider(this.weaponGroup, this.walkableGroup);
-    // this.physics.add.collider(this.itemGroup, this.walkableGroup);
-    // this.physics.add.collider(this.enemyGroup, this.walkableGroup);
-    // this.physics.add.collider(this.enemyGroup, this.enemyGroup);
-    // this.physics.add.collider(this.sunmanGroup, this.sunmanGroup, (enemy1, enemy2) => {
-    // }, null, this);
+  clearCollisions() {
+    if(this.weaponOverlap) {
+      this.weaponOverlap.destroy();
+    }
+    if(this.enemyOverlap) {
+      this.enemyOverlap.destroy();
+    }
+    if(this.walkCollider) {
+      this.walkCollider.destroy();
+    }
+    if(this.tileCollider1) {
+      this.tileCollider1.destroy();
+    }
+    if(this.tileCollider2) {
+      this.tileCollider2.destroy();
+    }
+    if(this.weaponWalkableCollider) {
+      this.weaponWalkableCollider.destroy();
+    }
   }
 
   setupMusic(key = 'music1') {

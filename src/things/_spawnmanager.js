@@ -52,63 +52,36 @@ export default class SpawnManager {
     }
 
     spawnBat(x, y, obj, health, isRemote = false, id = null) {
-        let bat = this.batGroup.get(x, y)
-        if (bat) {
-            if (!bat.activate(x, y, health)) {
-                bat = this.batGroup.create()
-                bat.activate?.(x, y, health);
-            }
+        let bat = this.batGroup.getFirst(false);
+
+        if (bat && bat.activate(x, y, health)) {
             bat.init();
+            return bat;
         }
-
-        // if (bat && bat.isPooled) {
-        //     bat.id = null;
-        //     bat.ownerId = null;
-        //     bat.isRemote = false;
-        //     bat.activate(x, y, health)
-        // } else {
-        //     bat = new Bat(this.scene, x, y)
-        //     this.batGroup.add(bat);
-        // }
-        // bat.id = id || `${Date.now()}-${Math.random()}`;
-        // bat.ownerId = this.scene.network.socket.id;
-        // bat.isRemote = isRemote;
-        // bat.init();
-
-        // this.scene.network.otherEnemies[bat.id] = bat;
-
+        // Create new if no usable bat
+        bat = new Bat(this.scene, x, y, health);
+        this.batGroup.add(bat);
+        bat.init();
         return bat;
     }
 
-    spawnSunMan(x, y, obj, health, isRemote = false, id = null) {
-        let sunMan = this.sunmanGroup.get(x, y);
-        if (sunMan) {
-            if (!sunMan.activate(x, y, health)) {
-                sunMan = this.sunmanGroup.create()
-                sunMan.activate?.(x, y, health);
-            }
+
+    spawnSunMan(x, y, obj, health = 3, isRemote = false, id = null) {
+        let sunMan = this.sunmanGroup.getFirstDead(false);
+        console.log(this.sunmanGroup.getChildren().length)
+
+        if (sunMan && sunMan.activate(x, y, health)) {
             sunMan.init();
+            return sunMan;
         }
 
-
-        // if (sunMan && sunMan.isPooled) {
-        //     sunMan.id = null;
-        //     sunMan.ownerId = null;
-        //     sunMan.isRemote = null;
-        //     sunMan.activate(x, y, health);
-        // } else {
-        //     sunMan = new SunMan(this.scene, x, y, health);
-        //     this.sunmanGroup.add(sunMan);
-        // }
-        // sunMan.id = id || `${Date.now()}-${Math.random()}`;
-        // sunMan.ownerId = this.scene.network.socket.id;
-        // sunMan.isRemote = isRemote;
-        // sunMan.init();
-
-        // this.scene.network.otherEnemies[sunMan.id] = sunMan;
-
+        // Create new if no usable bat
+        sunMan = new SunMan(this.scene, x, y, health);
+        this.sunmanGroup.add(sunMan);
+        sunMan.init();
         return sunMan;
     }
+
 
     spawnDuck(x, y, obj, health = 25, isRemote = false, id = null) {
         let duck = this.duckGroup.get(x, y);
@@ -118,7 +91,6 @@ export default class SpawnManager {
                 duck.activate(x, y, health);
             }
         }
-        console.log(duck.active);
         this.respawn(duck, x, y, health, this.spawnDuck.bind(this))
 
         // if (duck && duck.isPooled) {

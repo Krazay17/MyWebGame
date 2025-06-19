@@ -29,8 +29,8 @@ export default class ZapSprite extends Phaser.GameObjects.TileSprite {
     }
 
     deactivate() {
-        this.setActive(false);
         this.setVisible(false);
+        this.setActive(false);
     }
 
     activate() {
@@ -40,6 +40,11 @@ export default class ZapSprite extends Phaser.GameObjects.TileSprite {
 
     updateZapLine() {
         if(!this.target) return;
+        if(this.target.dead || !this.target.active) {
+            this.target = null;
+            this.deactivateTimer = this.scene.time.delayedCall(50, () => this.deactivate(), this)
+            return;
+        }
         const dx = this.target.x - this.player.x;
         const dy = this.target.y - this.player.y;
         const length = Math.sqrt(dx * dx + dy * dy);

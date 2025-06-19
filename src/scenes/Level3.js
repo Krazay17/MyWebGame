@@ -47,7 +47,7 @@ export default class Level3 extends BaseGame {
         const y = this.player.y;
         const yd = y / 12000;
 
-        this.batTimer.delay = this.lerp(5, 2000, yd);
+        this.batTimer.delay = this.lerp(25, 1250, yd);
         this.sunManHealth = this.lerp(100, 3, yd);
         this.sunTimer.delay = this.lerp(250, 6000, yd);
 
@@ -101,8 +101,8 @@ export default class Level3 extends BaseGame {
         const spawnLeft = Phaser.Math.Between(0, 1) === 0;
 
         const x = spawnLeft
-            ? left + Phaser.Math.Between(150, 500)
-            : right - Phaser.Math.Between(150, 500);
+            ? left + Phaser.Math.Between(500, 1000)
+            : right - Phaser.Math.Between(500, 1000);
 
         const y = this.player.y + Phaser.Math.Between(-650, -850)
 

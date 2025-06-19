@@ -217,13 +217,11 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
 
     activate(x, y, health = 1) {
         const now = Date.now();
-        const cooldown = 1000; // 1 second cooldown
+        // const cooldown = 1000; // 1 second cooldown
 
-        if (this.lastActiveAt && (now - this.lastActiveAt) < cooldown) {
-            this.deactivate();
-            // Skip reactivation
-            return false;
-        }
+        // if (this.lastActiveAt && (now - this.lastActiveAt) < cooldown) {
+        //     return false;
+        // }
         this.setActive(true);
         this.setVisible(true);
         this.setPosition(x, y);

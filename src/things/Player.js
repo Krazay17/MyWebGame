@@ -473,7 +473,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 enter: (input) => {
                     const { left, right } = input;
                     this.wallRunning = true;
-                    const xSpeed = Math.min(500, Math.abs(this.body.velocity.x));
+                    const xSpeed = Math.min(800, Math.abs(this.body.velocity.x));
 
                     if (this.body.blocked.left) {
                         if (this.wallRunLeft < (-this.body.velocity.y)) {
@@ -575,13 +575,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     this.stateLockout = this.scene.time.now + 25;
 
                     if (right) {
-                        this.setVelocity(-350, Phaser.Math.Clamp(-height, -500, -100));
+                        this.setVelocity(-350, Phaser.Math.Clamp(-height, -800, -100));
                         this.flipX = true;
                         this.bufferRightWallJump = 0;
                         this.wallRunRight /= 2;
                     }
                     if (left) {
-                        this.setVelocity(350, Phaser.Math.Clamp(-height, -500, -100));
+                        this.setVelocity(350, Phaser.Math.Clamp(-height, -800, -100));
                         this.flipX = false;
                         this.bufferLeftWallJump = 0;
                         this.wallRunLeft /= 2;
@@ -731,6 +731,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     this.iFrame = true;
                     this.body.setAllowGravity(false);
                     this.tryUncrouch();
+                    this.wallRunLeft = 540;
+                    this.wallRunRight = 540;
 
                     this.dashTime = 0;
                     this.startDash = this.dashSpeed * this.dir;

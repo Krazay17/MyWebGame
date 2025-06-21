@@ -1,9 +1,7 @@
-import {playSound} from "./soundUtils.js";
+import { playSound } from "./soundUtils.js";
 
-export default class Pickup extends Phaser.Physics.Arcade.Sprite
-{
-    constructor(scene, x, y, id = 'coin')
-    {
+export default class Pickup extends Phaser.Physics.Arcade.Sprite {
+    constructor(scene, x, y, id = 'coin') {
         super(scene, x, y, id)
         scene.add.existing(this);
         scene.physics.add.existing(this);
@@ -11,38 +9,28 @@ export default class Pickup extends Phaser.Physics.Arcade.Sprite
         this.pickupSound = 'pickup';
     }
 
-    init() {}
+    init() { }
 
-    preUpdate(time, delta)
-    {
+    preUpdate(time, delta) {
         super.preUpdate(time, delta);
         const bounds = this.scene.physics.world.bounds;
 
-        // Wrap horizontally
         if (this.x > bounds.x + bounds.width) {
             this.x = bounds.x - this.width;
-            this.setVelocity(-20, 20);
         }
         if (this.x + this.width < bounds.x) {
             this.x = bounds.x + bounds.width;
-            this.setVelocity(-20, 20);
         }
-
-        // Wrap vertically
         if (this.y > bounds.y + bounds.height) {
             this.y = bounds.y - this.height;
-            this.setVelocity(-20, 20);
         }
         if (this.y + this.height < bounds.y) {
             this.y = bounds.y + bounds.height;
-            this.setVelocity(-20, 20);
         }
     }
 
 
-    playerCollide(player) {
-        
-    }
+    playerCollide(player) { }
 
     playPickupSound() {
         playSound(this.scene, this.pickupSound);

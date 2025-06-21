@@ -95,6 +95,10 @@ export default class Preloader extends Phaser.Scene {
             frameWidth: 66,
             frameHeight: 26
         });
+        this.load.spritesheet('portalsheet', 'assets/portalSheet.png', {
+            frameWidth: 512,
+            frameHeight: 256
+        });
     }
 
     create() {

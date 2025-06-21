@@ -7,6 +7,7 @@ import Coin from "./coin.js";
 import Booster from "./booster.js";
 import DashBuff from "./dashBuff.js";
 import { getProperty } from "../myFunctions.js";
+import Portal from "./portal.js";
 
 export default class SpawnManager {
     static instance;
@@ -53,7 +54,6 @@ export default class SpawnManager {
 
     spawnBat(x, y, obj, health, isRemote = false, id = null) {
         let bat = this.batGroup.getFirst(false);
-        console.log(this.batGroup.getChildren().length)
 
         if (bat && bat.activate(x, y, health)) {
             bat.init();
@@ -212,16 +212,32 @@ export default class SpawnManager {
         })
     }
 
+    spawnPortal(x, y, obj) {
+        const objProps = getProperty(obj);
+        const newX = x;
+        const newY = y;
+        const rot = Phaser.Math.DegToRad(obj.rotation);
+        const portal = new Portal(this.scene, newX, newY, objProps?.otherPortal || null)
+        this.staticItemGroup.add(portal);
+        portal.setRotation(rot);
+        portal.setTint(objProps.color);
+
+        if (!this.scene.portalList) {
+            this.scene.portalList = {};
+        }
+        this.scene.portalList[objProps.index] = portal;
+    }
+
     respawn(obj, x, y, health, spawnFunc) {
         obj.once('die', () => {
             const checkDistanceTimer = this.scene.time.addEvent({
-                delay: 1000, // check every 1 second (adjust if you want)
+                delay: 5000, // check every 1 second (adjust if you want)
                 callback: () => {
                     const dx = this.scene.player.x - x;
                     const dy = this.scene.player.y - y;
                     const distance = Math.sqrt(dx * dx + dy * dy);
 
-                    if (distance > 800) {
+                    if (distance > 1200) {
                         this.scene.time.removeEvent(checkDistanceTimer);
                         spawnFunc(x, y, health);
                     }

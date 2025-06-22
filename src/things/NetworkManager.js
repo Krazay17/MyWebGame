@@ -117,21 +117,13 @@ export default class NetworkManager {
     this.socket.on('playerStateUpdate', ({ id, state }) => {
       const player = this.otherPlayers[id];
       if (player) {
+        player.state = state;
         player.x = state.x;
         player.y = state.y;
         player.setGhostState(state);
       }
     })
 
-    // Position update
-    // this.socket.on('playerMoved', ({ id, x, y }) => {
-    //   const player = this.otherPlayers[id];
-    //   if (player) {
-    //     player.updatePosition(x, y);
-    //   }
-    // });
-
-    // Level update
     this.socket.on('playerLeveled', ({ id, money, auraLevel }) => {
       const player = this.otherPlayers[id];
       if (player) {
@@ -139,7 +131,6 @@ export default class NetworkManager {
       }
     });
 
-    // Shurikan throw
     this.socket.on('shurikanthrown', ({ id, shotInfo }) => {
       const player = this.otherPlayers[id];
       if (player) {
@@ -152,14 +143,16 @@ export default class NetworkManager {
       if (player) {
         player.makeChatBubble(message);
       }
-    })
+    });
 
     this.socket.on('updateHealthUpdate', ({ id, health, max }) => {
       const player = this.otherPlayers[id];
       if (player) {
         player.updateHealth(health, max);
+        player.health = health;
+        player.healthMax = max;
       }
-    })
+    });
 
     this.socket.on('enemyStateUpdate', (data) => {
       const { x, y, type, id, vx, vy, sceneKey } = data;
@@ -169,7 +162,6 @@ export default class NetworkManager {
       let enemy = this.otherEnemies[id];
 
       if (!enemy) {
-        // You'll need a way to spawn remote enemies with a known ID
         enemy = this.spawnEnemy(data);
         this.otherEnemies[id] = enemy;
         return;

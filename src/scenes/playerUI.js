@@ -154,7 +154,7 @@ export default class PlayerUI extends Phaser.Scene {
 
     openTextChat() {
         if (this.chatting) return;
-                    this.player.chatting = true;
+        this.player.chatting = true;
 
         this.chatting = true;
         this.events.emit('chatting');
@@ -187,7 +187,7 @@ export default class PlayerUI extends Phaser.Scene {
 
 
     closeTextChat(message) {
-                    this.player.chatting = false;
+        this.player.chatting = false;
         if (this.textBox) {
             this.textBox.destroy();
             this.textBox = null;
@@ -226,6 +226,17 @@ export default class PlayerUI extends Phaser.Scene {
                 });
                 this.playerTextMap[playerId] = textObj;
             }
+
+            // if (this.playerHealthMap[playerId]) {
+            //     const healthObj = this.playerHealthMap[playerId];
+            //     const percentHealth = 
+            //     healthObj.clear();
+            //     healthObj.fillStyle(0x00FF00, 1);
+            //     healthObj.fillRect(0, 150, 300 * percentHealth, 25);
+            // } else {
+            //     const healthObj = this.add.rectangle(200, yloc, 150);
+            //     this.playerHealthMap[playerId] = healthObj;
+            // }
         });
 
         // Clean up any removed players' text

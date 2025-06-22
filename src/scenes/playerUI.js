@@ -227,16 +227,16 @@ export default class PlayerUI extends Phaser.Scene {
                 this.playerTextMap[playerId] = textObj;
             }
 
-            // if (this.playerHealthMap[playerId]) {
-            //     const healthObj = this.playerHealthMap[playerId];
-            //     const percentHealth = 
-            //     healthObj.clear();
-            //     healthObj.fillStyle(0x00FF00, 1);
-            //     healthObj.fillRect(0, 150, 300 * percentHealth, 25);
-            // } else {
-            //     const healthObj = this.add.rectangle(200, yloc, 150);
-            //     this.playerHealthMap[playerId] = healthObj;
-            // }
+            if (this.playerHealthMap[playerId]) {
+                const healthObj = this.playerHealthMap[playerId];
+                const percentHealth = player.health / player.healthMax;
+                healthObj.clear();
+                healthObj.fillStyle(0x00FF00, 1);
+                healthObj.fillRect(0, 150, 300 * percentHealth, 25);
+            } else {
+                const healthObj = this.add.rectangle(0, yloc, 150, 25, 0x00FF00);
+                this.playerHealthMap[playerId] = healthObj;
+            }
         });
 
         // Clean up any removed players' text

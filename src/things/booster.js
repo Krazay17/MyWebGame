@@ -12,7 +12,7 @@ export default class Booster extends Pickup {
         const rot = Phaser.Math.DegToRad(obj.rotation);
         this.setRotation(rot);
 
-        this.boost = new Phaser.Math.Vector2(Math.sin(rot), Math.cos(rot)).scale(this.props.power);
+        this.boost = new Phaser.Math.Vector2(Math.sin(rot), Math.cos(rot)).scale(this.props.power?? 2000);
         this.boost.y = this.boost.y * -1;
 
 

@@ -128,7 +128,6 @@ export default class AuraZap extends WeaponBase {
             this.zapVisual(target.x, target.y, target);
             if (this.spawnOrb) {
                 let orb = this.scene.weaponGroup.getMatching('name', 'orb').find(o => !o.active);
-                console.log(this.scene.weaponGroup.getLength())
                 if (orb) {
                     orb.activate(target.x, target.y)
                 } else {
@@ -148,6 +147,5 @@ export default class AuraZap extends WeaponBase {
         if (zapLine) {
             zapLine.init(this.player, target);
         }
-
     }
 }

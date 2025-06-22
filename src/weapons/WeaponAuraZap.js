@@ -60,6 +60,7 @@ export default class AuraZap extends WeaponBase {
         const upgrades = GameManager.upgrades;
 
         this.auraSprite.setAuraLevel(GameManager.power.auraLevel);
+        this.attackRange = Phaser.Math.Clamp(GameManager.power.auraLevel * 25, 250, 600);
 
         if (this.zapTimer.delay) {
             this.zapTimer.delay = this.baseZapCd / GameManager.power.auraLevel;
@@ -93,7 +94,7 @@ export default class AuraZap extends WeaponBase {
     fire() {
         if (!this.player.alive) return;
         const groups = this.scene.attackableGroups;
-        const range = Phaser.Math.Clamp(GameManager.power.auraLevel * 25, 250, 600);
+        const range = this.attackRange;
         const playerPos = this.player.getCurrentPos();
         const validTargets = [];
 
@@ -127,7 +128,7 @@ export default class AuraZap extends WeaponBase {
             this.zapVisual(target.x, target.y, target);
             if (this.spawnOrb) {
                 let orb = this.scene.weaponGroup.getMatching('name', 'orb').find(o => !o.active);
-                this.scene.weaponGroup.getChildren()
+                console.log(this.scene.weaponGroup.getLength())
                 if (orb) {
                     orb.activate(target.x, target.y)
                 } else {

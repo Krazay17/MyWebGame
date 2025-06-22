@@ -113,7 +113,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         });
         this.scene.input.keyboard.on('keydown-F', () => {
             if (GameManager.flags.devmode && !this.chatting) {
-                this.updateMoney(50000);
+                this.updateMoney(500000);
             }
         });
 
@@ -158,13 +158,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     preUpdate(time, delta) {
         super.preUpdate(time, delta);
-        if (this.aura) this.aura.update?.(delta);
         if (this.chatBubble) this.chatBubble.setPosition(this.x, this.y - 100);
         if (this.playerContainer) this.playerContainer.setPosition(this.x, this.y);
 
-        if (this.alive && !this.stunned && this.leftWeapon && this.rightWeapon) {
+        if (this.alive && !this.stunned && this.leftWeapon && this.rightWeapon && this.aura) {
             this.leftWeapon.update?.(delta);
             this.rightWeapon.update?.(delta);
+            this.aura.update?.(delta);
 
             const pointer = this.scene.input.activePointer;
 

@@ -18,6 +18,16 @@ export default class DarkOrbProjectile extends WeaponProjectile {
                 repeat: -1,
             })
         }
+        // Spin tween
+        this.spinTween = this.scene.tweens.add({
+            targets: this,
+            angle: 360,
+            duration: 2000,
+            repeat: -1,
+            ease: 'Linear',
+        });
+
+        this.play('darkorb');
 
         this.activate();
     }
@@ -39,24 +49,13 @@ export default class DarkOrbProjectile extends WeaponProjectile {
             repeat: -1,
         });
 
-        // Spin tween
-        this.scene.tweens.add({
-            targets: this,
-            angle: 360,
-            duration: 2000,
-            repeat: -1,
-            ease: 'Linear',
-        });
-
-        this.play('darkorb');
     }
 
     deactivate() {
+        this.scene.time.removeEvent(this.damageTick);
         this.setActive(false);
         this.setVisible(false);
         this.body.enable = false;
-        this.stop();
-        this.scene.time.removeEvent(this.damageTick);
         this.hitTargets = [];
         this.detonated = false;
         this.detonateTime = null;
@@ -82,10 +81,4 @@ export default class DarkOrbProjectile extends WeaponProjectile {
             this.setVelocity(speed.x, speed.y);
         }
     }
-
-
-    // destroy() {
-    //     this.scene?.time.removeEvent(this.damageTick);
-    //     super.destroy();
-    // }
 }

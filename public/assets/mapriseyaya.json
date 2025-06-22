@@ -2916,14 +2916,14 @@
                  "y":29816.4
                 }, 
                 {
-                 "height":13,
+                 "height":29,
                  "id":6,
                  "name":"spawnPortal",
                  "properties":[
                         {
                          "name":"index",
                          "type":"int",
-                         "value":0
+                         "value":2
                         }, 
                         {
                          "name":"otherPortal",
@@ -2933,12 +2933,12 @@
                  "rotation":180,
                  "type":"",
                  "visible":true,
-                 "width":140,
-                 "x":2173,
-                 "y":29241
+                 "width":149.333333333333,
+                 "x":2099.66666666667,
+                 "y":29258.3333333333
                 }, 
                 {
-                 "height":13,
+                 "height":34.3333333333358,
                  "id":7,
                  "name":"spawnPortal",
                  "properties":[
@@ -2950,14 +2950,14 @@
                         {
                          "name":"otherPortal",
                          "type":"int",
-                         "value":0
+                         "value":2
                         }],
                  "rotation":0,
                  "type":"",
                  "visible":true,
-                 "width":140,
-                 "x":2711,
-                 "y":29361.5
+                 "width":158.666666666667,
+                 "x":2785.66666666667,
+                 "y":29218.8333333333
                 }, 
                 {
                  "height":14.6667,

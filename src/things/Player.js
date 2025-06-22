@@ -479,7 +479,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                         if (this.wallRunLeft < (-this.body.velocity.y)) {
                             this.wallRunLeft = (-this.body.velocity.y)
                         } else if (this.wallRunLeft < xSpeed) {
-                            this.wallRunLeft = Math.min(xSpeed, 650);
+                            this.wallRunLeft = Math.min(xSpeed, 680);
                         }
                         this.wallRunRight = 540;
                     }
@@ -488,7 +488,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                         if (this.wallRunRight < (-this.body.velocity.y)) {
                             this.wallRunRight = (-this.body.velocity.y)
                         } else if (this.wallRunRight < xSpeed) {
-                            this.wallRunRight = Math.min(xSpeed, 650);
+                            this.wallRunRight = Math.min(xSpeed, 680);
                         }
                         this.wallRunLeft = 540;
                     }
@@ -575,13 +575,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     this.stateLockout = this.scene.time.now + 25;
 
                     if (right) {
-                        this.setVelocity(-350, Phaser.Math.Clamp(-height, -650, -100));
+                        this.setVelocity(-350, Phaser.Math.Clamp(-height, -680, -100));
                         this.flipX = true;
                         this.bufferRightWallJump = 0;
                         this.wallRunRight /= 2;
                     }
                     if (left) {
-                        this.setVelocity(350, Phaser.Math.Clamp(-height, -650, -100));
+                        this.setVelocity(350, Phaser.Math.Clamp(-height, -680, -100));
                         this.flipX = false;
                         this.bufferLeftWallJump = 0;
                         this.wallRunLeft /= 2;
@@ -718,6 +718,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 },
                 exit: () => {
                     this.isJumping = false;
+                    this.canJump = false;
                 },
             },
 
@@ -1053,7 +1054,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     adjustHealth(amount) {
-        
+
         this.health = Phaser.Math.Clamp(this.health + amount, 0, this.healthMax);
         GameManager.stats.health = this.health;
         this.emit('updateHealth', this.health, this.healthMax);

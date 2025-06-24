@@ -6,10 +6,10 @@ import Inventory from './scenes/Inventory.js'
 import PlayerUI from './scenes/playerUI.js'
 import Home from './scenes/Home.js'
 import Level1 from './scenes/Level1.js'
-import level2 from './scenes/level2.js'
+import Level2 from './scenes/Level2.js'
 import Level3 from './scenes/Level3.js'
-import level4 from './scenes/level4.js'
-import Level5 from './scenes/level5.js'
+import Level4 from './scenes/Level4.js'
+import Level5 from './scenes/Level5.js'
 
 /// <reference path="../types/phaser.d.ts" />
 
@@ -31,14 +31,14 @@ const config = {
         // fps: 60,
         // fixedStep: true,
         tileBias: 55,
-        debug: false,
+        debug: true,
       }
     },
     parent: 'body',
     dom: {
       createContainer: true,
     },
-    scene: [Boot, Preloader, Home, Level1, level2, Level3, level4, 
+    scene: [Boot, Preloader, Home, Level1, Level2, Level3, Level4, Level5,
       PlayerUI, Inventory, EscMenu],
 };
 

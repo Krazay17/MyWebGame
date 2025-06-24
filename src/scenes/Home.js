@@ -43,8 +43,6 @@ export default class Home extends BaseGame {
         const largePlatform = this.walkableGroup.create(0, 1450, 'largeplatform').setScale(5, 1.5);
         largePlatform.refreshBody();
         this.setupPortals();
-
-        this.spawnManager.spawnDuck(0, 1200, null, 50);
     }
 
     update(time, delta) {
@@ -70,12 +68,14 @@ export default class Home extends BaseGame {
             });
         }
 
-        const portal3 = this.portals.create(700, 800, 'portal3').setScale(.2).play('portal3');
+        const portal3 = this.portals.create(700, 800, 'portal3').setScale(.2).play('portal3').setTint(0x00FF00);
+        const portal5 = this.portals.create(300, 1100, 'portal3').setScale(.2).play('portal3').setTint(0x0000FF);
 
         this.shrinkCollision(portal0, 150, 150);
         this.shrinkCollision(portal1, 150, 150);
         this.shrinkCollision(portal2, 150, 150);
         this.shrinkCollision(portal3, 150, 150);
+        this.shrinkCollision(portal5, 150, 150);
 
         const portalsToSpin = [
             { sprite: portal0, angle: -360, duration: 1500 },
@@ -108,8 +108,9 @@ export default class Home extends BaseGame {
 
         portal0.targetScene = 'Level1';
         portal1.targetScene = 'Level3';
-        portal2.targetScene = 'level2';
-        portal3.targetScene = 'level4';
+        portal2.targetScene = 'Level2';
+        portal3.targetScene = 'Level4';
+        portal5.targetScene = 'Level5';
 
         this.physics.add.overlap(this.player, this.portals, (player, portal) => {
             if (portal.targetScene && this.scene.key !== portal.targetScene) {

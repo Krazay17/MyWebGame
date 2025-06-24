@@ -11,13 +11,15 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
   }) {
     super(scene, data.location.x, data.location.y);
 
-    const { location, name, power } = data;
+    const { location, name, power, stats } = data;
     this.id = id;
     this.myData = data;
     this.money = power.money;
     this.auraLevel = power.auraLevel;
     this.nameText = name.text;
     this.nameColor = name.color;
+    this.healthMax = stats.healthMax;
+    this.health = stats.health;
 
     this.prevPos = new Phaser.Math.Vector2(location.x, location.y);
     this.targetPos = new Phaser.Math.Vector2(location.x, location.y);
@@ -69,6 +71,13 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
       fontSize: '12px',
       align: 'center',
       fill: this.nameColor,
+      shadow: {
+        offsetX: -1,
+        offsetY: 1,
+        color: '#222222',
+        blur: true,
+        stroke: true,
+      }
     }).setOrigin(0.5).setDepth(2); // Same depth as money text
     this.add(this.headName);
 
@@ -286,7 +295,7 @@ export default class GhostPlayer extends Phaser.GameObjects.Container {
     this.nameColor = color;
     this.nameText = text;
     this.headName.setText(this.nameText);
-    this.headName.setFill(this.nameColor);
+    this.headName.setColor(this.nameColor);
   }
 
   updateHealth(health, max) {

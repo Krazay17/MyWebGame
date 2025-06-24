@@ -1,11 +1,13 @@
 import io from 'https://cdn.socket.io/4.7.2/socket.io.esm.min.js';
 import GhostPlayer from './GhostPlayer.js';
 import GameManager from './GameManager.js';
+import PlayerUI from '../scenes/playerUI.js';
 
-export default class NetworkManager {
+export default class NetworkManager extends Phaser.Events.EventEmitter {
   static instance;
 
   constructor(scene) {
+    super();
     if (NetworkManager.instance) return NetworkManager.instance;
     NetworkManager.instance = this;
 
@@ -77,7 +79,6 @@ export default class NetworkManager {
     this.socket.on('playerJoined', ({ id, data }) => {
       if (!this.otherPlayers[id] && id !== this.socket.id) {
         this.addOtherPlayer(id, data);
-        console.log(data)
       }
     });
     // Player left
@@ -151,6 +152,8 @@ export default class NetworkManager {
         player.updateHealth(health, max);
         player.health = health;
         player.healthMax = max;
+        this.emit('healthChanged');
+
       }
     });
 
@@ -186,6 +189,7 @@ export default class NetworkManager {
     if (this.otherPlayers[id]) {
       this.otherPlayers[id].destroy();
     }
+      console.log(data);
 
     const ghost = new GhostPlayer(this.scene, id, data);
     this.otherPlayers[id] = ghost;

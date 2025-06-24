@@ -79,7 +79,7 @@ io.on('connection', (socket) => {
       const existing = Object.entries(players).map(([id, data]) => ({ id, ...data }));
 
       socket.emit('existingPlayers', existing);
-      console.log(existing);
+      console.log('existing players: ', existing);
     } else {
       socket.broadcast.emit('playerSyncUpdate', {
         id: socket.id,

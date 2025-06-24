@@ -54,10 +54,10 @@ export default class EscMenu extends Phaser.Scene {
 
         const donate = this.add.text(300, 25,
             'Made by: Josh Massarella\nDonate to help me make more games!', {
-                fontSize: '24px',
-                color: '#FFFFFF',
-            })
-            .setInteractive({useHandCursor: true})
+            fontSize: '24px',
+            color: '#FFFFFF',
+        })
+            .setInteractive({ useHandCursor: true })
             .on('pointerdown', () => {
                 window.open('https://buymeacoffee.com/krazay');
             })
@@ -183,6 +183,14 @@ export default class EscMenu extends Phaser.Scene {
 
     destroyNameInput() {
         if (this.nameInput) {
+            const domElement = this.nameInput.getChildByName('name');
+            const name = domElement.value.trim();
+            GameManager.name.text = name;
+            this.nameDisplay.setText(name);
+            GameManager.save();
+
+            this.network.socket.emit('playerName', { text: GameManager.name.text, color: GameManager.name.color });
+
             this.nameInput.destroy();
             this.nameInput = null;
             this.playerUI.inputFocused = false;

@@ -44,51 +44,87 @@ export default class WeaponWhip extends WeaponBase {
             })
         }
     }
+
     update(delta) {
         super.update(delta);
+
         if (this.weaponSprite) {
             this.weaponSprite.x = this.player.x;
-            this.weaponSprite.y = this.player.y - 25 + this.weaponSpriteOffset.y;
+            this.weaponSprite.y = this.player.y - this.headOffset + this.weaponSpriteOffset.y;
         }
 
-        if (this.weaponSprite && this.whipConnect && this.hitLocation && this.holding) {
-            this.wasGrappling = true;
-            this.rayTrackEnd = true;
-            // const g = this.scene.add.graphics();
-            // g.lineStyle(4, 0xffffff, 1);
-            // g.beginPath();
-            // g.moveTo(this.player.x, this.player.y);
-            // g.lineTo(this.hitLocation.x, this.hitLocation.y);
-            // g.strokePath();
-            const distance = Phaser.Math.Distance.Between(
-                this.player.x, this.player.y,
-                this.hitLocation.x, this.hitLocation.y
-            );
-            this.rayTickData.end.x = this.hitLocation.x;
-            this.rayTickData.end.y = this.hitLocation.y;
-            const angleDeg = Phaser.Math.RadToDeg(Phaser.Math.Angle.Between(this.weaponSprite.x, this.weaponSprite.y, this.hitLocation.x, this.hitLocation.y));
+        if (!this.connected) return;
 
-            if (distance > 150) this.scene.physics.accelerateTo(this.player, this.hitLocation.x, this.hitLocation.y, 2500, 400, 400);
+        const scaledDelta = delta / 1000;
+        const { dist, tangVel, angle } = this.grappleMath(this.anchor);
+        if (dist > 500 || dist < 70) {
+            this.release();
+            return;
+        }
+
+        this.length = dist;
+        this.angle = angle;
+
+        // --- Recalc angularVelocity ---
+        const playerMomentum = tangVel / dist;
+        this.angularVelocity = Phaser.Math.Linear(this.angularVelocity, playerMomentum, 0.05);
+
+        // --- Add gravity-like acceleration ---
+        const correctedAngle = this.angle - Math.PI / 2;
+        const angularAccel = -(800 / this.length) * Math.sin(correctedAngle);
+        this.angularVelocity += angularAccel * scaledDelta;
+
+        // Optional: add some damping (tiny amount, not instant)
+        this.angularVelocity *= 0.9995;
+
+        // --- Advance angle ---
+        // if (Math.abs(this.angularVelocity) > 0.001) {
+        //     this.angle += this.angularVelocity * scaledDelta;
+        // }
+
+        // --- Compute velocity ---
+        const vx = this.angularVelocity * dist * -Math.sin(this.angle);
+        const vy = this.angularVelocity * dist * Math.cos(this.angle);
+
+        this.player.setVelocity(vx, vy);
+
+        if (this.weaponSprite) {
+            // --- Update visuals ---
+            const angleDeg = Phaser.Math.RadToDeg(Phaser.Math.Angle.Between(
+                this.weaponSprite.x, this.weaponSprite.y,
+                this.anchor.x, this.anchor.y
+            ));
+
             this.weaponSprite.setAngle(angleDeg);
-            this.weaponSprite.setScale(this.mapRangeClamped(distance, 25, 400, 0.02, 0.6))
-            if (distance >500 && this.weaponSprite) {
-                this.weaponSprite.play('whipend')
-                this.whipConnect = false;
-            }
-        } 
-        else if (this.wasGrappling) {
-            this.player.body.setAcceleration(0, 0);
-            this.player.body.setMaxSpeed(1200);
-            this.player.body.maxVelocity.x = 1200;
-            this.player.body.maxVelocity.y = 1200;
-            this.rayTrackEnd = false;
-            this.whipConnect = false;
-            this.meleeRayTick = false;
-            if (this.weaponSprite) {
-                this.weaponSprite.play('whipend', true);
-            }
-            this.wasGrappling = false;
+            this.weaponSprite.setScale(this.mapRangeClamped(dist, 25, 400, 0.02, 0.6));
         }
+
+    }
+
+    grappleMath(hitLocation) {
+        const dx = this.player.x - hitLocation.x;
+        const dy = this.player.y - hitLocation.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const tangX = -dy / dist;
+        const tangY = dx / dist;
+        const tangVel = (this.player.body.velocity.x * tangX) + (this.player.body.velocity.y * tangY);
+        const angle = Math.atan2(dy, dx);
+
+        return { dx, dy, dist, tangVel, angle };
+    }
+
+    connect(hitLocation) {
+        this.anchor = hitLocation;
+        const { dist, tangVel, angle } = this.grappleMath(this.anchor);
+        this.angle = angle;
+
+        const minSpeed = 525;
+
+        const clampedVel = Math.sign(tangVel) * Math.max(Math.abs(tangVel), minSpeed);
+        this.angularVelocity = clampedVel / dist;
+
+        this.connected = true;
+        this.player.body.allowGravity = false;
     }
 
     fire(pointer) {
@@ -110,7 +146,7 @@ export default class WeaponWhip extends WeaponBase {
         this.weaponSprite.play('whip');
         this.weaponSprite.setFlipY(angleDeg > 90 || angleDeg < -90);
 
-        const rayData = this.calculateShot(pointer, 235);
+        const rayData = this.calculateShot(pointer, 260);
         this.rayTickData = rayData;
         this.holding = true;
         // this.weaponSprite.on('animationcomplete-whip', () => {
@@ -127,18 +163,21 @@ export default class WeaponWhip extends WeaponBase {
     }
 
     release() {
+        this.connected = false;
+        this.player.body.allowGravity = true;
         this.whipConnect = false;
         this.holding = false;
         this.meleeRayTick = false;
         if (this.weaponSprite && this.weaponSprite.anims.isPlaying) {
             this.weaponSprite.chain('whipend');
-        } else if (this.weaponSprite){
+        } else if (this.weaponSprite) {
             this.weaponSprite.play('whipend');
         }
     }
 
     platformHit(plat, stagger, hitLocation) {
         if (this.whipConnect && hitLocation) return;
+        this.connect(hitLocation);
         this.hitLocation = hitLocation;
         this.whipConnect = true;
         if (this.weaponSprite) {
@@ -149,6 +188,7 @@ export default class WeaponWhip extends WeaponBase {
 
     itemHit(item, stagger, hitLocation) {
         if (this.whipConnect && hitLocation) return;
+        this.connect(hitLocation);
         this.hitLocation = hitLocation;
         this.whipConnect = true;
         if (this.weaponSprite) {
@@ -157,9 +197,6 @@ export default class WeaponWhip extends WeaponBase {
         }
     }
 
-    connect(hitRect) {
-
-    }
 
     stopWhip() {
         this.startCooldown();

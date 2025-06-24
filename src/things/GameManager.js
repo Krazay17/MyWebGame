@@ -112,6 +112,10 @@ export default {
             power: {
                 money: this.power?.money ?? 0,
                 auraLevel: this.power?.auraLevel ?? 1
+            },
+            stats: {
+                health: this.stats?.health ?? 25,
+                healthMax: this.stats?.healthMax ?? 25
             }
         };
     },

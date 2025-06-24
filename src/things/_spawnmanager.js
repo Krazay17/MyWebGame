@@ -45,8 +45,8 @@ export default class SpawnManager {
             { group: this.batGroup, handler: 'enemyHit', zap: true, walls: true },
             { group: this.sunmanGroup, handler: 'enemyHit', zap: true, walls: false },
             { group: this.duckGroup, handler: 'enemyHit', zap: true, walls: true },
-            { group: this.bulletGroup, handler: 'bulletHit', zap: true, walls: false },
-            { group: this.softBulletGroup, handler: 'bulletHit', zap: true, walls: false },
+            { group: this.bulletGroup, handler: 'bulletHit', zap: false, walls: false },
+            { group: this.softBulletGroup, handler: 'bulletHit', zap: false, walls: false },
             { group: this.itemGroup, handler: 'itemHit', zap: false, walls: true },
             { group: this.staticItemGroup, handler: 'itemHit', zap: false, walls: false }
         ];
@@ -213,19 +213,11 @@ export default class SpawnManager {
     }
 
     spawnPortal(x, y, obj) {
-        const objProps = getProperty(obj);
         const newX = x;
         const newY = y;
-        const rot = Phaser.Math.DegToRad(obj.rotation);
-        const portal = new Portal(this.scene, newX, newY, objProps?.otherPortal || null)
+        const portal = new Portal(this.scene, newX, newY, obj)
         this.staticItemGroup.add(portal);
-        portal.setRotation(rot);
-        portal.setTint(objProps.color);
 
-        if (!this.scene.portalList) {
-            this.scene.portalList = {};
-        }
-        this.scene.portalList[objProps.index] = portal;
     }
 
     respawn(obj, x, y, health, spawnFunc) {

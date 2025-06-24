@@ -61,9 +61,9 @@ export default class Level3 extends BaseGame {
 
     enemyTimers() {
 
-            if (this.batTimer) { this.batTimer.remove(); this.batTimer = null; }
-            if (this.sunTimer) { this.sunTimer.remove(); this.sunTimer = null; }
-            
+        if (this.batTimer) { this.batTimer.remove(); this.batTimer = null; }
+        if (this.sunTimer) { this.sunTimer.remove(); this.sunTimer = null; }
+
         this.batTimer = this.time.addEvent({
             delay: 2000,
             callback: () => {

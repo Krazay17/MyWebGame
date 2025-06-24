@@ -1,8 +1,8 @@
 import BaseGame from "./_basegame.js";
 
-export default class level2 extends BaseGame {
+export default class Level2 extends BaseGame {
     constructor() {
-        super('level2')
+        super('Level2')
     }
 
     create() {

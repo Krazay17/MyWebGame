@@ -23,6 +23,8 @@ export default class PlayerUI extends Phaser.Scene {
         this.chatting = false;
         this.playerList = [];
         this.network = NetworkManager.instance;
+        this.playerHealthBGMap = {};
+        this.playerHealthMap = {};
         this.playerTextMap = {}; // Object to hold playerId => textObject
 
         this.setWeaponIcon(this.player.leftWeapon.name, 0);
@@ -85,6 +87,10 @@ export default class PlayerUI extends Phaser.Scene {
             loop: true,
             callback: () => this.updatePlayerList()
         });
+        this.network.on('healthChanged', () => {
+            this.updatePlayerList();
+        })
+
     }
 
     update() {
@@ -213,6 +219,18 @@ export default class PlayerUI extends Phaser.Scene {
             const playerId = String(id); // ensure string consistency
             const yloc = index * 50 + 200;
             activeIds.add(playerId);
+            if (this.playerHealthMap[playerId]) {
+                const healthObj = this.playerHealthMap[playerId];
+                const playerHealth = player.health || 0;
+                const playerHealthMax = player.healthMax || 1; // Avoid division by zero
+                const percentHealth = playerHealth / playerHealthMax;
+                healthObj.width = percentHealth * 200;
+            } else {
+                const healthBG = this.add.rectangle(0, yloc, 200, 25, 0x000000, .7).setOrigin(0, 0);
+                const healthObj = this.add.rectangle(0, yloc, 200, 25, 0x007700).setOrigin(0, 0);
+                this.playerHealthMap[playerId] = healthObj;
+                this.playerHealthBGMap[playerId] = healthBG;
+            }
 
             if (this.playerTextMap[playerId]) {
                 const textObj = this.playerTextMap[playerId];
@@ -221,29 +239,29 @@ export default class PlayerUI extends Phaser.Scene {
                 textObj.setColor(player.nameColor);
             } else {
                 const textObj = this.add.text(0, yloc, player.nameText + ' - ' + player.money, {
-                    fontSize: '24px',
+                    fontSize: '25px',
                     fill: '#FFFFFF',
+                    shadow: {
+                        offsetX: -1,
+                        offsetY: 1,
+                        color: '#111111',
+                        blur: true,
+                        stroke: true,
+                    }
                 });
                 this.playerTextMap[playerId] = textObj;
             }
-
-            // if (this.playerHealthMap[playerId]) {
-            //     const healthObj = this.playerHealthMap[playerId];
-            //     const percentHealth = player.health / player.healthMax;
-            //     healthObj.clear();
-            //     healthObj.fillStyle(0x00FF00, 1);
-            //     healthObj.fillRect(0, 150, 300 * percentHealth, 25);
-            // } else {
-            //     const healthObj = this.add.rectangle(0, yloc, 150, 25, 0x00FF00);
-            //     this.playerHealthMap[playerId] = healthObj;
-            // }
         });
 
         // Clean up any removed players' text
         for (const id in this.playerTextMap) {
             if (!activeIds.has(id)) {
-                this.playerTextMap[id].destroy();
+                this.playerTextMap[id]?.destroy();
                 delete this.playerTextMap[id];
+                this.playerHealthMap[id]?.destroy();
+                delete this.playerHealthMap[id];
+                this.playerHealthBGMap[id]?.destroy();
+                delete this.playerHealthBGMap[id];
             }
         }
     }

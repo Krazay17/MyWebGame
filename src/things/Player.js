@@ -17,7 +17,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         scene.physics.add.existing(this);
 
         this.body.setMaxSpeed(1000);
-        this.body.setMaxVelocity(1000, 1000);
+        this.setMaxVelocity(1500, 1500);
 
 
         this.setupAnimation();
@@ -340,11 +340,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         const { left, right, jump, dash, crouch, heal, slam } = input;
 
         if (dash && this.canDash && !this.isDashing) return this.setState('dash', input);
-        if (heal) return this.setState('heal');
         if (jump && this.canJump) return this.setState('jump', input);
         if ((slam && !this.slamCD && !this.body.blocked.down)) return this.setState('slam', input);
         if ((crouch)) return this.setState('crouch', input);
         if (this.wallRunning) return this.setState('wallRun', input);
+        if (heal) return this.setState('heal');
         if (!this.body.blocked.down) return this.setState('fall', input);
         if (left || right) return this.setState('walk', input);
         return this.setState('idle', input);
@@ -446,10 +446,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 update: (delta, input) => {
                     const { left, right, jump } = input;
                     const dir = (left ? -1 : right ? 1 : 0) * (this.speed);
-                    if ((left && !right) || (!left && right)) {
+                    if ((left && !right && (this.body.velocity.x > -250)) || (!left && right && (this.body.velocity.x < 250))) {
                         this.setVelocityX(this.walkLerp(delta, dir, .1));
                     } else {
-                        this.setVelocityX(this.walkLerp(delta, 0, .02));
+                        this.setVelocityX(this.walkLerp(delta, 0, .005));
                     }
 
                     this.tryUncrouch();
@@ -465,7 +465,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 exit: () => {
                     this.falling = false;
                     this.isMantling = false;
-                    this.setMaxVelocity(1000, 1000);
+                    this.setMaxVelocity(1500, 1500);
                 },
             },
 
@@ -610,7 +610,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 },
                 update: (delta, input) => {
                     const { left, right, crouch } = input;
-                    const move = (left ? -1 : right ? 1 : 0) * (this.speed);
+                    const dir = (left ? -1 : right ? 1 : 0) * (this.speed / 2);
+                    if ((left && !right && (this.body.velocity.x > -250)) || (!left && right && (this.body.velocity.x < 250))) {
+                        this.setVelocityX(this.walkLerp(delta, dir, .1));
+                    } else {
+                        this.setVelocityX(this.walkLerp(delta, 0, .02));
+                    }
 
                     if (this.body.blocked.down) {
                         this.resetJump();
@@ -621,8 +626,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                             return;
                         }
                     }
-
-                    this.setVelocityX(this.walkLerp(delta, move * 0.33, .03));
                 },
                 exit: () => {
                 },
@@ -642,7 +645,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
             slide: {
                 enter: () => {
-                    const speed = this.slidePower * this.dir;
+                    const currentSpeed =  Math.abs(this.body.velocity.x);
+                    const speed = currentSpeed > this.slidePower ? currentSpeed * this.dir : this.slidePower * this.dir;
                     this.slidePower = 0;
 
                     this.isSliding = true;
@@ -773,6 +777,24 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 },
             },
 
+            grapple: {
+                enter: (hitLocation) => {
+                    this.isGrappling = true;
+
+                    const dx = this.x - hitLocation.x;
+                    const dy = this.y - hitLocation.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    const tangX = -dy / dist;
+                    const tangY = dx / dist;
+                    const tangVel = (this.body.velocity.x * tangX) + (this.body.velocity.y * tangY);
+                    const angle = Math.atan2(dy, dx);
+                },
+                update: () => { },
+                exit: () => {
+                    this.isGrappling = false;
+                },
+            },
+
             heal: {
                 enter: () => {
                     this.isHealing = true;
@@ -797,7 +819,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 },
                 exit: () => {
                     this.isHealing = false;
-                    this.setMaxVelocity(1000, 1000);
+                    this.setMaxVelocity(1500, 1500);
                 },
             },
         }
@@ -1167,9 +1189,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             data: {
                 location: GameManager.location,
                 name: GameManager.name,
-                power: GameManager.power
+                power: GameManager.power,
+                stats: GameManager.stats
             }
         });
+        console.log(GameManager.stats.health);
 
     }
 

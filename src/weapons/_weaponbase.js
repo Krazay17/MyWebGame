@@ -24,6 +24,7 @@ export default class WeaponBase {
         this.hitLocation;
         this.tickHit = false;
         this.cooldownTimer = 0;
+        this.headOffset = 10;
 
     }
 
@@ -92,9 +93,8 @@ export default class WeaponBase {
     onBlur() { }
 
     calculateShot(pointer, scale = 1, rayThickness = 26) {
-        const headOffset = 10;
         const x = this.player.x;
-        const y = this.player.y - headOffset;
+        const y = this.player.y - this.headOffset;
         const pxy = new Phaser.Math.Vector2(x, y);
         const cursorPos = pointer.positionToCamera(this.scene.cameras.main);
         const tempDirection = new Phaser.Math.Vector2(cursorPos.x - x, cursorPos.y - y).normalize();
@@ -121,7 +121,6 @@ export default class WeaponBase {
         const hits = [];
         const ray = new Phaser.Geom.Line(data.start.x, data.start.y, data.end.x, data.end.y);
         const RectRay = this.polygonRay(data, data.rayThickness);
-        var hitRec;
 
         this.scene.graphics = this.scene.add.graphics();
         // this.scene.graphics.clear();
@@ -150,8 +149,8 @@ export default class WeaponBase {
 
                 // line trace
                 if (Phaser.Geom.Intersects.RectangleToRectangle(bounds, RectRay)) {
-                    hitRec = Phaser.Geom.Rectangle.Intersection(bounds, RectRay);
-                    var hit = { x: hitRec.centerX, y: hitRec.centerY };
+                    const hitRec = Phaser.Geom.Rectangle.Intersection(bounds, RectRay);
+                    const hit = { x: hitRec.centerX, y: hitRec.centerY };
                     hits.push(target);
                     this[handler]?.(target, true, hit);
                     // this.scene.graphics.fillStyle(0x00ff00, 0.5);

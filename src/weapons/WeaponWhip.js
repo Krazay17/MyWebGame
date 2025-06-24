@@ -71,7 +71,7 @@ export default class WeaponWhip extends WeaponBase {
 
         // --- Add gravity-like acceleration ---
         const correctedAngle = this.angle - Math.PI / 2;
-        const angularAccel = -(800 / this.length) * Math.sin(correctedAngle);
+        const angularAccel = -(600 / this.length) * Math.sin(correctedAngle);
         this.angularVelocity += angularAccel * scaledDelta;
 
         // Optional: add some damping (tiny amount, not instant)
@@ -118,7 +118,7 @@ export default class WeaponWhip extends WeaponBase {
         const { dist, tangVel, angle } = this.grappleMath(this.anchor);
         this.angle = angle;
 
-        const minSpeed = 525;
+        const minSpeed = 700;
 
         const clampedVel = Math.sign(tangVel) * Math.max(Math.abs(tangVel), minSpeed);
         this.angularVelocity = clampedVel / dist;

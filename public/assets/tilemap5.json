@@ -673,7 +673,7 @@
                         {
                          "name":"power",
                          "type":"int",
-                         "value":1250
+                         "value":1400
                         }],
                  "rotation":90,
                  "type":"",
@@ -1055,6 +1055,18 @@
                  "width":20.6667,
                  "x":157.66665,
                  "y":2828.3335
+                }, 
+                {
+                 "height":0,
+                 "id":98,
+                 "name":"spawnDashBuff",
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":5034,
+                 "y":532
                 }],
          "opacity":1,
          "properties":[
@@ -1508,7 +1520,7 @@
          "y":0
         }],
  "nextlayerid":6,
- "nextobjectid":98,
+ "nextobjectid":99,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.2",

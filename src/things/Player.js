@@ -494,7 +494,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                         // }
                     }
                     if(this.body.velocity.y > 350) {
-                        this.setVelocityY(lerp(this.body.velocity.y, 325, .05));
+                        this.setVelocityY(lerp(this.body.velocity.y, 350, .035));
                     }
                     if (jump) {
                         this.setState('wallRun', input);

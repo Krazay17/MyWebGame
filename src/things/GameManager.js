@@ -1,4 +1,4 @@
-const CURRENT_VERSION = 0.106;
+const CURRENT_VERSION = 0.107;
 
 export default {
     version: CURRENT_VERSION,
@@ -49,7 +49,7 @@ export default {
                         volume: parsed.volume,
                         //collectedItems: parsed.collectedItems,
                         flags: parsed.flags,
-                        //weapons: parsed.weapons,
+                        weapons: parsed.weapons,
                         power: parsed.power,
 
                     }

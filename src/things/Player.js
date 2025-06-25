@@ -581,19 +581,19 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                         this.flipX = true;
                         this.bufferRightWallJump = 0;
                         this.wallRunRight /= 2;
+                    this.wallJumpRightMin = 100;
                     }
                     if (left) {
                         this.setVelocity(350, Phaser.Math.Clamp(-height, -680, -this.wallJumpLeftMin));
                         this.flipX = false;
                         this.bufferLeftWallJump = 0;
                         this.wallRunLeft /= 2;
+                    this.wallJumpLeftMin = 100;
                     }
                 },
                 update: () => { },
                 exit: () => {
                     this.wallSlide = false;
-                    this.wallJumpLeftMin = 100;
-                    this.wallJumpRightMin = 100;
                 },
             },
 

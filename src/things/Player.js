@@ -612,12 +612,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     const rightBuffer = this.bufferRightWallJump > this.scene.time.now
 
                     if ((right && !left) && rightBuffer && !this.body.blocked.right) {
-                        this.setVelocityY(-25);
+                        this.setVelocityY(0);
                         this.setVelocityX(250);
                         this.isMantling = this.scene.time.now;
                     }
                     if ((left && !right) && leftBuffer && !this.body.blocked.left) {
-                        this.setVelocityY(-25);
+                        this.setVelocityY(0);
                         this.setVelocityX(-250);
                         this.isMantling = this.scene.time.now;
                     }

@@ -31,7 +31,7 @@ const config = {
         // fps: 60,
         // fixedStep: true,
         tileBias: 55,
-        debug: true,
+        debug: false,
       }
     },
     parent: 'body',

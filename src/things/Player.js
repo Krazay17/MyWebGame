@@ -482,6 +482,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                             this.wallRunLeft = Math.min(xSpeed, 680);
                         }
                         this.wallRunRight = 540;
+                        this.wallJumpRightMin = 540;
                     }
 
                     if (this.body.blocked.right) {
@@ -491,6 +492,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                             this.wallRunRight = Math.min(xSpeed, 680);
                         }
                         this.wallRunLeft = 540;
+                        this.wallJumpLeftMin = 540;
                     }
 
                 },
@@ -575,13 +577,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     this.stateLockout = this.scene.time.now + 25;
 
                     if (right) {
-                        this.setVelocity(-350, Phaser.Math.Clamp(-height, -680, -100));
+                        this.setVelocity(-350, Phaser.Math.Clamp(-height, -680, -this.wallJumpRightMin));
                         this.flipX = true;
                         this.bufferRightWallJump = 0;
                         this.wallRunRight /= 2;
                     }
                     if (left) {
-                        this.setVelocity(350, Phaser.Math.Clamp(-height, -680, -100));
+                        this.setVelocity(350, Phaser.Math.Clamp(-height, -680, -this.wallJumpLeftMin));
                         this.flipX = false;
                         this.bufferLeftWallJump = 0;
                         this.wallRunLeft /= 2;
@@ -590,6 +592,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 update: () => { },
                 exit: () => {
                     this.wallSlide = false;
+                    this.wallJumpLeftMin = 100;
+                    this.wallJumpRightMin = 100;
                 },
             },
 
@@ -829,6 +833,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.canJump = true;
         this.wallRunLeft = 540;
         this.wallRunRight = 540;
+        this.wallJumpLeftMin = 540;
+        this.wallJumpRightMin = 540;
         this.reachApex = true;
 
         if (!dash) return;

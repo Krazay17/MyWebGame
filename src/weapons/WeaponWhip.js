@@ -114,6 +114,7 @@ export default class WeaponWhip extends WeaponBase {
     }
 
     connect(hitLocation) {
+        if(!this.holding) return;
         this.anchor = hitLocation;
         const { dist, tangVel, angle } = this.grappleMath(this.anchor);
         this.angle = angle;

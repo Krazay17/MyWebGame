@@ -2901,12 +2901,12 @@
                         {
                          "name":"duration",
                          "type":"int",
-                         "value":300
+                         "value":200
                         }, 
                         {
                          "name":"power",
                          "type":"int",
-                         "value":2000
+                         "value":1000
                         }],
                  "rotation":0,
                  "type":"",
@@ -2933,12 +2933,12 @@
                  "rotation":180,
                  "type":"",
                  "visible":true,
-                 "width":149.333333333333,
-                 "x":2099.66666666667,
-                 "y":29258.3333333333
+                 "width":149.333,
+                 "x":2099.67,
+                 "y":29258.3
                 }, 
                 {
-                 "height":34.3333333333358,
+                 "height":34.3333,
                  "id":7,
                  "name":"spawnPortal",
                  "properties":[
@@ -2955,9 +2955,9 @@
                  "rotation":0,
                  "type":"",
                  "visible":true,
-                 "width":158.666666666667,
-                 "x":2785.66666666667,
-                 "y":29218.8333333333
+                 "width":158.667,
+                 "x":2785.67,
+                 "y":29218.8
                 }, 
                 {
                  "height":14.6667,
@@ -2967,12 +2967,12 @@
                         {
                          "name":"duration",
                          "type":"int",
-                         "value":300
+                         "value":200
                         }, 
                         {
                          "name":"power",
                          "type":"int",
-                         "value":2000
+                         "value":1000
                         }],
                  "rotation":349.971,
                  "type":"",
@@ -2989,12 +2989,12 @@
                         {
                          "name":"duration",
                          "type":"int",
-                         "value":300
+                         "value":200
                         }, 
                         {
                          "name":"power",
                          "type":"int",
-                         "value":2000
+                         "value":1000
                         }],
                  "rotation":349.971,
                  "type":"",
@@ -3011,12 +3011,12 @@
                         {
                          "name":"duration",
                          "type":"int",
-                         "value":300
+                         "value":200
                         }, 
                         {
                          "name":"power",
                          "type":"int",
-                         "value":2000
+                         "value":1000
                         }],
                  "rotation":349.971,
                  "type":"",
@@ -3033,12 +3033,12 @@
                         {
                          "name":"duration",
                          "type":"int",
-                         "value":300
+                         "value":200
                         }, 
                         {
                          "name":"power",
                          "type":"int",
-                         "value":2000
+                         "value":1000
                         }],
                  "rotation":19.97,
                  "type":"",
@@ -3055,12 +3055,12 @@
                         {
                          "name":"duration",
                          "type":"int",
-                         "value":300
+                         "value":200
                         }, 
                         {
                          "name":"power",
                          "type":"int",
-                         "value":2000
+                         "value":1000
                         }],
                  "rotation":349.971,
                  "type":"",
@@ -3077,12 +3077,12 @@
                         {
                          "name":"duration",
                          "type":"int",
-                         "value":300
+                         "value":200
                         }, 
                         {
                          "name":"power",
                          "type":"int",
-                         "value":2000
+                         "value":1000
                         }],
                  "rotation":350.97,
                  "type":"",
@@ -3099,12 +3099,12 @@
                         {
                          "name":"duration",
                          "type":"int",
-                         "value":300
+                         "value":200
                         }, 
                         {
                          "name":"power",
                          "type":"int",
-                         "value":2000
+                         "value":1000
                         }],
                  "rotation":368.97,
                  "type":"",
@@ -3121,12 +3121,12 @@
                         {
                          "name":"duration",
                          "type":"int",
-                         "value":300
+                         "value":200
                         }, 
                         {
                          "name":"power",
                          "type":"int",
-                         "value":2000
+                         "value":1000
                         }],
                  "rotation":361.97,
                  "type":"",
@@ -3143,12 +3143,12 @@
                         {
                          "name":"duration",
                          "type":"int",
-                         "value":300
+                         "value":200
                         }, 
                         {
                          "name":"power",
                          "type":"int",
-                         "value":2000
+                         "value":1000
                         }],
                  "rotation":349.971,
                  "type":"",
@@ -3165,12 +3165,12 @@
                         {
                          "name":"duration",
                          "type":"int",
-                         "value":300
+                         "value":200
                         }, 
                         {
                          "name":"power",
                          "type":"int",
-                         "value":2000
+                         "value":1000
                         }],
                  "rotation":357.97,
                  "type":"",
@@ -3187,12 +3187,12 @@
                         {
                          "name":"duration",
                          "type":"int",
-                         "value":300
+                         "value":200
                         }, 
                         {
                          "name":"power",
                          "type":"int",
-                         "value":2000
+                         "value":1000
                         }],
                  "rotation":321.97,
                  "type":"",
@@ -3209,12 +3209,12 @@
                         {
                          "name":"duration",
                          "type":"int",
-                         "value":300
+                         "value":200
                         }, 
                         {
                          "name":"power",
                          "type":"int",
-                         "value":2000
+                         "value":1000
                         }],
                  "rotation":397.97,
                  "type":"",
@@ -3231,12 +3231,12 @@
                         {
                          "name":"duration",
                          "type":"int",
-                         "value":300
+                         "value":200
                         }, 
                         {
                          "name":"power",
                          "type":"int",
-                         "value":2000
+                         "value":1000
                         }],
                  "rotation":397.97,
                  "type":"",
@@ -3253,12 +3253,12 @@
                         {
                          "name":"duration",
                          "type":"int",
-                         "value":300
+                         "value":200
                         }, 
                         {
                          "name":"power",
                          "type":"int",
-                         "value":2000
+                         "value":1000
                         }],
                  "rotation":321.97,
                  "type":"",

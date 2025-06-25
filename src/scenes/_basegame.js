@@ -18,7 +18,7 @@ export default class BaseGame extends Phaser.Scene {
   }
 
   update(time, delta) {
-    if (this.player) this.player.handleInput(delta);
+    if (this.player) this.player.handleInput(time, delta);
 
     // if (this.network) {
     //   this.network.socket.emit('playerMove', {

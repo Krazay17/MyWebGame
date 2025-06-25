@@ -313,7 +313,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     }
 
-    handleInput(delta) {
+    handleInput(time, delta) {
         if (!this.stunned && this.alive && !this.chatting) {
 
             const input = this.getInput();
@@ -326,7 +326,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             }
 
             this.decideState(input);       // decide what state to be in based on input
-            this.states[this.currentState].update(delta, input); // update current state logic
+            this.states[this.currentState].update(delta, input, time); // update current state logic
             if ((this.slamCD || this.slidePower < 600) && !this.isSliding && !this.isCrouch) {
                 this.slidePower = Math.min(600, this.slidePower += delta / 2);
                 this.slamCD = Math.max(0, this.slamCD -= delta);
@@ -482,19 +482,24 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     } else {
                         if (this.body.blocked.left) {
                             this.setVelocityX(-1);
-                            var leftBuffer = true;
-                            var rightBuffer = false;
+                            this.flipX = true;
                         }
                         if (this.body.blocked.right) {
                             this.setVelocityX(1);
-                            var leftBuffer = false;
-                            var rightBuffer = true;
+                            this.flipX = false;
                         }
+                        // if (jump) {
+                        //     const jumpHeight = leftJump ? this.wallRunLeft : this.wallRunRight;
+                        //     this.setState('wallJump', { left: leftJump, right: !leftJump, height: jumpHeight });
+                        // }
+                    }
+                    if(this.body.velocity.y > 350) {
+                        this.setVelocityY(lerp(this.body.velocity.y, 325, .05));
                     }
                     if (jump) {
                         this.setState('wallRun', input);
                     }
-                    if (!this.body.blocked.left && !this.body.blocked.right) {
+                    if ((!this.body.blocked.left && !this.body.blocked.right) || this.body.blocked.down) {
                         this.wallSlide = false;
                     }
                 },
@@ -532,7 +537,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     this.wallrunDecayRate = .5;
 
                 },
-                update: (delta, input) => {
+                update: (delta, input, time) => {
                     const { left, right, jump } = input;
 
                     //const dir = (left ? -1 : right ? 1 : 0) * (this.speed);
@@ -552,7 +557,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                         this.bufferRightWallJump = 0;
 
                         const leftBuffer = true;
-                        if (!left) {
+                        if (right || !jump) {
                             this.setState('wallJump', { left: leftBuffer, right: false, height: this.wallRunLeft })
                         }
 
@@ -564,11 +569,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                         //     this.wallRunLeft = 0;
                         // }
 
-                        if (!jump && !this.stopRun && this.wallRunLeft > 0) {
-                            this.stopRun = true;
-                            this.wallRunLeft = 0;
-                            //this.wallrunDecayRate = 3;
-                        }
+                        // if (!left && !this.stopRun) {
+                        //     this.stopRun = true;
+                        //     this.wallRunLeft = this.wallRunLeft > 0 ? 0 : this.wallRunLeft;
+                        //     //this.wallrunDecayRate = 3;
+                        // }
                     }
                     if (this.body.blocked.right) {
                         this.setVelocityY(-this.wallRunRight);
@@ -578,7 +583,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                         this.bufferLeftWallJump = 0;
 
                         const rightBuffer = true;
-                        if (!right) {
+                        if (left || !jump) {
                             this.setState('wallJump', { left: false, right: rightBuffer, height: this.wallRunRight })
                         }
 
@@ -589,11 +594,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                         //     this.stopRun = true;
                         //     this.wallRunRight = 0;
                         // }
-                        if (!jump && !this.stopRun && this.wallRunRight > 0) {
-                            this.stopRun = true;
-                            this.wallRunRight = 0;
-                            //this.wallrunDecayRate = 3;
-                        }
+                        
+                        // if (!right && !this.stopRun) {
+                        //     this.stopRun = true;
+                        //     this.wallRunRight = this.wallRunRight > 0 ? 0 : this.wallRunRight;
+                        //     //this.wallrunDecayRate = 3;
+                        // }
                     }
                     if (this.body.blocked.up) {
                         this.wallRunLeft = 0;
@@ -605,15 +611,15 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     const leftBuffer = this.bufferLeftWallJump > this.scene.time.now;
                     const rightBuffer = this.bufferRightWallJump > this.scene.time.now
 
-                    if ((right && !left) && this.bufferRightWallJump > this.scene.time.now && !this.body.blocked.right) {
+                    if ((right && !left) && rightBuffer && !this.body.blocked.right) {
                         this.setVelocityY(-25);
+                        this.setVelocityX(250);
                         this.isMantling = this.scene.time.now;
-                        this.wallRunning = false;
                     }
                     if ((left && !right) && leftBuffer && !this.body.blocked.left) {
                         this.setVelocityY(-25);
+                        this.setVelocityX(-250);
                         this.isMantling = this.scene.time.now;
-                        this.wallRunning = false;
                     }
                     if (!this.body.blocked.left && !this.body.blocked.right) {
                         this.wallRunning = false;

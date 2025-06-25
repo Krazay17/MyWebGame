@@ -342,9 +342,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         if (dash && this.canDash && !this.isDashing) return this.setState('dash', input);
         if (jump && this.canJump) return this.setState('jump', input);
         if ((slam && !this.slamCD && !this.body.blocked.down)) return this.setState('slam', input);
+        if (heal) return this.setState('heal');
         if ((crouch)) return this.setState('crouch', input);
         if (this.wallRunning) return this.setState('wallRun', input);
-        if (heal) return this.setState('heal');
+        if (this.wallSlide) return this.setState('wallSlide', input);
         if (!this.body.blocked.down) return this.setState('fall', input);
         if (left || right) return this.setState('walk', input);
         return this.setState('idle', input);
@@ -456,9 +457,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     if (this.body.velocity.y >= 0) {
                         this.reachApex = true;
                     }
-
-                    if (jump && (this.body.blocked.left || this.body.blocked.right)) {
-                        this.setState('wallRun', input);
+                    // jump && 
+                    if ((this.body.blocked.left || this.body.blocked.right)) {
+                        this.setState('wallSlide', input);
                     }
 
                 },
@@ -469,10 +470,44 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 },
             },
 
+            wallSlide: {
+                enter: () => {
+                    this.wallSlide = true;
+                },
+                update: (delta, input) => {
+                    const { left, right, jump } = input;
+                    const dir = (left ? -1 : right ? 1 : 0) * (this.speed);
+                    if ((left && !right) || (!left && right)) {
+                        this.setVelocityX(this.walkLerp(delta, dir, .1));
+                    } else {
+                        if (this.body.blocked.left) {
+                            this.setVelocityX(-1);
+                            var leftBuffer = true;
+                            var rightBuffer = false;
+                        }
+                        if (this.body.blocked.right) {
+                            this.setVelocityX(1);
+                            var leftBuffer = false;
+                            var rightBuffer = true;
+                        }
+                    }
+                    if (jump) {
+                        this.setState('wallRun', input);
+                    }
+                    if (!this.body.blocked.left && !this.body.blocked.right) {
+                        this.wallSlide = false;
+                    }
+                },
+                exit: () => {
+                    this.wallSlide = false;
+                },
+            },
+
             wallRun: {
                 enter: (input) => {
                     const { left, right } = input;
                     this.wallRunning = true;
+                    this.stopRun = false;
                     const xSpeed = Math.min(800, Math.abs(this.body.velocity.x));
 
                     if (this.body.blocked.left) {
@@ -494,20 +529,24 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                         this.wallRunLeft = 540;
                         this.wallJumpLeftMin = 540;
                     }
+                    this.wallrunDecayRate = .5;
 
                 },
                 update: (delta, input) => {
                     const { left, right, jump } = input;
-                    const dir = (left ? -1 : right ? 1 : 0) * (this.speed);
 
-                    if ((left && !right) || (!left && right)) {
-                        this.setVelocityX(this.walkLerp(delta, dir, .1));
-                    } else {
-                        this.setVelocityX(this.walkLerp(delta, 0, .02));
-                    }
+                    //const dir = (left ? -1 : right ? 1 : 0) * (this.speed);
+
+                    // if ((left && !right) || (!left && right)) {
+                    //     this.setVelocityX(dir);
+                    // } else {
+                    //     this.setVelocityX(this.walkLerp(delta, 0, .02));
+                    // }
 
                     if (this.body.blocked.left) {
                         this.setVelocityY(-this.wallRunLeft);
+                        this.setVelocityX(-1);
+
                         this.wallRunLeft = Math.max(-200, this.wallRunLeft - (this.wallrunDecayRate * delta));
                         this.bufferLeftWallJump = this.scene.time.now + 55;
                         this.bufferRightWallJump = 0;
@@ -520,9 +559,20 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                         if (this.wallRunLeft <= 0) {
                             this.wallSlide = true;
                         }
+                        // if (!left && !this.stopRun) {
+                        //     this.stopRun = true;
+                        //     this.wallRunLeft = 0;
+                        // }
+
+                        if (!jump && !this.stopRun && this.wallRunLeft > 0) {
+                            this.stopRun = true;
+                            this.wallRunLeft = 0;
+                            //this.wallrunDecayRate = 3;
+                        }
                     }
                     if (this.body.blocked.right) {
                         this.setVelocityY(-this.wallRunRight);
+                        this.setVelocityX(1);
                         this.wallRunRight = Math.max(-200, this.wallRunRight - (this.wallrunDecayRate * delta));
                         this.bufferRightWallJump = this.scene.time.now + 55;
                         this.bufferLeftWallJump = 0;
@@ -535,11 +585,21 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                         if (this.wallRunRight <= 0) {
                             this.wallSlide = true;
                         }
+                        // if (!right && !this.stopRun) {
+                        //     this.stopRun = true;
+                        //     this.wallRunRight = 0;
+                        // }
+                        if (!jump && !this.stopRun && this.wallRunRight > 0) {
+                            this.stopRun = true;
+                            this.wallRunRight = 0;
+                            //this.wallrunDecayRate = 3;
+                        }
                     }
                     if (this.body.blocked.up) {
                         this.wallRunLeft = 0;
                         this.wallRunRight = 0;
                         this.wallRunning = false;
+                        this.wallSlide = true;
                     }
 
                     const leftBuffer = this.bufferLeftWallJump > this.scene.time.now;
@@ -558,10 +618,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     if (!this.body.blocked.left && !this.body.blocked.right) {
                         this.wallRunning = false;
                     }
-                    if (!jump || (right && leftBuffer) || (left && rightBuffer)) {
-                        const jumpHeight = leftBuffer ? this.wallRunLeft : this.wallRunRight;
-                        this.setState('wallJump', { left: leftBuffer, right: rightBuffer, height: jumpHeight })
-                    }
+                    // !jump || 
+                    // if (((right && jump) && leftBuffer) || ((left && jump) && rightBuffer)) {
+                    //     const jumpHeight = leftBuffer ? this.wallRunLeft : this.wallRunRight;
+                    //     this.setState('wallJump', { left: leftBuffer, right: rightBuffer, height: jumpHeight })
+                    // }
+
                 },
                 exit: () => {
                     this.wallRunning = false;
@@ -581,14 +643,16 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                         this.flipX = true;
                         this.bufferRightWallJump = 0;
                         this.wallRunRight /= 2;
-                    this.wallJumpRightMin = 100;
+                        this.wallJumpRightMin = 100;
+                        this.dir = -1;
                     }
                     if (left) {
                         this.setVelocity(350, Phaser.Math.Clamp(-height, -680, -this.wallJumpLeftMin));
                         this.flipX = false;
                         this.bufferLeftWallJump = 0;
                         this.wallRunLeft /= 2;
-                    this.wallJumpLeftMin = 100;
+                        this.wallJumpLeftMin = 100;
+                        this.dir = 1;
                     }
                 },
                 update: () => { },
@@ -649,7 +713,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
             slide: {
                 enter: () => {
-                    const currentSpeed =  Math.abs(this.body.velocity.x);
+                    const currentSpeed = Math.abs(this.body.velocity.x);
                     const speed = currentSpeed > this.slidePower ? currentSpeed * this.dir : this.slidePower * this.dir;
                     this.slidePower = 0;
 

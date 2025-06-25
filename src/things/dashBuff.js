@@ -23,4 +23,6 @@ export default class DashBuff extends Pickup {
         this.emit('pickup');
         this.destroy();
     }
+
+    hit() {}
 }

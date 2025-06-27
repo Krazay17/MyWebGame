@@ -9,13 +9,10 @@ export default class SoundUtil {
     static storedTime = 0;
 
     static setup(scene, key = 'music1', volume = 1) {
-        console.log('setup music:', key);
-
         // Check if same music is already playing
         const existingMusic = scene.game.sound.get(key);
 
         if (existingMusic && existingMusic.isPlaying) {
-            console.log('already playing:', key);
             this.currentMusic = existingMusic;
             this.currentKey = key;
             return;
@@ -43,7 +40,6 @@ export default class SoundUtil {
     static savePosition() {
         if (this.currentMusic && this.currentMusic.isPlaying) {
             this.storedTime = this.currentMusic.seek;
-            console.log('saved position:', this.storedTime);
         }
     }
 }

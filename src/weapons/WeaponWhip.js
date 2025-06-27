@@ -5,9 +5,9 @@ export default class WeaponWhip extends WeaponBase {
         super(scene, player, 1)
 
         this.name = 'whip'
-        this.baseCooldown = 500;
+        this.baseCooldown = 350;
         this.meleeDuration = 250;
-        this.spamAdd = 100;
+        this.spamAdd = 50;
         this.hitSoundId = 'energysound';
         this.whipConnect = false;
         this.wasGrappling = false;
@@ -119,7 +119,7 @@ export default class WeaponWhip extends WeaponBase {
         const { dist, tangVel, angle } = this.grappleMath(this.anchor);
         this.angle = angle;
 
-        const minSpeed = 700;
+        const minSpeed = 750;
 
         const clampedVel = Math.sign(tangVel) * Math.max(Math.abs(tangVel), minSpeed);
         this.angularVelocity = clampedVel / dist;

@@ -137,6 +137,7 @@ export default class BaseGame extends Phaser.Scene {
 
   spawnPlayer(x, y) {
     if (!GameManager.useLastLocation) {
+      this.setupRaceTimer();
       this.player.setPosition(x, y);
       GameManager.location.x = x;
       GameManager.location.y = y;
@@ -379,6 +380,27 @@ export default class BaseGame extends Phaser.Scene {
 
   spawnBooster(x, y, obj) {
     this.spawnManager.spawnBooster(x, y, obj);
+  }
+
+  setupRaceTimer() {
+    this.raceTimeText = this.add.text(this.scale.width, 0, this.raceTimer, {
+      fontSize: '44px',
+    })
+    .setOrigin(1, 0)
+    .setScrollFactor(0);
+    this.raceTime = 0;
+    this.raceTimer = this.time.addEvent({
+      delay: 10,
+      loop: true,
+      callback: () => {
+        this.raceTime += .01;
+        this.raceTimeText.setText(this.raceTime.toFixed(2));
+      },
+    })
+  }
+
+  updateScoreBoard(data) {
+
   }
 
 }

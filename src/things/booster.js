@@ -3,15 +3,15 @@ import Pickup from "./Pickup";
 
 export default class Booster extends Pickup {
     constructor(scene, x, y, obj) {
-        super(scene, x + obj.width/2, y + obj.height/2, 'booster');
+        super(scene, x + obj.width / 2, y + obj.height / 2, 'booster');
         this.props = getProperty(obj);
 
         this.setScale(.3);
-        changeCollision(this, obj.width*4, obj.height*4);
+        changeCollision(this, obj.width * 4, obj.height * 4);
 
         const rot = Phaser.Math.DegToRad(obj.rotation);
         this.setRotation(rot);
-        this.boost = new Phaser.Math.Vector2(Math.sin(rot), Math.cos(rot)).scale(this.props?.power?? 1000);
+        this.boost = new Phaser.Math.Vector2(Math.sin(rot), Math.cos(rot)).scale(this.props?.power ?? 1000);
         this.boost.y = this.boost.y * -1;
 
 
@@ -26,28 +26,28 @@ export default class Booster extends Pickup {
         this.play('booster');
     }
 
-playerCollide(player) {
-    if (this.cooldownActive) return; // still on cooldown
-    const playerVel = player.body.velocity;
+    playerCollide(player) {
+        if (this.cooldownActive) return; // still on cooldown
+        const playerVel = player.body.velocity;
 
-    this.scene.add.tween({
-        targets: playerVel,
-        x: this.boost.x,
-        y: this.boost.y,
-        ease: 'power4',
-        duration: this.props?.duration?? 200,
-    })
+        this.scene.add.tween({
+            targets: playerVel,
+            x: this.boost.x,
+            y: this.boost.y,
+            ease: 'power4',
+            duration: this.props?.duration ?? 200,
+        })
 
-    // Start cooldown
-    this.cooldownActive = true;
-    this.scene.time.addEvent({
-        delay: 50,
-        callback: () => {
-            this.cooldownActive = false;
-        }
-    });
-}
+        // Start cooldown
+        this.cooldownActive = true;
+        this.scene.time.addEvent({
+            delay: 50,
+            callback: () => {
+                this.cooldownActive = false;
+            }
+        });
+    }
 
 
-    hit() {}
+    hit() { }
 }

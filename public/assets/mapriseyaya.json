@@ -2960,7 +2960,7 @@
                  "y":29218.8
                 }, 
                 {
-                 "height":14.6667,
+                 "height":42.8816,
                  "id":10,
                  "name":"spawnBooster",
                  "properties":[
@@ -2977,12 +2977,12 @@
                  "rotation":349.971,
                  "type":"",
                  "visible":true,
-                 "width":41.3333,
+                 "width":51.5763,
                  "x":4316.72,
                  "y":27686.6
                 }, 
                 {
-                 "height":14.6667,
+                 "height":49.9963,
                  "id":21,
                  "name":"spawnBooster",
                  "properties":[
@@ -2999,12 +2999,12 @@
                  "rotation":349.971,
                  "type":"",
                  "visible":true,
-                 "width":41.3333,
-                 "x":4207.33,
-                 "y":24224.7
+                 "width":59.7675,
+                 "x":4189.18,
+                 "y":24227.9
                 }, 
                 {
-                 "height":14.6667,
+                 "height":48.3118,
                  "id":22,
                  "name":"spawnBooster",
                  "properties":[
@@ -3021,12 +3021,12 @@
                  "rotation":349.971,
                  "type":"",
                  "visible":true,
-                 "width":41.3333,
+                 "width":63.1407,
                  "x":4145.33,
                  "y":22048.7
                 }, 
                 {
-                 "height":23.8975,
+                 "height":66.5359,
                  "id":23,
                  "name":"spawnBooster",
                  "properties":[
@@ -3043,12 +3043,12 @@
                  "rotation":19.97,
                  "type":"",
                  "visible":true,
-                 "width":43.7629,
+                 "width":69.8965,
                  "x":3288,
                  "y":20536.7
                 }, 
                 {
-                 "height":14.6667,
+                 "height":77.3215,
                  "id":24,
                  "name":"spawnBooster",
                  "properties":[
@@ -3065,12 +3065,12 @@
                  "rotation":349.971,
                  "type":"",
                  "visible":true,
-                 "width":41.3333,
+                 "width":81.7058,
                  "x":4519.33,
                  "y":19054.7
                 }, 
                 {
-                 "height":14.6667,
+                 "height":77.5211,
                  "id":25,
                  "name":"spawnBooster",
                  "properties":[
@@ -3087,12 +3087,12 @@
                  "rotation":350.97,
                  "type":"",
                  "visible":true,
-                 "width":41.3333,
-                 "x":4734,
-                 "y":15148.7
+                 "width":91.8242,
+                 "x":4684.13,
+                 "y":15156.6
                 }, 
                 {
-                 "height":14.6667,
+                 "height":92.4427,
                  "id":26,
                  "name":"spawnBooster",
                  "properties":[
@@ -3109,12 +3109,12 @@
                  "rotation":368.97,
                  "type":"",
                  "visible":true,
-                 "width":41.3333,
+                 "width":100.18,
                  "x":3730,
                  "y":14227.3
                 }, 
                 {
-                 "height":14.6667,
+                 "height":124.638,
                  "id":27,
                  "name":"spawnBooster",
                  "properties":[
@@ -3131,12 +3131,12 @@
                  "rotation":361.97,
                  "type":"",
                  "visible":true,
-                 "width":41.3333,
-                 "x":2866,
-                 "y":7376.67
+                 "width":105.758,
+                 "x":2841.76,
+                 "y":7346.37
                 }, 
                 {
-                 "height":14.6667,
+                 "height":96.4532,
                  "id":28,
                  "name":"spawnBooster",
                  "properties":[
@@ -3153,12 +3153,12 @@
                  "rotation":349.971,
                  "type":"",
                  "visible":true,
-                 "width":41.3333,
-                 "x":3667.33,
-                 "y":6742
+                 "width":70.0987,
+                 "x":3635.44,
+                 "y":6726.96
                 }, 
                 {
-                 "height":14.6667,
+                 "height":78.9943,
                  "id":29,
                  "name":"spawnBooster",
                  "properties":[
@@ -3175,12 +3175,12 @@
                  "rotation":357.97,
                  "type":"",
                  "visible":true,
-                 "width":41.3333,
+                 "width":87.0833,
                  "x":3611.33,
                  "y":18836.7
                 }, 
                 {
-                 "height":14.6667,
+                 "height":74.1261,
                  "id":30,
                  "name":"spawnBooster",
                  "properties":[
@@ -3197,12 +3197,12 @@
                  "rotation":321.97,
                  "type":"",
                  "visible":true,
-                 "width":41.3333,
-                 "x":5357.33,
-                 "y":5104.67
+                 "width":108.151,
+                 "x":5304.7,
+                 "y":5145.83
                 }, 
                 {
-                 "height":14.6667,
+                 "height":78.8796,
                  "id":31,
                  "name":"spawnBooster",
                  "properties":[
@@ -3216,15 +3216,15 @@
                          "type":"int",
                          "value":1000
                         }],
-                 "rotation":397.97,
+                 "rotation":44.2239,
                  "type":"",
                  "visible":true,
-                 "width":41.3333,
-                 "x":2691.33,
-                 "y":5272.67
+                 "width":108.185,
+                 "x":2697.73,
+                 "y":5271.24
                 }, 
                 {
-                 "height":14.6667,
+                 "height":101.758,
                  "id":32,
                  "name":"spawnBooster",
                  "properties":[
@@ -3238,15 +3238,15 @@
                          "type":"int",
                          "value":1000
                         }],
-                 "rotation":397.97,
+                 "rotation":45.7699,
                  "type":"",
                  "visible":true,
-                 "width":41.3333,
-                 "x":3213.33,
-                 "y":4920.67
+                 "width":97.8738,
+                 "x":3214.64,
+                 "y":4905.03
                 }, 
                 {
-                 "height":14.6667,
+                 "height":78.3682,
                  "id":33,
                  "name":"spawnBooster",
                  "properties":[
@@ -3260,12 +3260,24 @@
                          "type":"int",
                          "value":1000
                         }],
-                 "rotation":321.97,
+                 "rotation":308.727,
                  "type":"",
                  "visible":true,
-                 "width":41.3333,
-                 "x":5043.33,
-                 "y":4854.67
+                 "width":96.2343,
+                 "x":5001.46,
+                 "y":4902.74
+                }, 
+                {
+                 "height":0,
+                 "id":35,
+                 "name":"spawnFinishLine",
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":4144,
+                 "y":573
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -4232,7 +4244,7 @@
          "y":0
         }],
  "nextlayerid":8,
- "nextobjectid":35,
+ "nextobjectid":36,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.2",

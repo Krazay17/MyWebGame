@@ -8,6 +8,7 @@ import Booster from "./booster.js";
 import DashBuff from "./dashBuff.js";
 import { getProperty } from "../myFunctions.js";
 import Portal from "./portal.js";
+import FinishLine from "./finishLine.js";
 
 export default class SpawnManager {
     static instance;
@@ -218,6 +219,11 @@ export default class SpawnManager {
         const portal = new Portal(this.scene, newX, newY, obj)
         this.staticItemGroup.add(portal);
 
+    }
+
+    spawnFinishLine(x, y, obj) {
+        const finish = new FinishLine(this.scene, x, y, obj);
+        this.staticItemGroup.add(finish);
     }
 
     respawn(obj, x, y, health, spawnFunc) {

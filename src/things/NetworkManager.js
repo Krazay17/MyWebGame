@@ -157,6 +157,12 @@ export default class NetworkManager extends Phaser.Events.EventEmitter {
       }
     });
 
+    this.socket.on('highScoreUpdate', (data) => {
+      console.log('highscore data: ', data);
+      this.scene.updateScoreBoard(data);
+      console.log(this.scene);
+    });
+
     this.socket.on('enemyStateUpdate', (data) => {
       const { x, y, type, id, vx, vy, sceneKey } = data;
 
@@ -181,7 +187,7 @@ export default class NetworkManager extends Phaser.Events.EventEmitter {
       if (this.otherEnemies[id]) {
         this.otherEnemies[id].applyDamage?.(this.scene.player, damage, stagger, duration);
       }
-    })
+    });
 
   }
 

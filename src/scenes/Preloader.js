@@ -36,6 +36,7 @@ export default class Preloader extends Phaser.Scene {
         this.load.image('bottomplat', 'assets/BottomPlat.png');
         this.load.image('duckman', 'assets/duckman.png');
         this.load.image('turret', 'assets/TurretPlatform.png');
+        this.load.image('finishline', 'assets/finishLine.png');
 
         this.load.audio('music0', 'assets/music0.mp3');
         this.load.audio('music1', 'assets/music1.mp3');

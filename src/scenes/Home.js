@@ -1,6 +1,7 @@
 import BaseGame from './_basegame.js'
 import Breakable from '../things/Breakable.js';
 import GameManager from '../things/GameManager.js';
+import ScoreBoard from '../things/scoreBoard.js';
 
 export default class Home extends BaseGame {
     constructor() {
@@ -43,6 +44,10 @@ export default class Home extends BaseGame {
         const largePlatform = this.walkableGroup.create(0, 1450, 'largeplatform').setScale(5, 1.5);
         largePlatform.refreshBody();
         this.setupPortals();
+
+        this.time.delayedCall(500, ()=> {
+            this.network.socket.emit('highScoreRequest')
+        });
     }
 
     update(time, delta) {
@@ -107,8 +112,8 @@ export default class Home extends BaseGame {
 
 
         portal0.targetScene = 'Level1';
-        portal1.targetScene = 'Level3';
         portal2.targetScene = 'Level2';
+        portal1.targetScene = 'Level3';
         portal3.targetScene = 'Level4';
         portal5.targetScene = 'Level5';
 
@@ -121,4 +126,38 @@ export default class Home extends BaseGame {
         });
 
     }
+
+updateScoreBoard(data) {
+    if (!this.scoreBoard) this.scoreBoard = {};
+
+    let x = 0;
+    let y = 0;
+
+    data.forEach(obj => {
+        switch (obj.level) {
+            case 'Level2':
+                x = -700;
+                y = 800;
+                break;
+            case 'Level4':
+                x = 700;
+                y = 800;
+                break;
+            case 'Level5':
+                x = 300;
+                y = 1100;
+                break;
+        }
+
+        // 🔥 Always destroy and recreate
+        if (this.scoreBoard[obj.level]) {
+            this.scoreBoard[obj.level].destroy();  // removes all children too
+        }
+
+        const board = new ScoreBoard(this, x + 100, y - 125, obj.scores);
+        this.add.existing(board);
+        this.scoreBoard[obj.level] = board;
+    });
+}
+
 }

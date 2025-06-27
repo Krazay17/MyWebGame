@@ -13,7 +13,7 @@ export default class ScoreBoard extends Phaser.GameObjects.Container {
     init(scores) {
         if (!scores) return;
 
-        const bg = new Phaser.GameObjects.Rectangle(this.scene, 0, 0, 250, 250, 0x000000, .5).setOrigin(0);
+        const bg = new Phaser.GameObjects.Rectangle(this.scene, 0, 0, 200, 200, 0x000000, .25).setOrigin(0);
         this.add(bg);
         this.sendToBack(bg);
 
@@ -24,7 +24,7 @@ export default class ScoreBoard extends Phaser.GameObjects.Container {
             const text = `${i + 1}. ${player}: ${time}s`;
 
             const scoreText = new Phaser.GameObjects.Text(this.scene, 0, offsetY, text, {
-                fontSize: '18px',
+                fontSize: '16px',
                 color: '#FFFFFF',
             });
             this.add(scoreText);

@@ -183,7 +183,7 @@ export default class NetworkManager extends Phaser.Events.EventEmitter {
     });
 
     this.socket.on('enemyDamageUpdate', (info) => {
-      const {id, player, damage, stagger, duration} = info;
+      const { id, player, damage, stagger, duration } = info;
       if (this.otherEnemies[id]) {
         this.otherEnemies[id].applyDamage?.(this.scene.player, damage, stagger, duration);
       }
@@ -195,7 +195,7 @@ export default class NetworkManager extends Phaser.Events.EventEmitter {
     if (this.otherPlayers[id]) {
       this.otherPlayers[id].destroy();
     }
-      console.log(data);
+    console.log(data);
 
     const ghost = new GhostPlayer(this.scene, id, data);
     this.otherPlayers[id] = ghost;
@@ -206,7 +206,7 @@ export default class NetworkManager extends Phaser.Events.EventEmitter {
 
     for (const id in this.otherPlayers) {
       const oldGhost = this.otherPlayers[id];
-      const { data } = oldGhost.getSyncData(); 
+      const { data } = oldGhost.getSyncData();
 
       oldGhost.destroy();
 
@@ -215,7 +215,7 @@ export default class NetworkManager extends Phaser.Events.EventEmitter {
   }
 
   spawnEnemy(info) {
-    const {x, y, type, health, id, sceneKey } = info;
+    const { x, y, type, health, id, sceneKey } = info;
     if (!this.scene || !this.scene.spawnManager || (this.scene.scene.key != sceneKey)) return;
     let enemy;
 

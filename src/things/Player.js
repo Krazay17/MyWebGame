@@ -143,12 +143,14 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             }
         });
 
-        // this.scene.input.keyboard.on('keydown-R', () => {
-        //     if (!this.playerUI.Chatting) {
-        //         this.Died();
-        //         this.scene.scene.restart();
-        //     }
-        // });
+        this.scene.input.keyboard.on('keydown-R', () => {
+            if (this.body.blocked.down && !this.chatting || !this.alive) {
+                this.respawnPlayer();
+                // GameManager.useLastLocation = false;
+                // GameManager.save();
+                // this.scene.scene.restart();
+            }
+        });
 
 
         this.setupStates();
@@ -226,16 +228,16 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.setTint(0xff0000); // Flash red
         this.anims?.stop?.(); // Stop any animations
 
-        const gameOverText = this.scene.add.text(
+        this.gameOverText = this.scene.add.text(
             this.scene.cameras.main.width / 2,
             this.scene.cameras.main.height / 2,
-            'YOU DIED!\n' + this.deathPenalty + ' Source\n\nPress T to respawn\nor wait 10 seconds', {
+            'YOU DIED!\n' + this.deathPenalty + ' Source\n\nR to respawn\nT to go Home', {
             fontSize: '64px',
             color: '#ff0000'
         });
 
-        gameOverText.setOrigin(0.5);
-        gameOverText.setScrollFactor(0);
+        this.gameOverText.setOrigin(0.5);
+        this.gameOverText.setScrollFactor(0);
 
         this.emit('playerdied');
 
@@ -244,16 +246,16 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
         this.spectatePlayer(true);
         this.scene.physics?.pause(); // Stop physics
-        this.scene.time.delayedCall(10000, () => {
-            //this.scene.scene.restart()
-            gameOverText.destroy();
-            this.respawnPlayer()
-        });
+        // this.scene.time.delayedCall(10000, () => {
+        //     //this.scene.scene.restart()
+        //     this.gameOverText.destroy();
+        //     this.respawnPlayer()
+        // });
     }
 
     spectatePlayer(spectate = false, index = 0) {
         if (!spectate) {
-            this.scene.cameras.main.startFollow(this, false, .04, .04);
+            this.scene.cameras.main.startFollow(this, false, .05, .05);
             return;
         }
         if (this.network.otherPlayers) {
@@ -266,11 +268,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     respawnPlayer() {
         const respawnLoc = this.scene.tileObjects?.objects.find(obj => obj.name === 'spawnPlayer');
+        this.gameOverText?.destroy();
         this.setPosition(respawnLoc?.x, respawnLoc?.y)
+        this.setVelocity(0, 0);
         this.setStats();
         this.clearTint();
         this.alive = true;
-
+        this.scene.setupRaceTimer();
         this.spectatePlayer(false);
         this.scene.physics?.resume();
     }
@@ -493,7 +497,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                         //     this.setState('wallJump', { left: leftJump, right: !leftJump, height: jumpHeight });
                         // }
                     }
-                    if(this.body.velocity.y > 350) {
+                    if (this.body.velocity.y > 350) {
                         this.setVelocityY(lerp(this.body.velocity.y, 350, .035));
                     }
                     if (jump) {
@@ -594,7 +598,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                         //     this.stopRun = true;
                         //     this.wallRunRight = 0;
                         // }
-                        
+
                         // if (!right && !this.stopRun) {
                         //     this.stopRun = true;
                         //     this.wallRunRight = this.wallRunRight > 0 ? 0 : this.wallRunRight;

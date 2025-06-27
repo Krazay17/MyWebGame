@@ -85,10 +85,16 @@ export default class BaseGame extends Phaser.Scene {
     this.sky1 = this.add.image(this.scale.width / 2, this.scale.height / 2, sky1)
       .setOrigin(.5).setDisplaySize(this.scale.width, this.scale.height).setScrollFactor(0);
 
-    if (sky2) this.sky2 = this.add.image(400, 600, 'purplesky1').setScale(1).setScrollFactor(.2);
-    if (sky3) this.sky3 = this.add.image(400, 600, 'purplesky2').setScale(1).setScrollFactor(.6);
+    if (sky2) this.sky2 = this.add.image(1000, 1200, 'purplesky1').setScale(1).setScrollFactor(.2).setOrigin(.5, .5);
+    if (sky3) this.sky3 = this.add.image(2400, 2000, 'purplesky2').setScale(1).setScrollFactor(.6).setOrigin(.5, .5);
 
     this.scale.on('resize', this.resizeSky, this);
+  }
+
+  resizeSky(gameSize) {
+    const width = gameSize.width;
+    const height = gameSize.height;
+    this.sky1.setPosition(width / 2, height / 2);
   }
 
   setupPlayer(x = 0, y = 0) {
@@ -96,7 +102,7 @@ export default class BaseGame extends Phaser.Scene {
     const locationY = GameManager.useLastLocation ? GameManager.location.y : y;
 
     this.player = new Player(this, locationX, locationY);
-    this.cameras.main.startFollow(this.player, false, .04, .04);
+    this.cameras.main.startFollow(this.player, false, .05, .05);
 
 
     if (!this.scene.isActive('Inventory')) {
@@ -138,7 +144,9 @@ export default class BaseGame extends Phaser.Scene {
   spawnPlayer(x, y) {
     if (!GameManager.useLastLocation) {
       this.setupRaceTimer();
+      this.cameras.main.startFollow(this.player, false, 1, 1);
       this.player.setPosition(x, y);
+      this.cameras.main.startFollow(this.player, false, .05, .05);
       GameManager.location.x = x;
       GameManager.location.y = y;
       GameManager.useLastLocation = true;
@@ -146,7 +154,7 @@ export default class BaseGame extends Phaser.Scene {
   }
 
   setupTileMap(tilemap = 'tilemap1', tilesheet = 'tilesheet') {
-    if(this.tilemap) return;
+    if (this.tilemap) return;
     this.tilemap = this.make.tilemap({ key: tilemap });
     this.tileset = this.tilemap.addTilesetImage(tilesheet, tilesheet);
     this.layer1 = this.tilemap.createLayer('layer1', this.tileset, 0, 0);
@@ -246,22 +254,22 @@ export default class BaseGame extends Phaser.Scene {
   }
 
   clearCollisions() {
-    if(this.weaponOverlap) {
+    if (this.weaponOverlap) {
       this.weaponOverlap.destroy();
     }
-    if(this.enemyOverlap) {
+    if (this.enemyOverlap) {
       this.enemyOverlap.destroy();
     }
-    if(this.walkCollider) {
+    if (this.walkCollider) {
       this.walkCollider.destroy();
     }
-    if(this.tileCollider1) {
+    if (this.tileCollider1) {
       this.tileCollider1.destroy();
     }
-    if(this.tileCollider2) {
+    if (this.tileCollider2) {
       this.tileCollider2.destroy();
     }
-    if(this.weaponWalkableCollider) {
+    if (this.weaponWalkableCollider) {
       this.weaponWalkableCollider.destroy();
     }
   }
@@ -270,7 +278,7 @@ export default class BaseGame extends Phaser.Scene {
     const shutdownHandler = () => {
     }
 
-    SoundUtil.setup(this, key, GameManager.volume.music?? 1);
+    SoundUtil.setup(this, key, GameManager.volume.music ?? 1);
 
     this.sound.pauseOnBlur = false;
     this.sfx = {};
@@ -335,12 +343,6 @@ export default class BaseGame extends Phaser.Scene {
     });
   }
 
-  resizeSky(gameSize) {
-    const width = gameSize.width;
-    const height = gameSize.height;
-    this.sky1.setPosition(width / 2, height / 2);
-  }
-
   spawnSunman(x, y) {
     this.spawnManager.spawnSunMan(x, y, 10)
   }
@@ -383,18 +385,22 @@ export default class BaseGame extends Phaser.Scene {
   }
 
   setupRaceTimer() {
-    this.raceTimeText = this.add.text(this.scale.width, 0, this.raceTimer, {
+    this.raceTime = 0;
+    if (this.raceTimeText) this.raceTimeText.destroy();
+    this.raceTimeText = this.add.text(this.scale.width, 0, this.raceTime, {
       fontSize: '44px',
     })
-    .setOrigin(1, 0)
-    .setScrollFactor(0);
-    this.raceTime = 0;
+      .setOrigin(1, 0)
+      .setScrollFactor(0);
+    if (this.raceTimer) {
+      this.time.removeEvent(this.raceTimer);
+    }
     this.raceTimer = this.time.addEvent({
       delay: 10,
       loop: true,
       callback: () => {
         this.raceTime += .01;
-        this.raceTimeText.setText(this.raceTime.toFixed(2));
+        this.raceTimeText?.setText(this.raceTime.toFixed(2));
       },
     })
   }

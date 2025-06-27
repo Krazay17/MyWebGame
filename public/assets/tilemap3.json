@@ -744,6 +744,18 @@
                  "width":90.6667,
                  "x":4736.67,
                  "y":1764
+                }, 
+                {
+                 "height":0,
+                 "id":46,
+                 "name":"spawnFinishLine",
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":6254.78787878788,
+                 "y":767.878787878788
                 }],
          "opacity":1,
          "properties":[
@@ -1197,7 +1209,7 @@
          "y":0
         }],
  "nextlayerid":6,
- "nextobjectid":46,
+ "nextobjectid":47,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.2",

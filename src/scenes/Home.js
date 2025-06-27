@@ -124,6 +124,7 @@ export default class Home extends BaseGame {
             if (portal.targetScene && this.scene.key !== portal.targetScene) {
                 GameManager.useLastLocation = false;
                 GameManager.save();
+                console.log(portal.targetScene)
                 this.scene.start(portal.targetScene);
             }
         });

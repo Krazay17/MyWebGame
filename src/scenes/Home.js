@@ -61,8 +61,8 @@ export default class Home extends BaseGame {
         const portal02 = this.add.image(800, 400, 'portal0');
         portal02.flipX = true;
 
-        const portal1 = this.portals.create(2300, 2963.64, 'portal1');
-        const portal2 = this.portals.create(3860, 2497, 'door0').setScale(.25);
+        const portal1 = this.portals.create(2300, 2930, 'portal1');
+        const portal2 = this.portals.create(3860, 2430, 'door0').setScale(.25);
 
         if (!this.anims.get('portal3')) {
             this.anims.create({
@@ -73,7 +73,7 @@ export default class Home extends BaseGame {
             });
         }
 
-        const portal3 = this.portals.create(3400, 1830, 'portal3').setScale(.2).play('portal3').setTint(0x00FF00);
+        const portal3 = this.portals.create(3350, 2100, 'portal3').setScale(.2).play('portal3').setTint(0x00FF00);
         const portal5 = this.portals.create(2050, 2050, 'portal3').setScale(.2).play('portal3').setTint(0x0000FF);
 
         this.shrinkCollision(portal0, 125, 125);
@@ -137,11 +137,11 @@ export default class Home extends BaseGame {
             switch (obj.level) {
                 case 'Level2':
                     x = 3860;
-                    y = 2497;
+                    y = 2430;
                     break;
                 case 'Level4':
-                    x = 3400;
-                    y = 1830;
+                    x = 3350;
+                    y = 2100;
                     break;
                 case 'Level5':
                     x = 2050;

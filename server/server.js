@@ -7,10 +7,47 @@ import path from 'path';
 import repl from 'repl';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import fetch from 'node-fetch';
 
 // Support __dirname in ESM
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+const BIN_ID = '685dfd338960c979a5b22637';
+const API_KEY = ' $2a$10$T5HrVvdoM.0KzR3OnpsdTOGfioI9cIoyAckz3N4XOhTmdRWFNnMn.';
+const BASE_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+
+
+let highScores = {};
+// Load scores from JSONBin at startup
+async function loadHighScores() {
+  try {
+    const res = await fetch(BASE_URL, {
+      headers: { 'X-Master-Key': API_KEY },
+    });
+    const json = await res.json();
+    highScores = json.record || {};
+    console.log('✅ High scores loaded from JSONBin');
+  } catch (e) {
+    console.error('❌ Failed to load high scores:', e);
+  }
+}
+
+// Save scores to JSONBin
+async function saveHighScores() {
+  try {
+    await fetch(BASE_URL, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': API_KEY,
+      },
+      body: JSON.stringify(highScores),
+    });
+    console.log('✅ High scores saved to JSONBin');
+  } catch (e) {
+    console.error('❌ Failed to save high scores:', e);
+  }
+}
 
 // App setup
 const app = express();
@@ -28,15 +65,15 @@ const io = new Server(server, {
 });
 
 const players = {};
-const SCORES_FILE = path.resolve(__dirname, 'highScores.json');
-let raceHighScores = {};
+const SCORES_FILE = await loadHighScores();
+//const SCORES_FILE = path.resolve(__dirname, 'highScores.json');
 
 // Load scores from file
 if (fs.existsSync(SCORES_FILE)) {
   try {
     const raw = fs.readFileSync(SCORES_FILE, 'utf-8').trim();
-    raceHighScores = raw ? JSON.parse(raw) : {}; // handle empty file
-    console.log('Loaded scores:', raceHighScores);
+    highScores = raw ? JSON.parse(raw) : {}; // handle empty file
+    console.log('Loaded scores:', highScores);
   } catch (e) {
     console.error('Failed to load saved scores:', e);
   }
@@ -45,7 +82,7 @@ if (fs.existsSync(SCORES_FILE)) {
 // Save to disk
 function saveScores() {
   try {
-    fs.writeFileSync(SCORES_FILE, JSON.stringify(raceHighScores, null, 2));
+    fs.writeFileSync(SCORES_FILE, JSON.stringify(highScores, null, 2));
     console.log('Scores saved (sync)');
   } catch (err) {
     console.error('Error saving scores:', err);
@@ -54,15 +91,15 @@ function saveScores() {
 
 // Save on shutdown
 process.on('SIGINT', () => {
-  saveScores();
+  saveHighScores();
   process.exit();
 });
 process.on('exit', () => {
-  saveScores();
+  saveHighScores();
 });
 
 function getScores() {
-  return Object.entries(raceHighScores).map(([level, players]) => {
+  return Object.entries(highScores).map(([level, players]) => {
     const sorted = Object.entries(players)
       .map(([player, data]) => ({ player, time: data.time }))
       .sort((a, b) => a.time - b.time);
@@ -143,21 +180,23 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('highScoreRequest', (score) => {
+  socket.on('highScoreRequest', async (score) => {
     if (score) {
       const { level, time, player } = score;
+      const parsedTime = parseFloat(time);
 
-      if (!raceHighScores[level]) {
-        raceHighScores[level] = {};
+      if (!highScores[level]) {
+        highScores[level] = {};
       }
-      if (!raceHighScores[level][player]) {
-        raceHighScores[level][player] = { time };
-        saveScores(); // Save only if it's a new best
+      if (!highScores[level][player]) {
+        highScores[level][player] = { time:parsedTime };
+        await saveHighScores(); // Save only if it's a new best
+      } else if (parsedTime < highScores[level][player].time) {
+        console.log(`[highScore] ${player} on ${level}: ${parsedTime}`);
+        highScores[level][player].time = parsedTime;
+        await saveHighScores(); // Save only if it's a new best
       }
-      if (time < raceHighScores[level][player].time) {
-        raceHighScores[level][player].time = time;
-        saveScores(); // Save only if it's a new best
-      }
+      console.log(parsedTime);
     }
 
     io.emit('highScoreUpdate', getScores());
@@ -206,4 +245,8 @@ r.context.disconnectSocket = (id) => {
 
 // Start server
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+(async () => {
+  await loadHighScores();
+  server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+})();

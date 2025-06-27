@@ -18,4 +18,6 @@ export default class FinishLine extends Pickup {
 
         this.scene.network.socket.emit('highScoreRequest', { level, time, player })
     }
+
+    hit() {}
 }

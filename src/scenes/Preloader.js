@@ -52,6 +52,7 @@ export default class Preloader extends Phaser.Scene {
         this.load.tilemapTiledJSON('tilemapHome', 'assets/tilemapHome.json');
         this.load.tilemapTiledJSON('tilemap1', 'assets/tilemap3.json')
         this.load.tilemapTiledJSON('tilemap2', 'assets/tilemap2.json')
+        this.load.tilemapTiledJSON('tilemap6', 'assets/tilemap6.json')
 
         this.load.spritesheet('dudesheet', 'assets/DudeSheet.png', {
             frameWidth: 256,

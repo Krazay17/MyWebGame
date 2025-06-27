@@ -74,13 +74,15 @@ export default class Home extends BaseGame {
         }
 
         const portal3 = this.portals.create(3350, 2100, 'portal3').setScale(.2).play('portal3').setTint(0x00FF00);
-        const portal5 = this.portals.create(2050, 2050, 'portal3').setScale(.2).play('portal3').setTint(0x0000FF);
+        const portal5 = this.portals.create(2050, 2050, 'portal3').setScale(.2).play('portal3').setTint(0x00FFFF);
+        const portal6 = this.portals.create(1070, 1860, 'portal3').setScale(.2).play('portal3').setTint(0x0000FF);
 
         this.shrinkCollision(portal0, 125, 125);
         this.shrinkCollision(portal1, 125, 125);
         this.shrinkCollision(portal2, 125, 125);
         this.shrinkCollision(portal3, 125, 125);
         this.shrinkCollision(portal5, 125, 125);
+        this.shrinkCollision(portal6, 125, 125);
 
         const portalsToSpin = [
             { sprite: portal0, angle: -360, duration: 1500 },
@@ -116,6 +118,7 @@ export default class Home extends BaseGame {
         portal1.targetScene = 'Level3';
         portal3.targetScene = 'Level4';
         portal5.targetScene = 'Level5';
+        portal6.targetScene = 'Level6';
 
         this.physics.add.overlap(this.player, this.portals, (player, portal) => {
             if (portal.targetScene && this.scene.key !== portal.targetScene) {
@@ -146,6 +149,10 @@ export default class Home extends BaseGame {
                 case 'Level5':
                     x = 2050;
                     y = 2050;
+                    break;
+                case 'Level6':
+                    x = 1070;
+                    y = 1860;
                     break;
             }
 

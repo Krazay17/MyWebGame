@@ -1,0 +1,22 @@
+import BaseGame from "./_basegame";
+
+export default class Level6 extends BaseGame {
+    constructor() {
+        super('Level6');
+
+    }
+    preload() {
+
+        this.load.tilemapTiledJSON('tilemap6', 'assets/tilemap6.json')
+    }
+
+    create() {
+        this.setupSky({ sky1: 'redsky0' });
+        this.setupWorld(0, 0, 6400, 6400);
+        this.setupPlayer();
+        this.setupGroups();
+        this.setupTileMap('tilemap6');
+        this.setupCollisions();
+        this.setupMusic();
+    }
+}

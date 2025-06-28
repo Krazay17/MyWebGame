@@ -277,8 +277,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         // this.scene.setupRaceTimer();
         // this.spectatePlayer(false);
         // this.scene.physics?.resume();
-        const respawnLoc = this.scene.tileObjects?.objects.find(obj => obj.name === 'spawnPlayer');
-        this.setPosition(respawnLoc?.x, respawnLoc?.y)
+        GameManager.useLastLocation = false;
+        GameManager.stats.health = 25;
+        GameManager.save();
         this.scene.scene.restart()
     }
 

@@ -267,16 +267,19 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     respawnPlayer() {
+        // const respawnLoc = this.scene.tileObjects?.objects.find(obj => obj.name === 'spawnPlayer');
+        // this.gameOverText?.destroy();
+        // this.setPosition(respawnLoc?.x, respawnLoc?.y)
+        // this.setVelocity(0, 0);
+        // this.setStats();
+        // this.clearTint();
+        // this.alive = true;
+        // this.scene.setupRaceTimer();
+        // this.spectatePlayer(false);
+        // this.scene.physics?.resume();
         const respawnLoc = this.scene.tileObjects?.objects.find(obj => obj.name === 'spawnPlayer');
-        this.gameOverText?.destroy();
         this.setPosition(respawnLoc?.x, respawnLoc?.y)
-        this.setVelocity(0, 0);
-        this.setStats();
-        this.clearTint();
-        this.alive = true;
-        this.scene.setupRaceTimer();
-        this.spectatePlayer(false);
-        this.scene.physics?.resume();
+        this.scene.scene.restart()
     }
 
     // touchWall(player, platform) {
@@ -344,8 +347,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         const { left, right, jump, dash, crouch, heal, slam } = input;
 
         if (dash && this.canDash && !this.isDashing) return this.setState('dash', input);
-        if (jump && this.canJump) return this.setState('jump', input);
         if ((slam && !this.slamCD && !this.body.blocked.down)) return this.setState('slam', input);
+        if (jump && this.canJump) return this.setState('jump', input);
         if (heal) return this.setState('heal');
         if ((crouch)) return this.setState('crouch', input);
         if (this.wallRunning) return this.setState('wallRun', input);
@@ -846,6 +849,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                         } else {
                             this.setState('idle');
                         }
+                    }
+                    if(input.crouch && !this.slamCD) {
+                        this.stateLockout = 0;
+                        this.setState('slam', input);
                     }
                 },
                 exit: () => {

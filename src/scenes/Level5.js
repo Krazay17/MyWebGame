@@ -5,10 +5,6 @@ export default class Level5 extends BaseGame {
         super('Level5');
 
     }
-    preload() {
-
-        this.load.tilemapTiledJSON('tilemap5', 'assets/tilemap5.json')
-    }
 
     create() {
         this.setupSky({ sky1: 'redsky0' });

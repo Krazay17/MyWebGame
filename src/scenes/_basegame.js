@@ -97,7 +97,7 @@ export default class BaseGame extends Phaser.Scene {
     this.sky1.setPosition(width / 2, height / 2);
   }
 
-  setupPlayer(x = 0, y = 0) {
+  setupPlayer(x = 111, y = 111) {
     const locationX = GameManager.useLastLocation ? GameManager.location.x : x;
     const locationY = GameManager.useLastLocation ? GameManager.location.y : y;
 

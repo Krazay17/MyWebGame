@@ -47,7 +47,7 @@ export default class Level3 extends BaseGame {
         const y = this.player.y;
         const yd = Math.max(0, y / 12000);
 
-        this.batTimer.delay = this.lerp(25, 1250, yd);
+        this.batTimer.delay = this.lerp(25, 3000, yd);
         this.sunManHealth = this.lerp(100, 3, yd);
         this.sunTimer.delay = this.lerp(250, 6000, yd);
 

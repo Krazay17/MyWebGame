@@ -1,20 +1,18 @@
 import BaseGame from "./_basegame";
 
-export default class Level4 extends BaseGame {
+export default class Level7 extends BaseGame {
     constructor() {
-        super('Level4');
+        super('Level7');
 
     }
 
     create() {
-
         this.setupSky({ sky1: 'redsky0' });
-        this.setupWorld(0, 0, 7104, 30304);
+        this.setupWorld(0, 0, 6400, 6400);
         this.setupPlayer();
         this.setupGroups();
-        this.setupTileMap('tilemap4');
+        this.setupTileMap('tilemap7');
         this.setupCollisions();
         this.setupMusic();
-
     }
 }

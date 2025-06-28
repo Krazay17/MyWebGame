@@ -41,7 +41,12 @@ export default class PlayerUI extends Phaser.Scene {
             delay: 200,
             loop: true,
             callback: () => {
-                this.fpsText.setText(`FPS: ${Math.floor(this.game.loop.actualFps)}`
+                let hardwareAccellWarning = '';
+                if (this.game.loop.actualFps < 30) {
+                    hardwareAccellWarning = '   TURN ON HARDWARE ACCELERATION!!';
+                    this.fpsText.setColor('#FF0000');
+                }
+                this.fpsText.setText(`FPS: ${Math.floor(this.game.loop.actualFps)}` + hardwareAccellWarning
                     + '\nLoc: ' + Math.round(this.player.x) + ', ' + Math.round(this.player.y));
             }
         });

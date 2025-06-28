@@ -9,6 +9,7 @@ import DashBuff from "./dashBuff.js";
 import { getProperty } from "../myFunctions.js";
 import Portal from "./portal.js";
 import FinishLine from "./finishLine.js";
+import LaserSprite from "../weapons/laserSprite.js";
 
 export default class SpawnManager {
     static instance;
@@ -247,5 +248,9 @@ export default class SpawnManager {
             })
 
         });
+    }
+
+    spawnLaser(x, y, obj) {
+        const laser = new LaserSprite(this.scene, x, y, this.player, obj)
     }
 }

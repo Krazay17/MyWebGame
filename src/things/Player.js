@@ -277,6 +277,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         // this.scene.setupRaceTimer();
         // this.spectatePlayer(false);
         // this.scene.physics?.resume();
+        this.setVelocity(0, 0);
         GameManager.useLastLocation = false;
         GameManager.stats.health = 25;
         GameManager.save();
@@ -322,6 +323,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     handleInput(time, delta) {
+        if (!this.body || !this.body.velocity) return;
+
         if (!this.stunned && this.alive && !this.chatting) {
 
             const input = this.getInput();
@@ -372,6 +375,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     setState(newState, input) {
+        if (!this.scene) return;
         if (this.scene.time.now < this.stateLockout) return;
         if (newState === this.currentState) return;
 
@@ -392,8 +396,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     setupStates() {
-        this.currentState = 'idle';
         this.stateLockout = 0;
+        this.currentState = 'idle';
         this.slidePower = 0;
         this.slamCD = 0;
         this.healCD = 0;
@@ -825,7 +829,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     this.startDash = this.dashSpeed * this.dir;
                     this.endDash = this.startDash / 3;
 
-                    this.scene.time.addEvent({
+                    this.thisDashCooldownTimer = this.scene.time.addEvent({
                         delay: 650,
                         callback: () => {
                             this.canResetDash = true;
@@ -839,8 +843,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
                     const t = Phaser.Math.Clamp((this.dashTime) / this.dashDuration, 0, 1);
                     const currentSpeed = lerp(this.startDash, this.endDash, t)
-                    this.setVelocityX(currentSpeed);
-                    this.setVelocityY(0);
+                    if (isNaN(currentSpeed)) {
+
+                        this.setVelocityX(0);
+                    } else {
+                        this.setVelocityX(currentSpeed);
+                        this.setVelocityY(0);
+                    }
 
                     if (this.body.blocked.left || this.body.blocked.right) {
                         this.stateLockout = 0;
@@ -851,7 +860,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                             this.setState('idle');
                         }
                     }
-                    if(input.crouch && !this.slamCD) {
+                    if (input.crouch && !this.slamCD) {
                         this.stateLockout = 0;
                         this.setState('slam', input);
                     }
@@ -1385,6 +1394,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         // this.scene.physics.world.collide(this, this.scene.walls);
 
         // this.body.updateFromGameObject();
+    }
+
+    hitLaser(wall) {
+        console.log('hit lasorr');
+        const x = wall.getCenterX();
+        const y = wall.getCenterY();
+        this.TakeDamage(x, y, 1);
     }
 
 

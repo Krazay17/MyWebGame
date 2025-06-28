@@ -5,6 +5,7 @@ export default class ZapSprite extends Phaser.GameObjects.TileSprite {
         this.player = player;
         this.target = target;
         this.setOrigin(0, 0.5);
+        this.setTint('0x00FF00');
         //this.updateZapLine();
 
         scene.add.existing(this);

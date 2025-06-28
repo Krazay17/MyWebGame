@@ -18,7 +18,7 @@ export default class BaseGame extends Phaser.Scene {
   }
 
   update(time, delta) {
-    if (this.player) this.player.handleInput(time, delta);
+    if (this.player && this.playerSpawned) this.player.handleInput(time, delta);
 
     // if (this.network) {
     //   this.network.socket.emit('playerMove', {
@@ -102,6 +102,9 @@ export default class BaseGame extends Phaser.Scene {
     const locationY = GameManager.useLastLocation ? GameManager.location.y : y;
 
     this.player = new Player(this, locationX, locationY);
+    if (GameManager.useLastLocation) {
+      this.playerSpawned = true;
+    }
     this.cameras.main.startFollow(this.player, false, .05, .05);
 
 
@@ -150,6 +153,7 @@ export default class BaseGame extends Phaser.Scene {
       GameManager.location.x = x;
       GameManager.location.y = y;
       GameManager.useLastLocation = true;
+      this.playerSpawned = true;
     }
   }
 
@@ -162,12 +166,15 @@ export default class BaseGame extends Phaser.Scene {
     this.walls = this.tilemap.createLayer('walls', this.tileset, 0, 0);
     this.walls2 = this.tilemap.createLayer('walls2', this.tileset, 0, 0);
 
-    this.walls.setCollisionByExclusion([-1]); // excludes only empty tiles
-    this.walls2.setCollisionByExclusion([-1]); // excludes only empty tiles
-    this.tilemapColliders = [
-      { walls: this.walls, handler: 'touchWall' },
-      { walls: this.walls2, handler: 'touchFireWall' },
-    ];
+    if (this.walls && this.walls2) {
+      this.walls.setCollisionByExclusion([-1]); // excludes only empty tiles
+      this.walls2.setCollisionByExclusion([-1]); // excludes only empty tiles
+
+      this.tilemapColliders = [
+        { walls: this.walls, handler: 'touchWall' },
+        { walls: this.walls2, handler: 'touchFireWall' },
+      ];
+    }
 
     if (!this.tilemap) return;
 

@@ -8,18 +8,6 @@ export default class Home extends BaseGame {
         super('Home');
     }
 
-    preload() {
-        super.preload();
-        this.load.image('platformwide', 'assets/platformwide.png');
-        this.load.image('portal0', 'assets/Portal1.png');
-        this.load.image('portal1', 'assets/Portal2.png');
-        this.load.image('largeplatform', 'assets/LargePlatform.webp');
-        this.load.spritesheet('portal3', 'assets/greenPortal.png', {
-            frameWidth: 1024,
-            frameHeight: 1024,
-        })
-    }
-
     create() {
         this.setupSky();
         this.setupWorld(0, 0, 6400, 6400);
@@ -61,7 +49,7 @@ export default class Home extends BaseGame {
         const portal02 = this.add.image(800, 400, 'portal0');
         portal02.flipX = true;
 
-        const portal1 = this.portals.create(2300, 2930, 'portal1');
+        //const portal1 = this.portals.create(2300, 2930, 'portal1');
         const portal2 = this.portals.create(3860, 2430, 'door0').setScale(.25);
 
         if (!this.anims.get('portal3')) {
@@ -73,16 +61,19 @@ export default class Home extends BaseGame {
             });
         }
 
+        const portal1 = this.portals.create(3200, 2650, 'portal3').setScale(.2).play('portal3').setTint(0xFF0000)
         const portal3 = this.portals.create(3350, 2100, 'portal3').setScale(.2).play('portal3').setTint(0x00FF00);
         const portal5 = this.portals.create(2050, 2050, 'portal3').setScale(.2).play('portal3').setTint(0x00FFFF);
         const portal6 = this.portals.create(1070, 1860, 'portal3').setScale(.2).play('portal3').setTint(0x0000FF);
-
-        this.shrinkCollision(portal0, 125, 125);
-        this.shrinkCollision(portal1, 125, 125);
-        this.shrinkCollision(portal2, 125, 125);
-        this.shrinkCollision(portal3, 125, 125);
-        this.shrinkCollision(portal5, 125, 125);
-        this.shrinkCollision(portal6, 125, 125);
+        const portal7 = this.portals.create(4084, 3260, 'portal3').setScale(.2).play('portal3');
+        
+        this.shrinkCollision(portal0, 140, 140);
+        this.shrinkCollision(portal1, 140, 140);
+        this.shrinkCollision(portal2, 140, 140);
+        this.shrinkCollision(portal3, 140, 140);
+        this.shrinkCollision(portal5, 140, 140);
+        this.shrinkCollision(portal6, 140, 140);
+        this.shrinkCollision(portal7, 140, 140);
 
         const portalsToSpin = [
             { sprite: portal0, angle: -360, duration: 1500 },
@@ -97,28 +88,13 @@ export default class Home extends BaseGame {
             });
         });
 
-        this.tweens.add({
-            targets: portal1,
-            scaleX: 1,
-            scaleY: 1,
-            ease: 'Sine.easeInOut',
-            duration: 500,
-            yoyo: false,
-            repeat: -1,
-            onRepeat: (tween) => {
-                const newScale = Phaser.Math.FloatBetween(0.3, .5);
-                tween.updateTo('scaleX', newScale, true);
-                tween.updateTo('scaleY', newScale, true);
-            }
-        });
-
-
         portal0.targetScene = 'Level1';
         portal2.targetScene = 'Level2';
         portal1.targetScene = 'Level3';
         portal3.targetScene = 'Level4';
         portal5.targetScene = 'Level5';
         portal6.targetScene = 'Level6';
+        portal7.targetScene = 'Level7';
 
         this.physics.add.overlap(this.player, this.portals, (player, portal) => {
             if (portal.targetScene && this.scene.key !== portal.targetScene) {

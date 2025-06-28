@@ -37,6 +37,11 @@ export default class Preloader extends Phaser.Scene {
         this.load.image('duckman', 'assets/duckman.png');
         this.load.image('turret', 'assets/TurretPlatform.png');
         this.load.image('finishline', 'assets/finishLine.png');
+        this.load.image('platformwide', 'assets/platformwide.png');
+        this.load.image('portal0', 'assets/Portal1.png');
+        this.load.image('portal1', 'assets/Portal2.png');
+        this.load.image('largeplatform', 'assets/LargePlatform.webp');
+        this.load.image('redsky0', 'assets/RedSky0.webp');
 
         this.load.audio('music0', 'assets/music0.mp3');
         this.load.audio('music1', 'assets/music1.mp3');
@@ -52,9 +57,16 @@ export default class Preloader extends Phaser.Scene {
         this.load.tilemapTiledJSON('tilemapHome', 'assets/tilemapHome.json');
         this.load.tilemapTiledJSON('tilemap1', 'assets/tilemap3.json')
         this.load.tilemapTiledJSON('tilemap2', 'assets/tilemap2.json')
+        this.load.tilemapTiledJSON('tilemap4', 'assets/mapriseyaya.json')
         this.load.tilemapTiledJSON('tilemap5', 'assets/tilemap5.json')
         this.load.tilemapTiledJSON('tilemap6', 'assets/tilemap6.json')
+        this.load.tilemapTiledJSON('tilemap7', 'assets/tilemap7.json')
 
+        
+        this.load.spritesheet('portal3', 'assets/greenPortal.png', {
+            frameWidth: 1024,
+            frameHeight: 1024,
+        });
         this.load.spritesheet('dudesheet', 'assets/DudeSheet.png', {
             frameWidth: 256,
             frameHeight: 256,

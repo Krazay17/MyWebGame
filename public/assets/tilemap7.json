@@ -202,65 +202,16 @@
                  "name":"spawnLaser",
                  "properties":[
                         {
-                         "name":"index",
+                         "name":"length",
                          "type":"int",
-                         "value":1
-                        }, 
-                        {
-                         "name":"otherLaser",
-                         "type":"int",
-                         "value":2
+                         "value":320
                         }],
-                 "rotation":0,
+                 "rotation":-90,
                  "type":"",
                  "visible":true,
                  "width":25.3333333333333,
-                 "x":1582.66666666667,
-                 "y":2564
-                }, 
-                {
-                 "height":36.0000333333337,
-                 "id":228,
-                 "name":"spawnLaser",
-                 "properties":[
-                        {
-                         "name":"index",
-                         "type":"int",
-                         "value":2
-                        }, 
-                        {
-                         "name":"otherLaser",
-                         "type":"int",
-                         "value":1
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":33.3333,
-                 "x":1582.00001666667,
-                 "y":2881.99998333333
-                }, 
-                {
-                 "height":30.6667,
-                 "id":229,
-                 "name":"spawnLaser",
-                 "properties":[
-                        {
-                         "name":"index",
-                         "type":"int",
-                         "value":3
-                        }, 
-                        {
-                         "name":"otherLaser",
-                         "type":"int",
-                         "value":4
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":25.3333,
-                 "x":1360,
-                 "y":2340
+                 "x":1583.66666666667,
+                 "y":2880
                 }, 
                 {
                  "height":30.6667,
@@ -273,48 +224,21 @@
                          "value":true
                         }, 
                         {
-                         "name":"index",
+                         "name":"length",
                          "type":"int",
-                         "value":4
-                        }, 
-                        {
-                         "name":"otherLaser",
-                         "type":"int",
-                         "value":3
+                         "value":250
                         }, 
                         {
                          "name":"start",
                          "type":"int",
                          "value":2400
                         }],
-                 "rotation":0,
+                 "rotation":-90,
                  "type":"",
                  "visible":true,
                  "width":25.3333,
-                 "x":1360,
-                 "y":2100
-                }, 
-                {
-                 "height":30.6667,
-                 "id":231,
-                 "name":"spawnLaser",
-                 "properties":[
-                        {
-                         "name":"index",
-                         "type":"int",
-                         "value":5
-                        }, 
-                        {
-                         "name":"otherLaser",
-                         "type":"int",
-                         "value":6
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":25.3333,
-                 "x":1460,
-                 "y":2340
+                 "x":1364,
+                 "y":2345
                 }, 
                 {
                  "height":30.6667,
@@ -327,48 +251,21 @@
                          "value":true
                         }, 
                         {
-                         "name":"index",
+                         "name":"length",
                          "type":"int",
-                         "value":6
-                        }, 
-                        {
-                         "name":"otherLaser",
-                         "type":"int",
-                         "value":5
+                         "value":250
                         }, 
                         {
                          "name":"start",
                          "type":"int",
                          "value":2000
                         }],
-                 "rotation":0,
+                 "rotation":-90,
                  "type":"",
                  "visible":true,
                  "width":25.3333,
-                 "x":1460,
-                 "y":2100
-                }, 
-                {
-                 "height":30.6667,
-                 "id":233,
-                 "name":"spawnLaser",
-                 "properties":[
-                        {
-                         "name":"index",
-                         "type":"int",
-                         "value":7
-                        }, 
-                        {
-                         "name":"otherLaser",
-                         "type":"int",
-                         "value":8
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":25.3333,
-                 "x":1551.33333333333,
-                 "y":2340
+                 "x":1464,
+                 "y":2345
                 }, 
                 {
                  "height":30.6667,
@@ -381,48 +278,21 @@
                          "value":true
                         }, 
                         {
-                         "name":"index",
+                         "name":"length",
                          "type":"int",
-                         "value":8
-                        }, 
-                        {
-                         "name":"otherLaser",
-                         "type":"int",
-                         "value":7
+                         "value":250
                         }, 
                         {
                          "name":"start",
                          "type":"int",
                          "value":1600
                         }],
-                 "rotation":0,
+                 "rotation":-90,
                  "type":"",
                  "visible":true,
                  "width":25.3333,
-                 "x":1551.33333333333,
-                 "y":2100
-                }, 
-                {
-                 "height":30.6667,
-                 "id":235,
-                 "name":"spawnLaser",
-                 "properties":[
-                        {
-                         "name":"index",
-                         "type":"int",
-                         "value":9
-                        }, 
-                        {
-                         "name":"otherLaser",
-                         "type":"int",
-                         "value":10
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":25.3333,
-                 "x":1650,
-                 "y":2340
+                 "x":1555.33333333333,
+                 "y":2345
                 }, 
                 {
                  "height":30.6667,
@@ -435,48 +305,21 @@
                          "value":true
                         }, 
                         {
-                         "name":"index",
+                         "name":"length",
                          "type":"int",
-                         "value":10
-                        }, 
-                        {
-                         "name":"otherLaser",
-                         "type":"int",
-                         "value":9
+                         "value":250
                         }, 
                         {
                          "name":"start",
                          "type":"int",
                          "value":1200
                         }],
-                 "rotation":0,
+                 "rotation":-90,
                  "type":"",
                  "visible":true,
                  "width":25.3333,
-                 "x":1650,
-                 "y":2100
-                }, 
-                {
-                 "height":30.6667,
-                 "id":237,
-                 "name":"spawnLaser",
-                 "properties":[
-                        {
-                         "name":"index",
-                         "type":"int",
-                         "value":11
-                        }, 
-                        {
-                         "name":"otherLaser",
-                         "type":"int",
-                         "value":12
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":25.3333,
-                 "x":1745,
-                 "y":2340
+                 "x":1654,
+                 "y":2345
                 }, 
                 {
                  "height":30.6667,
@@ -489,48 +332,21 @@
                          "value":true
                         }, 
                         {
-                         "name":"index",
+                         "name":"length",
                          "type":"int",
-                         "value":12
-                        }, 
-                        {
-                         "name":"otherLaser",
-                         "type":"int",
-                         "value":11
+                         "value":250
                         }, 
                         {
                          "name":"start",
                          "type":"int",
                          "value":800
                         }],
-                 "rotation":0,
+                 "rotation":-90,
                  "type":"",
                  "visible":true,
                  "width":25.3333,
-                 "x":1745,
-                 "y":2100
-                }, 
-                {
-                 "height":30.6667,
-                 "id":239,
-                 "name":"spawnLaser",
-                 "properties":[
-                        {
-                         "name":"index",
-                         "type":"int",
-                         "value":13
-                        }, 
-                        {
-                         "name":"otherLaser",
-                         "type":"int",
-                         "value":14
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":25.3333,
-                 "x":1840,
-                 "y":2340
+                 "x":1749,
+                 "y":2345
                 }, 
                 {
                  "height":30.6667,
@@ -543,48 +359,21 @@
                          "value":true
                         }, 
                         {
-                         "name":"index",
+                         "name":"length",
                          "type":"int",
-                         "value":14
-                        }, 
-                        {
-                         "name":"otherLaser",
-                         "type":"int",
-                         "value":13
+                         "value":250
                         }, 
                         {
                          "name":"start",
                          "type":"int",
                          "value":400
                         }],
-                 "rotation":0,
+                 "rotation":-90,
                  "type":"",
                  "visible":true,
                  "width":25.3333,
-                 "x":1840,
-                 "y":2100
-                }, 
-                {
-                 "height":30.6667,
-                 "id":241,
-                 "name":"spawnLaser",
-                 "properties":[
-                        {
-                         "name":"index",
-                         "type":"int",
-                         "value":15
-                        }, 
-                        {
-                         "name":"otherLaser",
-                         "type":"int",
-                         "value":16
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":25.3333,
-                 "x":1940,
-                 "y":2340
+                 "x":1844,
+                 "y":2345
                 }, 
                 {
                  "height":30.6667,
@@ -597,26 +386,21 @@
                          "value":true
                         }, 
                         {
-                         "name":"index",
+                         "name":"length",
                          "type":"int",
-                         "value":16
-                        }, 
-                        {
-                         "name":"otherLaser",
-                         "type":"int",
-                         "value":15
+                         "value":250
                         }, 
                         {
                          "name":"start",
                          "type":"int",
                          "value":0
                         }],
-                 "rotation":0,
+                 "rotation":-90,
                  "type":"",
                  "visible":true,
                  "width":25.3333,
-                 "x":1940,
-                 "y":2100
+                 "x":1944,
+                 "y":2345
                 }, 
                 {
                  "height":0,
@@ -799,28 +583,6 @@
                  "y":711.000016666666
                 }, 
                 {
-                 "height":23.6667000000002,
-                 "id":256,
-                 "name":"spawnLaser",
-                 "properties":[
-                        {
-                         "name":"index",
-                         "type":"int",
-                         "value":17
-                        }, 
-                        {
-                         "name":"otherLaser",
-                         "type":"int",
-                         "value":18
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":11.3333,
-                 "x":1428,
-                 "y":520
-                }, 
-                {
                  "height":18.6667000000002,
                  "id":257,
                  "name":"spawnLaser",
@@ -831,9 +593,9 @@
                          "value":true
                         }, 
                         {
-                         "name":"index",
+                         "name":"length",
                          "type":"int",
-                         "value":18
+                         "value":100
                         }, 
                         {
                          "name":"offTime",
@@ -844,40 +606,13 @@
                          "name":"onTime",
                          "type":"int",
                          "value":2500
-                        }, 
-                        {
-                         "name":"otherLaser",
-                         "type":"int",
-                         "value":17
                         }],
-                 "rotation":0,
+                 "rotation":-90,
                  "type":"",
                  "visible":true,
                  "width":14.3333,
                  "x":1428,
-                 "y":430
-                }, 
-                {
-                 "height":23.6667,
-                 "id":258,
-                 "name":"spawnLaser",
-                 "properties":[
-                        {
-                         "name":"index",
-                         "type":"int",
-                         "value":19
-                        }, 
-                        {
-                         "name":"otherLaser",
-                         "type":"int",
-                         "value":20
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":11.3333,
-                 "x":1490,
-                 "y":520
+                 "y":519.333333333333
                 }, 
                 {
                  "height":18.6667,
@@ -890,9 +625,9 @@
                          "value":true
                         }, 
                         {
-                         "name":"index",
+                         "name":"length",
                          "type":"int",
-                         "value":20
+                         "value":100
                         }, 
                         {
                          "name":"offTime",
@@ -903,40 +638,13 @@
                          "name":"onTime",
                          "type":"int",
                          "value":2500
-                        }, 
-                        {
-                         "name":"otherLaser",
-                         "type":"int",
-                         "value":19
                         }],
-                 "rotation":0,
+                 "rotation":-90,
                  "type":"",
                  "visible":true,
                  "width":14.3333,
                  "x":1490,
-                 "y":430
-                }, 
-                {
-                 "height":23.6667,
-                 "id":260,
-                 "name":"spawnLaser",
-                 "properties":[
-                        {
-                         "name":"index",
-                         "type":"int",
-                         "value":21
-                        }, 
-                        {
-                         "name":"otherLaser",
-                         "type":"int",
-                         "value":22
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":11.3333,
-                 "x":1550,
-                 "y":520
+                 "y":519.333333333333
                 }, 
                 {
                  "height":18.6667,
@@ -949,9 +657,9 @@
                          "value":true
                         }, 
                         {
-                         "name":"index",
+                         "name":"length",
                          "type":"int",
-                         "value":22
+                         "value":100
                         }, 
                         {
                          "name":"offTime",
@@ -962,40 +670,13 @@
                          "name":"onTime",
                          "type":"int",
                          "value":2500
-                        }, 
-                        {
-                         "name":"otherLaser",
-                         "type":"int",
-                         "value":21
                         }],
-                 "rotation":0,
+                 "rotation":-90,
                  "type":"",
                  "visible":true,
                  "width":14.3333,
                  "x":1550,
-                 "y":430
-                }, 
-                {
-                 "height":23.6667,
-                 "id":262,
-                 "name":"spawnLaser",
-                 "properties":[
-                        {
-                         "name":"index",
-                         "type":"int",
-                         "value":23
-                        }, 
-                        {
-                         "name":"otherLaser",
-                         "type":"int",
-                         "value":24
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":11.3333,
-                 "x":1620,
-                 "y":520
+                 "y":519.333333333333
                 }, 
                 {
                  "height":18.6667,
@@ -1008,9 +689,9 @@
                          "value":true
                         }, 
                         {
-                         "name":"index",
+                         "name":"length",
                          "type":"int",
-                         "value":24
+                         "value":100
                         }, 
                         {
                          "name":"offTime",
@@ -1021,40 +702,13 @@
                          "name":"onTime",
                          "type":"int",
                          "value":2500
-                        }, 
-                        {
-                         "name":"otherLaser",
-                         "type":"int",
-                         "value":23
                         }],
-                 "rotation":0,
+                 "rotation":-90,
                  "type":"",
                  "visible":true,
                  "width":14.3333,
                  "x":1620,
-                 "y":430
-                }, 
-                {
-                 "height":23.6667,
-                 "id":264,
-                 "name":"spawnLaser",
-                 "properties":[
-                        {
-                         "name":"index",
-                         "type":"int",
-                         "value":25
-                        }, 
-                        {
-                         "name":"otherLaser",
-                         "type":"int",
-                         "value":26
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":11.3333,
-                 "x":1680,
-                 "y":520
+                 "y":519.333333333333
                 }, 
                 {
                  "height":18.6667,
@@ -1067,9 +721,9 @@
                          "value":true
                         }, 
                         {
-                         "name":"index",
+                         "name":"length",
                          "type":"int",
-                         "value":26
+                         "value":100
                         }, 
                         {
                          "name":"offTime",
@@ -1080,40 +734,13 @@
                          "name":"onTime",
                          "type":"int",
                          "value":2500
-                        }, 
-                        {
-                         "name":"otherLaser",
-                         "type":"int",
-                         "value":25
                         }],
-                 "rotation":0,
+                 "rotation":-90,
                  "type":"",
                  "visible":true,
                  "width":14.3333,
                  "x":1680,
-                 "y":430
-                }, 
-                {
-                 "height":23.6667,
-                 "id":266,
-                 "name":"spawnLaser",
-                 "properties":[
-                        {
-                         "name":"index",
-                         "type":"int",
-                         "value":27
-                        }, 
-                        {
-                         "name":"otherLaser",
-                         "type":"int",
-                         "value":28
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":11.3333,
-                 "x":1745,
-                 "y":520
+                 "y":519.333333333333
                 }, 
                 {
                  "height":18.6667,
@@ -1126,9 +753,9 @@
                          "value":true
                         }, 
                         {
-                         "name":"index",
+                         "name":"length",
                          "type":"int",
-                         "value":28
+                         "value":100
                         }, 
                         {
                          "name":"offTime",
@@ -1139,18 +766,13 @@
                          "name":"onTime",
                          "type":"int",
                          "value":2500
-                        }, 
-                        {
-                         "name":"otherLaser",
-                         "type":"int",
-                         "value":27
                         }],
-                 "rotation":0,
+                 "rotation":-90,
                  "type":"",
                  "visible":true,
                  "width":14.3333,
                  "x":1745,
-                 "y":430
+                 "y":519.333333333333
                 }, 
                 {
                  "height":43.6667,

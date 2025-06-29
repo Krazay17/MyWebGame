@@ -8,23 +8,21 @@ export default class LaserSprite extends Phaser.GameObjects.TileSprite {
         this.props = getProperty(obj);
         const props = this.props;
 
+        this.length = props.length;
+
         if (!this.scene.laserList) {
             this.scene.laserList = {}
         }
         this.scene.laserList[props?.index] = this;
-        this.target = this.scene.laserList[props?.otherLaser];
 
         if (props.doesFlicker) {
             this.flicker();
         }
 
+        this.rotation = Phaser.Math.DegToRad(obj.rotation);
         this.setOrigin(0, 0.5);
         this.setTint('0xFF0000');
         scene.add.existing(this);
-
-        if (!this.target) this.deactivate();
-        //this.updateZapLine();
-
     }
 
     init(target) {
@@ -34,7 +32,7 @@ export default class LaserSprite extends Phaser.GameObjects.TileSprite {
     }
 
     preUpdate(time, delta) {
-        if (!this.target) return;
+        if (!this.active) return;
         this.updateZapLine();
         this.tilePositionX += 10;
         this.boxTrace();
@@ -77,29 +75,34 @@ export default class LaserSprite extends Phaser.GameObjects.TileSprite {
     }
 
     flicker() {
-        if (this.flickerTimer) {
-            this.scene.time.removeEvent(this.flickerTimer)
-        }
+        // if (this.flickerTimer) {
+        //     this.scene.time.removeEvent(this.flickerTimer)
+        // }
         const start = this.props.start || 0;
         const onTime = this.props.onTime || 3000;
         const offTime = this.props.offTime || 1000;
-        console.log(onTime, offTime);
         this.flickerTimer = this.scene.time.addEvent({
             delay: onTime,
             startAt: start,
             loop: true,
             callback: () => {
-                this.deactivate();
-                this.scene.time.delayedCall(offTime, this.activate, null, this)
+                if (this.active) {
+                    console.log('deactivate')
+                    this.deactivate();
+                    this.flickerTimer.delay = offTime;
+                } else {
+                    this.activate();
+                    this.flickerTimer.delay = onTime;
+                }
             }
         })
     }
 
     polygonRay() {
         const start = new Phaser.Math.Vector2(this.x, this.y);
-        const end = new Phaser.Math.Vector2(this.target.x, this.target.y);
-        const dirX = this.x - this.target.x;
-        const dirY = this.y - this.target.y;
+        const end = start.clone().add(this.getForwardVector(this.length))
+        const dirX = this.getForwardVector(this.length).x;
+        const dirY = this.getForwardVector(this.length).y;
 
         // Create perpendicular vector to the direction
         const perp = new Phaser.Math.Vector2(-dirY, dirX).normalize().scale(1);
@@ -122,9 +125,13 @@ export default class LaserSprite extends Phaser.GameObjects.TileSprite {
         return rayRect;
     }
 
+    getForwardVector(length = 100) {
+        return new Phaser.Math.Vector2(Math.cos(this.rotation), Math.sin(this.rotation)).scale(length);
+    }
+
     updateZapLine() {
-        const dx = this.target.x - this.x;
-        const dy = this.target.y - this.y;
+        const dx = this.getForwardVector(this.length).x;
+        const dy = this.getForwardVector(this.length).y;
         const length = Math.sqrt(dx * dx + dy * dy);
         const angle = Math.atan2(dy, dx);
 

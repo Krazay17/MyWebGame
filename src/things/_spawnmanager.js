@@ -253,4 +253,12 @@ export default class SpawnManager {
     spawnLaser(x, y, obj) {
         const laser = new LaserSprite(this.scene, x, y, this.player, obj)
     }
+
+    spawnText(x, y, obj) {
+        const text = this.scene.add.text(x, y, obj.text.text, {
+            fontStyle: 'bold',
+            fontSize: '20px',
+            color: '#FFFFFF',
+        }).setScrollFactor(1);
+    }
 }

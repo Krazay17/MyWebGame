@@ -65,7 +65,7 @@ export default class Home extends BaseGame {
         const portal3 = this.portals.create(3350, 2100, 'portal3').setScale(.2).play('portal3').setTint(0x00FF00);
         const portal5 = this.portals.create(2050, 2050, 'portal3').setScale(.2).play('portal3').setTint(0x00FFFF);
         const portal6 = this.portals.create(1070, 1860, 'portal3').setScale(.2).play('portal3').setTint(0x0000FF);
-        const portal7 = this.portals.create(4084, 3260, 'portal3').setScale(.2).play('portal3');
+        const portal7 = this.portals.create(3980, 3260, 'portal3').setScale(.2).play('portal3');
         
         this.shrinkCollision(portal0, 140, 140);
         this.shrinkCollision(portal1, 140, 140);
@@ -130,6 +130,10 @@ export default class Home extends BaseGame {
                 case 'Level6':
                     x = 1070;
                     y = 1860;
+                    break;
+                case 'Level7':
+                    x = 3980;
+                    y = 3260;
                     break;
             }
 

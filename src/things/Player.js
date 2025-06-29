@@ -1396,11 +1396,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         // this.body.updateFromGameObject();
     }
 
-    hitLaser(wall) {
+    hitLaser(hit) {
         console.log('hit lasorr');
-        const x = wall.getCenterX();
-        const y = wall.getCenterY();
-        this.TakeDamage(x, y, 1);
+        const dirX = this.x - hit.x;
+        const dirY = this.y - hit.y;
+        this.TakeDamage(dirX, dirY, 1, 0);
     }
 
 

@@ -102,6 +102,9 @@ export default class BaseGame extends Phaser.Scene {
     const locationY = GameManager.useLastLocation ? GameManager.location.y : y;
 
     this.player = new Player(this, locationX, locationY);
+    if(this.spawnManager) {
+      this.spawnManager.player = this.player;
+    }
     if (GameManager.useLastLocation) {
       this.playerSpawned = true;
     }
@@ -162,8 +165,8 @@ export default class BaseGame extends Phaser.Scene {
     this.tilemap = this.make.tilemap({ key: tilemap });
     this.tileset = this.tilemap.addTilesetImage(tilesheet, tilesheet);
     this.layer1 = this.tilemap.createLayer('layer1', this.tileset, 0, 0);
-    this.layer2 = this.tilemap.createLayer('layer2', this.tileset, 0, 0);
     this.walls = this.tilemap.createLayer('walls', this.tileset, 0, 0);
+    this.layer2 = this.tilemap.createLayer('layer2', this.tileset, 0, 0);
     this.walls2 = this.tilemap.createLayer('walls2', this.tileset, 0, 0);
 
     if (this.walls && this.walls2) {

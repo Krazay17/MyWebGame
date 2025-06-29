@@ -5,7 +5,8 @@ export default class LaserSprite extends Phaser.GameObjects.TileSprite {
         super(scene, x, y, 0, 16, 'zap');
         // ...
         this.player = player;
-        const props = getProperty(obj);
+        this.props = getProperty(obj);
+        const props = this.props;
 
         if (!this.scene.laserList) {
             this.scene.laserList = {}
@@ -13,10 +14,13 @@ export default class LaserSprite extends Phaser.GameObjects.TileSprite {
         this.scene.laserList[props?.index] = this;
         this.target = this.scene.laserList[props?.otherLaser];
 
+        if (props.doesFlicker) {
+            this.flicker();
+        }
+
         this.setOrigin(0, 0.5);
         this.setTint('0xFF0000');
         scene.add.existing(this);
-        console.log(this.getWorldPoint());
 
         if (!this.target) this.deactivate();
         //this.updateZapLine();
@@ -33,6 +37,7 @@ export default class LaserSprite extends Phaser.GameObjects.TileSprite {
         if (!this.target) return;
         this.updateZapLine();
         this.tilePositionX += 10;
+        this.boxTrace();
     }
 
     deactivate() {
@@ -44,6 +49,7 @@ export default class LaserSprite extends Phaser.GameObjects.TileSprite {
         this.setActive(true);
         this.setVisible(true);
     }
+
     boxTrace() {
         const RectRay = this.polygonRay();
 
@@ -53,21 +59,40 @@ export default class LaserSprite extends Phaser.GameObjects.TileSprite {
         // this.scene.graphics.lineStyle(1, 0x00ff00);
         // this.scene.graphics.strokeLineShape(ray);
 
-        const bounds = this.player.getBounds();
+        const bounds = this.player?.getBounds();
         const closestPoint = getClosestPointOnRect(bounds, this.getWorldPoint());
         const toTarget = closestPoint.clone().subtract(this.getWorldPoint());
         const distanceToTarget = toTarget.length();
 
-        if (distanceToTarget >  200) return;
+        if (distanceToTarget > 200) return;
 
         if (Phaser.Geom.Intersects.RectangleToRectangle(bounds, RectRay)) {
             const hitRec = Phaser.Geom.Rectangle.Intersection(bounds, RectRay);
             const hit = { x: hitRec.centerX, y: hitRec.centerY };
-            this[handler]?.(target, true, hit);
-
+            //this[handler]?.(target, true, hit);
+            this.player.hitLaser(hit);
             // this.scene.graphics.fillStyle(0x00ff00, 0.5);
             // this.scene.graphics.fillRectShape(target.getBounds());
         }
+    }
+
+    flicker() {
+        if (this.flickerTimer) {
+            this.scene.time.removeEvent(this.flickerTimer)
+        }
+        const start = this.props.start || 0;
+        const onTime = this.props.onTime || 3000;
+        const offTime = this.props.offTime || 1000;
+        console.log(onTime, offTime);
+        this.flickerTimer = this.scene.time.addEvent({
+            delay: onTime,
+            startAt: start,
+            loop: true,
+            callback: () => {
+                this.deactivate();
+                this.scene.time.delayedCall(offTime, this.activate, null, this)
+            }
+        })
     }
 
     polygonRay() {
@@ -77,7 +102,7 @@ export default class LaserSprite extends Phaser.GameObjects.TileSprite {
         const dirY = this.y - this.target.y;
 
         // Create perpendicular vector to the direction
-        const perp = new Phaser.Math.Vector2(-dirY, dirX).scale(25);
+        const perp = new Phaser.Math.Vector2(-dirY, dirX).normalize().scale(1);
 
         // Build a rectangle as a polygon from the start point
         const p1 = start.clone().add(perp);
@@ -87,12 +112,12 @@ export default class LaserSprite extends Phaser.GameObjects.TileSprite {
 
         const rayPoly = new Phaser.Geom.Polygon([p1, p2, p3, p4]);
         const rayRect = Phaser.Geom.Polygon.GetAABB(rayPoly);
-        Phaser.Geom.Rectangle.Inflate(rayRect, 1, 1)
+        // Phaser.Geom.Rectangle.Inflate(rayRect, 1, 1)
 
         //Debug draw
-        const graphics = this.scene.add.graphics();
-        graphics.lineStyle(1, 0xffff00);
-        graphics.strokePoints(rayPoly.points, true);
+        // const graphics = this.scene.add.graphics();
+        // graphics.lineStyle(1, 0xffff00);
+        // graphics.strokePoints(rayPoly.points, true);
 
         return rayRect;
     }
@@ -108,4 +133,10 @@ export default class LaserSprite extends Phaser.GameObjects.TileSprite {
     }
 
 
+}
+
+function getClosestPointOnRect(rect, point) {
+    const x = Phaser.Math.Clamp(point.x, rect.left, rect.right);
+    const y = Phaser.Math.Clamp(point.y, rect.top, rect.bottom);
+    return new Phaser.Math.Vector2(x, y);
 }

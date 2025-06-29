@@ -27,25 +27,19 @@ export default class Booster extends Pickup {
     }
 
     playerCollide(player) {
-        if (this.cooldownActive) return; // still on cooldown
         const playerVel = player.body.velocity;
 
-        this.scene.add.tween({
+        if(this.boostTween) {
+            this.scene.tweens.remove(this.boostTween);
+            delete this.boostTween;
+        }
+        this.boostTween = this.scene.add.tween({
             targets: playerVel,
             x: this.boost.x,
             y: this.boost.y,
             ease: 'power4',
             duration: this.props?.duration ?? 200,
         })
-
-        // Start cooldown
-        this.cooldownActive = true;
-        this.scene.time.addEvent({
-            delay: 50,
-            callback: () => {
-                this.cooldownActive = false;
-            }
-        });
     }
 
 

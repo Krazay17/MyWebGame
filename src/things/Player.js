@@ -324,6 +324,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     handleInput(time, delta) {
         if (!this.body || !this.body.velocity) return;
+        if(this.chatting) {
+            this.setState('idle');
+            this.states[this.currentState].update(delta, {}, time);
+        }
 
         if (!this.stunned && this.alive && !this.chatting) {
 
